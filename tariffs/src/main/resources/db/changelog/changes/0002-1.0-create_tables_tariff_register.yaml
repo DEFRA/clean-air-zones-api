@@ -1,0 +1,251 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0002.1-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - createTable:
+            tableName: T_CAZ_CLASS
+            columns:
+              - column:
+                  name: CAZ_CLASS
+                  type: char(1)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: caz_class_pkey
+              - column:
+                  name: CAZ_CLASS_DESC
+                  type: text
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: T_CHARGE_DEFINITION
+            columns:
+              - column:
+                  name: CHARGE_DEFINITION_ID
+                  type: int(5)
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: charge_definition_id_pkey
+              - column:
+                  name: CAZ_NAME
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CAZ_CLASS
+                  type: char(1)
+                  constraints:
+                    nullable: false
+                    references: T_CAZ_CLASS(CAZ_CLASS)
+                    foreignKeyName: caz_class_fk
+              - column:
+                  name: CLEAN_AIR_ZONE_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ACTIVE_CHARGE_START_TIME
+                  type: timestamp
+              - column:
+                  name: ACTIVE_CHARGE_END_TIME
+                  type: timestamp
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: T_TARIFF_DEFINITION
+            columns:
+              - column:
+                  name: TARIFF_ID
+                  type: int(5)
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: tariff_id_pkey
+              - column:
+                  name: CHARGE_DEFINITION_ID
+                  type: int(5)
+                  constraints:
+                    nullable: false
+                    references: T_CHARGE_DEFINITION(CHARGE_DEFINITION_ID)
+                    foreignKeyName: charge_definition_id_fk
+              - column:
+                  name: HGV_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: TAXI_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CAR_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: MINIBUS_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: PHV_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: BUS_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: MOTORCYCLE_ENT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: COACH_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: LARGE_VAN_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: SMALL_VAN_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: MOPED_ENTRANT_FEE
+                  type: numeric(18,2)
+                  defaultValue: 0.0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: T_CAZ_LINK_DETAIL
+            columns:
+              - column:
+                  name: CAZ_LINK_ID
+                  type: int(5)
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: caz_link_id_pkey
+              - column:
+                  name: CHARGE_DEFINITION_ID
+                  type: int(5)
+                  constraints:
+                    nullable: false
+                    references: T_CHARGE_DEFINITION(CHARGE_DEFINITION_ID)
+                    foreignKeyName: charge_definition_id_fk
+              - column:
+                  name: CAZ_IDENTIFIER
+                  type: int(6)
+              - column:
+                  name: MAIN_INFO_URL
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: PRICING_URL
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: OPERATION_HOURS_URL
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: EXEMPTION_URL
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: PAY_CAZ_URL
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: BECOME_COMPLIANT_URL
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: FINANCIAL_ASSISTANCE_URL
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: EMISSIONS_URL
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: BOUNDARY_URL
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 0002.2-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - sql:
+            comment: Create Audit Trigger on all 4 tables
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER T_CAZ_CLASS_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_CAZ_CLASS
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+
+              CREATE TRIGGER T_CHARGE_DEFINITION_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_CHARGE_DEFINITION
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+
+              CREATE TRIGGER T_TARIFF_DEFINITION_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_TARIFF_DEFINITION
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+
+              CREATE TRIGGER T_CAZ_LINK_DETAIL_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_CAZ_LINK_DETAIL
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+            stripComments: true

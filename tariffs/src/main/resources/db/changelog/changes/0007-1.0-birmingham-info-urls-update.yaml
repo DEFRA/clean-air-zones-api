@@ -1,0 +1,48 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0007-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update Birmingham information urls
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            stripComments: true
+            sql: 
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET MAIN_INFO_URL = 'https://www.brumbreathes.co.uk/what-is-the-caz'
+              WHERE CHARGE_DEFINITION_ID = 1;
+              
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET PRICING_URL = ''
+              WHERE CHARGE_DEFINITION_ID = 1;
+              
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET OPERATION_HOURS_URL = 'https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3'
+              WHERE CHARGE_DEFINITION_ID = 1;
+              
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET EXEMPTION_URL = 'https://www.brumbreathes.co.uk/exemptions-and-additional-support'
+              WHERE CHARGE_DEFINITION_ID = 1;
+              
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET PAY_CAZ_URL = ''
+              WHERE CHARGE_DEFINITION_ID = 1;
+              
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET BECOME_COMPLIANT_URL = 'https://www.brumbreathes.co.uk/info/6/upgrading-car/5/upgrading-car-1'
+              WHERE CHARGE_DEFINITION_ID = 1;
+              
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET FINANCIAL_ASSISTANCE_URL = 'https://www.brumbreathes.co.uk/exemptions-and-additional-support'
+              WHERE CHARGE_DEFINITION_ID = 1;
+              
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET EMISSIONS_URL = 'https://www.brumbreathes.co.uk/what-does-it-mean-for-me'
+              WHERE CHARGE_DEFINITION_ID = 1;
+              
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET BOUNDARY_URL = 'https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/2'
+              WHERE CHARGE_DEFINITION_ID = 1;
+              

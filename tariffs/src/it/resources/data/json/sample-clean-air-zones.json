@@ -1,0 +1,14 @@
+{
+  "cleanAirZones": [
+    {
+      "cleanAirZoneId": "0d7ab5c4-5fff-4935-8c4e-56267c0c9493",
+      "name": "Birmingham",
+      "boundaryUrl": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3"
+    },
+    {
+      "cleanAirZoneId": "39e54ed8-3ed2-441d-be3f-38fc9b70c8d3",
+      "name": "Leeds",
+      "boundaryUrl": "https://www.arcgis.com/home/webmap/viewer.html?webmap=de0120ae980b473982a3149ab072fdfc&extent=-1.733%2c53.7378%2c-1.333%2c53.8621"
+    }
+  ]
+}

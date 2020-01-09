@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0004.1-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - sql:
+            comment: Update sample data
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+              UPDATE T_TARIFF_DEFINITION
+              SET HGV_ENTRANT_FEE = 100
+              WHERE TARIFF_ID = 1;
+
+              INSERT INTO T_TARIFF_DEFINITION (TARIFF_ID, CHARGE_DEFINITION_ID, HGV_ENTRANT_FEE,
+              CAR_ENTRANT_FEE, MINIBUS_ENTRANT_FEE, TAXI_ENTRANT_FEE, PHV_ENTRANT_FEE,
+              BUS_ENTRANT_FEE, MOTORCYCLE_ENT_FEE, COACH_ENTRANT_FEE, LARGE_VAN_ENTRANT_FEE,
+              SMALL_VAN_ENTRANT_FEE, MOPED_ENTRANT_FEE)
+              VALUES (3, 1, '50', '8', '50', '8', '8', '50', '0', '50', '50', '8', '0');
+            stripComments: true

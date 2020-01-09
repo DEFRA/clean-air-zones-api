@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0006-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: CHARGE_IDENTIFIER
+                  type: VARCHAR(5)
+            schemaName: public
+            tableName: T_CHARGE_DEFINITION
+        - sql:
+            comment: Update charge_identifier for Leeds and Birmingham
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: UPDATE T_CHARGE_DEFINITION
+              SET CHARGE_IDENTIFIER = 'LCC01'
+              WHERE CAZ_NAME = 'Leeds';
+
+              UPDATE T_CHARGE_DEFINITION
+              SET CHARGE_IDENTIFIER = 'BCC01'
+              WHERE CAZ_NAME = 'Birmingham';
+            stripComments: true
+        - addNotNullConstraint:
+            columnDataType: VARCHAR(5)
+            columnName: CHARGE_IDENTIFIER
+            schemaName: public
+            tableName: T_CHARGE_DEFINITION

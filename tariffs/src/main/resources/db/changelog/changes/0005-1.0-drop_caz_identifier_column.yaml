@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0005-1.0
+      author: patryk.lenza
+      changes:
+        - dropColumn:
+            tableName: T_CAZ_LINK_DETAIL
+            columnName: CAZ_IDENTIFIER

@@ -1,0 +1,82 @@
+application:
+  title: CAZ Tariff/Exemption Service
+
+management:
+  endpoints:
+    web:
+      base-path:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    diskspace:
+      enabled: false
+
+swagger:
+  api:
+    title: Tariff/Exemption Service(API)
+    description: Tariffs, charging rules and exemptions of all Clean Air Zones
+    version: 0.1
+
+  operations:
+    cleanAirZones:
+      description: Array containing Clean Air Zone (CAZ) detail objects
+    tariff:
+      description: Details about Tariff
+
+  model.descriptions:
+    cleanAirZones:
+      cleanAirZoneDetails: List of Clean Air Zones
+    cleanAirZone:
+      cleanAirZoneId: ID of the zone
+      name: Name of Tariff
+      boundaryUrl: URL provided by zone operators, boundary
+    tariff:
+      cleanAirZoneId: ID of the zone
+      name: Name of Tariff
+      traiffClass: Tariff Class
+      chargeIdentifier: Charge Identifier
+      rates: Rates
+      informationUrls: URLs information
+    informationUrl:
+      emissionsStandardsUrl: URL provided by zone operators, emissions standards
+      mainInfoUrl: URL provided by zone operators, clean air zone
+      hoursOfOperationUrl: URL provided by zone operators, hours of operation
+      pricingUrl: URL provided by zone operators, pricing
+      exemptionOrDiscountUrl: URL provided by zone operators, exemption or discount
+      payCazUrl: URL provided by zone operators, pay
+      becomeCompliantUrl: URL provided by zone operators, become compliant
+      financialAssistanceUrl: URL provided by zone operators, financial assistance
+      boundaryUrl: URL provided by zone operators, boundary
+      additionalInfoUrl: URL provided by zone operators, additional info
+    rate:
+      bus: Price for bus
+      coach: Price for coach
+      taxi: Price for taxi
+      phv: Price for phv
+      hgv: Price for hgv
+      largeVan: Price for largeVan
+      miniBus: Price for miniBus
+      smallVan: Price for smallVan
+      car: Price for car
+      motorcycle: Price for motorcycle
+      moped: Price for moped
+
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+    drop-first: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/caz-tariff
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 1
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /v1/swagger-docs

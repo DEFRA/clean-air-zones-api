@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0009.1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - sql:
+            comment: Update additionalInfo
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+                UPDATE public.T_CAZ_LINK_DETAIL
+                SET ADDITIONAL_INFO_URL = 'https://www.brumbreathes.co.uk/what-does-it-mean-for-me'
+                WHERE CHARGE_DEFINITION_ID = 1;
+
+                UPDATE public.T_CAZ_LINK_DETAIL
+                SET ADDITIONAL_INFO_URL = 'https://www.leeds.gov.uk/business/environmental-health-for-business/air-quality?utm_source=Clean_Air_Leeds_Website&utm_medium=referral&utm_term=What_Are_We_Doing'
+                WHERE CHARGE_DEFINITION_ID = 2;
+            stripComments: true
