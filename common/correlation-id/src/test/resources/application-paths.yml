@@ -1,0 +1,5 @@
+uk:
+  gov:
+    caz:
+      correlationid:
+        includedPathPatterns: "/customized/**"

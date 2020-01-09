@@ -1,0 +1,13 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "1289J",
+      "start": "20190819",
+      "end": "20190820",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "la-plate-1",
+      "wheelchairAccessibleVehicle": true
+    }
+  ]
+}

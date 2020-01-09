@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0016-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Updates Validity Code description to match newest ERD.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: UPDATE T_CHARGE_VALIDITY SET VALIDITY_CODE_DESC = 'NON COMPLIANT'
+              WHERE CHARGE_VALIDITY_CODE = 'CVC01';
+
+              UPDATE T_CHARGE_VALIDITY SET VALIDITY_CODE_DESC = 'COMPLIANT'
+              WHERE CHARGE_VALIDITY_CODE = 'CVC03';
+
+              UPDATE T_CHARGE_VALIDITY SET VALIDITY_CODE_DESC = 'UNRECOGNISED'
+              WHERE CHARGE_VALIDITY_CODE = 'CVC04';

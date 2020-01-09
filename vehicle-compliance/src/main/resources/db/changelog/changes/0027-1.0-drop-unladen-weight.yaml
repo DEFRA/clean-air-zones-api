@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0027.1-1.0
+      author: informed
+      changes:
+      - deleteColumn:
+          columns:
+          - column:
+              name: unladenweight
+          schemaName: public
+          tableName: vehicle
+  - changeSet:
+      id: 0027.2-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Add test case for gas/petrol.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: UPDATE vehicle
+              SET expectedtype = ''
+              WHERE registrationNumber = 'CAS380';
+              
+              UPDATE vehicle
+              SET expectedtype = ''
+              WHERE registrationNumber = 'CAS381';
+              
+              UPDATE vehicle
+              SET expectedtype = ''
+              WHERE registrationNumber = 'CAS382';
+              

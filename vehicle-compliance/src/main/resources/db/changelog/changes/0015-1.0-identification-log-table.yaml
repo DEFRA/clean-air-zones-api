@@ -1,0 +1,36 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0015.1-1.0
+      author: informed
+      changes: 
+       - createTable:
+          comment: Create table for logging vehicle identification exceptions
+          schemaName: public
+          tableName: t_failed_identification_logs
+          columns:
+          - column:
+              name: id
+              type: uuid
+              remarks: Unique identifier for the logged exception
+              constraints:
+              - unique: true
+          - column:
+              name: registrationnumber
+              type: varchar(7)
+              remarks: Indicates the registration number of the vehicle which could not be identified
+          - column:
+              name: causeofexception
+              type: varchar(255)  # Arbitrary maximum length chosen.
+              remarks: Indicates the cause of the exception during the identification process
+          - column:
+              name: applicationversion
+              type: varchar(42)  # Arbitrary maximum length chosen.
+              remarks: Indicates the version of the business rules with which the calculation was attempted
+  - changeSet:
+      id: 0015.2-1.0
+      author: informed
+      changes:
+       - addPrimaryKey:
+           schemaName: public
+           tableName: t_failed_identification_logs
+           columnNames: id

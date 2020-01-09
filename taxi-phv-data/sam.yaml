@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Example API written using the JAQU-CAZ archetype
+
+Globals:
+  Api:
+    # API Gateway regional endpoints
+    EndpointConfiguration: REGIONAL
+Mappings:
+  FilterPatternLookup:
+      OutOfMemoryError:
+        Pattern: '[...,Exception=OutOfMemoryError,FunctionName,FunctionInput]'
+      Other:
+        Pattern: ''
+Resources:
+  JaquCazFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: uk.gov.caz.taxiregister.amazonaws.StreamLambdaHandler::handleRequest
+      Runtime: java8
+      CodeUri: target/national-taxi-register-1.1-SNAPSHOT-lambda-package.zip
+      MemorySize: 1512
+      Policies:
+        - LambdaInvokePolicy:
+            FunctionName: "RegisterCsvFromS3Function"
+      Timeout: 60
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: any
+      Environment:
+        Variables:
+          SPRING_PROFILES_ACTIVE: default
+  RegisterCsvFromS3Function:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: RegisterCsvFromS3Function
+      Handler: uk.gov.caz.taxiregister.amazonaws.RegisterCsvFromS3Lambda::handleRequest
+      Runtime: java8
+      CodeUri: target/national-taxi-register-1.1-SNAPSHOT-lambda-package.zip
+      MemorySize: 1512
+      Policies:
+        - AWSLambdaBasicExecutionRole
+        - AWSLambdaVPCAccessExecutionRole
+        - Version: '2012-10-17' # Policy Document
+          Statement:
+           - Effect: Allow
+             Action:
+               - sns:Publish
+             Resource: !Ref ExceptionHandlerTopic
+      Timeout: 120
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-00c1a3f5075f52454
+        SubnetIds:
+          - subnet-0dcf6a1b147374130
+      DeadLetterQueue:
+       Type: 'SNS'
+       TargetArn: !Ref ExceptionHandlerTopic
+      Environment:
+        Variables:
+          SPRING_DATASOURCE_PASSWORD:
+          SPRING_DATASOURCE_URL:
+          SPRING_DATASOURCE_USERNAME:
+  RuntimeRegisterCsvFromS3ExceptionHandlerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: RegisterCsvFromS3ExceptionHandlerFunction
+      Handler: uk.gov.caz.taxiregister.amazonaws.RuntimeExceptionHandlerLambda::handleRequest
+      Runtime: java8
+      CodeUri: target/national-taxi-register-1.1-SNAPSHOT-lambda-package.zip
+      MemorySize: 1512
+      Role: arn:aws:iam::018330602464:role/NationalTaxiRegisterLambdaRoleDev
+      Timeout: 120
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-00c1a3f5075f52454
+        SubnetIds:
+          - subnet-0dcf6a1b147374130
+      Events:
+        SNSTopic:
+          Type: 'SNS'
+          Properties:
+            Topic: !Ref ExceptionHandlerTopic
+      Environment:
+        Variables:
+          SPRING_DATASOURCE_PASSWORD:
+          SPRING_DATASOURCE_URL:
+          SPRING_DATASOURCE_USERNAME:
+  ExceptionHandlerTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !GetAtt RegisterCsvFromS3ExceptionHandlerFunction.Arn
+          Protocol: "lambda"
+      TopicName: "RegisterCsvFromS3DeadLetterTopic"
+  OutOfMemoryExceptionFilter:
+    Type: AWS::Logs::SubscriptionFilter
+    Properties:
+      DestinationArn: !GetAtt RegisterCsvFromS3ExceptionHandlerFunction.Arn
+      FilterPattern: !FindInMap [FilterPatternLookup, OutOfMemoryError, Pattern]
+      LogGroupName: !Join ["/", ["","aws", "lambda", "RegisterCsvFromS3Function"]]
+  ExceptionHandlerInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !GetAtt RegisterCsvFromS3ExceptionHandlerFunction.Arn
+      Action: 'lambda:InvokeFunction'
+      Principal: !Join [".", ["logs", Ref: "AWS::Region", "amazonaws", "com"]]
+      SourceAccount: !Ref 'AWS::AccountId'
+Outputs:
+  SpringBootJaquCazApi:
+    Description: URL for application
+    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/entities'
+    Export:
+      Name: SpringBootJaquCazApi

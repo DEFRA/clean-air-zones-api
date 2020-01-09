@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0003-1.1
+      author: radoslaw.morytko
+      changes:
+        - createTable:
+            tableName: T_MD_REGISTER_JOBS_INFO
+            columns:
+              - column:
+                  name: JOBS_INFO_ID
+                  type: int(18)
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    primaryKeyName: t_md_register_jobs_info_jobs_info_id_pkey
+                    nullable: false
+              - column:
+                  name: REGISTER_JOB_ID
+                  type: int(18)
+                  constraints:
+                    references: T_MD_REGISTER_JOBS(REGISTER_JOB_ID)
+                    foreignKeyName: t_md_register_jobs_info_register_job_id_fkey
+                    nullable: false
+              - column:
+                  name: LICENCE_AUTHORITY_ID
+                  type: integer[]
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false

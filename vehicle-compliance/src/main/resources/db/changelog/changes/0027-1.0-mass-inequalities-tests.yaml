@@ -1,0 +1,110 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0027-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Add test case for gas/petrol.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: UPDATE vehicle
+              SET revenueWeight = '5001'
+              WHERE registrationNumber = 'CAS301';
+
+              UPDATE vehicle
+              SET revenueWeight = '5001'
+              WHERE registrationNumber = 'CAS360';
+              
+              UPDATE vehicle
+              SET revenueWeight = '5001'
+              WHERE registrationNumber = 'CAS361';
+              
+              UPDATE vehicle
+              SET revenueWeight = '5001'
+              WHERE registrationNumber = 'CAS362';
+              
+              UPDATE vehicle
+              SET revenueWeight = '5001'
+              WHERE registrationNumber = 'CAS363';
+
+              UPDATE vehicle
+              SET revenueWeight = '5000'
+              WHERE registrationNumber = 'CAS302';
+
+              UPDATE vehicle
+              SET revenueWeight = '5000'
+              WHERE registrationNumber = 'CAS303';
+              
+              UPDATE vehicle
+              SET revenueWeight = '5000'
+              WHERE registrationNumber = 'CAS304';
+              
+              UPDATE vehicle
+              SET revenueWeight = '5000',
+                  massinservice = '2815'
+              WHERE registrationNumber = 'CAS305';
+              
+              UPDATE vehicle
+              SET revenueWeight = '5000',
+                  massinservice = '2816'
+              WHERE registrationNumber = 'CAS306';
+              
+              UPDATE vehicle
+              SET revenueWeight = '5000',
+                  massinservice = '2816'
+              WHERE registrationNumber = 'CAS307';
+              
+              UPDATE vehicle
+              SET expectedExempt = TRUE
+              WHERE vehicletype = 'AGRICULTURAL';
+              
+              UPDATE vehicle
+              SET typeApproval = ''
+              WHERE registrationNumber = 'CAS372';
+              
+              UPDATE vehicle
+              SET typeApproval = ''
+              WHERE registrationNumber = 'CAS378';
+              
+              UPDATE vehicle
+              SET expectedType = 'Heavy Goods Vehicle'
+              WHERE registrationNumber = 'CAS381';
+              
+              UPDATE vehicle
+              SET expectedExempt = FALSE
+              WHERE registrationNumber = 'CAS380';
+              
+              UPDATE vehicle
+              SET revenueWeight = '3501',
+                  massinservice = '2815'
+              WHERE registrationNumber = 'CAS315';
+              
+              UPDATE vehicle
+              SET revenueWeight = '3501'
+              WHERE registrationNumber = 'CAS310';
+              
+              UPDATE vehicle
+              SET massinservice = '2815'
+              WHERE registrationNumber = 'CAS315';
+              
+              UPDATE vehicle
+              SET revenueWeight = '3501'
+              WHERE registrationNumber = 'CAS353';
+              
+              UPDATE vehicle
+              SET revenueWeight = '3501'
+              WHERE registrationNumber = 'CAS352';
+              
+              UPDATE vehicle
+              SET revenueWeight = '3501'
+              WHERE registrationNumber = 'CAS354';
+              
+              UPDATE vehicle
+              SET revenueWeight = '3501'
+              WHERE registrationNumber = 'CAS355';
+              
+              UPDATE vehicle
+              SET massinservice = '1281'
+              WHERE registrationNumber = 'CAS312';
+              

@@ -1,0 +1,40 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "OI64EFO",
+      "start": "2019-04-30",
+      "end": "2019-05-22",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "Leeds",
+      "licensePlateNumber": "\"a\"\"",
+      "wheelchairAccessibleVehicle": null
+    },
+    {
+      "vrm": "OI64EFO",
+      "start": "2019-04-27",
+      "end": "2019-06-23",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "Leeds",
+      "licensePlateNumber": "a & b'c & d",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "DS98UDG",
+      "start": "2019-03-12",
+      "end": "2019-06-25",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "Leeds",
+      "licensePlateNumber": "hragF",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "DS98UDG",
+      "start": "2019-03-11",
+      "end": "2019-07-24",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "Leeds",
+      "licensePlateNumber": "iragG",
+      "wheelchairAccessibleVehicle": false
+    }
+  ]
+}

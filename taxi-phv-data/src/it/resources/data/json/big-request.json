@@ -1,0 +1,810 @@
+{ "vehicleDetails": [
+{
+      "vrm": "IS62AVS",
+      "start": "2019-11-06",
+      "end": "2019-12-26",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "uhQEx"
+    },
+{
+      "vrm": "JR81XTA",
+      "start": "2019-11-30",
+      "end": "2020-01-16",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "lxftO"
+    },
+{
+      "vrm": "YR34MVW",
+      "start": "2019-12-10",
+      "end": "2020-02-08",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "PAIbr"
+    },
+{
+      "vrm": "GL13KYS",
+      "start": "2019-10-28",
+      "end": "2020-01-20",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "KLQOJ"
+    },
+{
+      "vrm": "HT07ATT",
+      "start": "2020-01-09",
+      "end": "2020-03-02",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "erYMN"
+    },
+{
+      "vrm": "EI06FOH",
+      "start": "2019-12-16",
+      "end": "2020-02-20",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "FTcpw"
+    },
+{
+      "vrm": "IY27SII",
+      "start": "2019-11-04",
+      "end": "2019-12-03",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "IKxHy"
+    },
+{
+      "vrm": "WD06IAR",
+      "start": "2020-01-06",
+      "end": "2020-03-17",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "qFidW"
+    },
+{
+      "vrm": "OJ24DBD",
+      "start": "2019-10-30",
+      "end": "2020-01-24",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "meMFm"
+    },
+{
+      "vrm": "QI45TAV",
+      "start": "2019-11-09",
+      "end": "2020-02-03",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "abwCQ"
+    },
+{
+      "vrm": "ZD06FTN",
+      "start": "2020-01-15",
+      "end": "2020-02-09",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "SEptW"
+    },
+{
+      "vrm": "IR68DPM",
+      "start": "2019-11-16",
+      "end": "2019-11-27",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "FCAQN"
+    },
+{
+      "vrm": "HT36OWR",
+      "start": "2020-01-08",
+      "end": "2020-01-17",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "dyHkn"
+    },
+{
+      "vrm": "CS75PMQ",
+      "start": "2019-11-22",
+      "end": "2020-01-01",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "hfVGP"
+    },
+{
+      "vrm": "ZH62YXV",
+      "start": "2020-01-15",
+      "end": "2020-02-21",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "UdRlP"
+    },
+{
+      "vrm": "NK84CWG",
+      "start": "2020-01-12",
+      "end": "2020-03-09",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "xlMdt"
+    },
+{
+      "vrm": "QC71TVV",
+      "start": "2019-10-27",
+      "end": "2019-11-04",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "cefdI"
+    },
+{
+      "vrm": "MF45PWR",
+      "start": "2019-12-16",
+      "end": "2020-02-13",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "wpcKf"
+    },
+{
+      "vrm": "MS81CNU",
+      "start": "2020-01-06",
+      "end": "2020-01-07",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "UycEs"
+    },
+{
+      "vrm": "ZF40EVM",
+      "start": "2019-11-19",
+      "end": "2019-12-03",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "uHDQO"
+    },
+{
+      "vrm": "VM98BJT",
+      "start": "2020-01-14",
+      "end": "2020-03-26",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "xSTjN"
+    },
+{
+      "vrm": "HX81TVW",
+      "start": "2019-12-15",
+      "end": "2020-02-19",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "sHHcs"
+    },
+{
+      "vrm": "HZ81APF",
+      "start": "2019-12-31",
+      "end": "2020-01-17",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "lwyLk"
+    },
+{
+      "vrm": "JL30WJV",
+      "start": "2019-12-26",
+      "end": "2020-02-26",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "iCooS"
+    },
+{
+      "vrm": "LE66UXR",
+      "start": "2019-12-26",
+      "end": "2020-01-01",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "EMMcf"
+    },
+{
+      "vrm": "UW48NOS",
+      "start": "2019-12-13",
+      "end": "2020-01-30",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "iMXSE"
+    },
+{
+      "vrm": "FN62JBY",
+      "start": "2020-01-17",
+      "end": "2020-03-27",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "QKgSL"
+    },
+{
+      "vrm": "MA92QBL",
+      "start": "2019-10-27",
+      "end": "2019-11-14",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "PjgaT"
+    },
+{
+      "vrm": "VM82MNW",
+      "start": "2019-12-09",
+      "end": "2020-02-10",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "KpHfY"
+    },
+{
+      "vrm": "XI77VAS",
+      "start": "2019-11-05",
+      "end": "2020-02-02",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "rQeRl"
+    },
+{
+      "vrm": "YS27JEZ",
+      "start": "2019-10-31",
+      "end": "2019-12-18",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "Iptbh"
+    },
+{
+      "vrm": "AW58CSH",
+      "start": "2019-12-22",
+      "end": "2020-01-10",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "rGfjH"
+    },
+{
+      "vrm": "AF45IQP",
+      "start": "2019-12-31",
+      "end": "2020-02-26",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "XAijz"
+    },
+{
+      "vrm": "JI33AOA",
+      "start": "2019-12-01",
+      "end": "2019-12-24",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "xPOpf"
+    },
+{
+      "vrm": "AY91FHA",
+      "start": "2019-11-18",
+      "end": "2019-12-23",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "qecqC"
+    },
+{
+      "vrm": "WP29BBO",
+      "start": "2019-12-16",
+      "end": "2020-02-21",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "Pybpd"
+    },
+{
+      "vrm": "EF88CKC",
+      "start": "2019-11-08",
+      "end": "2020-01-22",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "dOKWe"
+    },
+{
+      "vrm": "DL13TAS",
+      "start": "2020-01-16",
+      "end": "2020-02-09",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "TtsrT"
+    },
+{
+      "vrm": "ZD37RDL",
+      "start": "2019-10-21",
+      "end": "2019-11-27",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "uhmWG"
+    },
+{
+      "vrm": "ZC58GKD",
+      "start": "2020-01-16",
+      "end": "2020-04-02",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "CTUKq"
+    },
+{
+      "vrm": "SU87BSA",
+      "start": "2019-11-26",
+      "end": "2019-12-31",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "gBIrS"
+    },
+{
+      "vrm": "GH58XFK",
+      "start": "2019-11-26",
+      "end": "2020-02-03",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "honxj"
+    },
+{
+      "vrm": "FK90OTD",
+      "start": "2019-12-21",
+      "end": "2020-01-06",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "khrbr"
+    },
+{
+      "vrm": "FY49HGB",
+      "start": "2019-11-28",
+      "end": "2019-12-17",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "uYxtG"
+    },
+{
+      "vrm": "WV14GFX",
+      "start": "2020-01-08",
+      "end": "2020-02-03",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "VSIoI"
+    },
+{
+      "vrm": "XJ19DXZ",
+      "start": "2019-11-22",
+      "end": "2019-12-22",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "TeMFW"
+    },
+{
+      "vrm": "OG95SQE",
+      "start": "2019-11-30",
+      "end": "2019-12-30",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "SAadn"
+    },
+{
+      "vrm": "PG86RLO",
+      "start": "2019-10-21",
+      "end": "2019-10-31",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "AStaB"
+    },
+{
+      "vrm": "KU49OXA",
+      "start": "2019-11-15",
+      "end": "2019-12-01",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "kksrI"
+    },
+{
+      "vrm": "YM02NGF",
+      "start": "2019-12-25",
+      "end": "2020-01-07",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "WZOJI"
+    },
+{
+      "vrm": "TH90IXQ",
+      "start": "2019-12-30",
+      "end": "2020-02-16",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "BMmxt"
+    },
+{
+      "vrm": "QY74KGU",
+      "start": "2019-12-28",
+      "end": "2020-02-08",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "jmQXw"
+    },
+{
+      "vrm": "SW82YAW",
+      "start": "2019-11-12",
+      "end": "2019-12-09",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "qxAoc"
+    },
+{
+      "vrm": "SX43SXI",
+      "start": "2019-12-15",
+      "end": "2020-02-25",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "RSBAj"
+    },
+{
+      "vrm": "PC95NJA",
+      "start": "2019-12-30",
+      "end": "2020-03-22",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "DrIoF"
+    },
+{
+      "vrm": "TC64CEW",
+      "start": "2020-01-11",
+      "end": "2020-02-19",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "iQPAN"
+    },
+{
+      "vrm": "QJ85DVL",
+      "start": "2019-12-21",
+      "end": "2020-01-04",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "ArVWv"
+    },
+{
+      "vrm": "OC28RGM",
+      "start": "2019-12-21",
+      "end": "2020-02-01",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "cfkEM"
+    },
+{
+      "vrm": "EM63DPE",
+      "start": "2019-12-15",
+      "end": "2020-02-24",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "ZIZyo"
+    },
+{
+      "vrm": "NC36TDJ",
+      "start": "2020-01-17",
+      "end": "2020-03-17",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "iUank"
+    },
+{
+      "vrm": "DG22RYR",
+      "start": "2020-01-08",
+      "end": "2020-03-12",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "sghMH"
+    },
+{
+      "vrm": "LW91UTR",
+      "start": "2019-12-18",
+      "end": "2020-01-07",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "vXehv"
+    },
+{
+      "vrm": "YJ69LNA",
+      "start": "2019-12-15",
+      "end": "2020-02-09",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "ieZcX"
+    },
+{
+      "vrm": "XC54NCA",
+      "start": "2019-10-27",
+      "end": "2019-11-21",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "kbBvs"
+    },
+{
+      "vrm": "YP66PTD",
+      "start": "2019-12-14",
+      "end": "2020-02-16",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "ulomh"
+    },
+{
+      "vrm": "YQ62RYH",
+      "start": "2019-11-21",
+      "end": "2019-12-18",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "JgDHp"
+    },
+{
+      "vrm": "AV65FRE",
+      "start": "2019-12-31",
+      "end": "2020-03-23",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "uBKSD"
+    },
+{
+      "vrm": "SD23XCQ",
+      "start": "2019-12-24",
+      "end": "2019-12-31",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "lSmoW"
+    },
+{
+      "vrm": "ZR98BNL",
+      "start": "2019-12-11",
+      "end": "2020-02-18",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "cdTTr"
+    },
+{
+      "vrm": "DV65KBG",
+      "start": "2019-11-11",
+      "end": "2019-12-26",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "ngtEL"
+    },
+{
+      "vrm": "OO88XAI",
+      "start": "2019-12-17",
+      "end": "2020-01-23",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "SaakV"
+    },
+{
+      "vrm": "AK08TZT",
+      "start": "2020-01-08",
+      "end": "2020-03-05",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "DamFx"
+    },
+{
+      "vrm": "GY20VGY",
+      "start": "2019-11-20",
+      "end": "2019-12-23",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "YiQGS"
+    },
+{
+      "vrm": "ZV44VYM",
+      "start": "2019-11-06",
+      "end": "2019-12-10",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "hkthj"
+    },
+{
+      "vrm": "PK12HPK",
+      "start": "2019-10-28",
+      "end": "2019-12-18",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "HJxWW"
+    },
+{
+      "vrm": "LL20FMN",
+      "start": "2019-10-23",
+      "end": "2019-11-30",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "cJdQR"
+    },
+{
+      "vrm": "YB99VFQ",
+      "start": "2020-01-04",
+      "end": "2020-03-02",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "mqIpf"
+    },
+{
+      "vrm": "FC12PEE",
+      "start": "2019-12-08",
+      "end": "2020-01-04",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "RWVIR"
+    },
+{
+      "vrm": "AQ13KIC",
+      "start": "2019-12-09",
+      "end": "2020-01-06",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "rUUgB"
+    },
+{
+      "vrm": "AN28HUA",
+      "start": "2019-12-15",
+      "end": "2020-01-28",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "rAEcP"
+    },
+{
+      "vrm": "DO67UOW",
+      "start": "2019-11-03",
+      "end": "2019-11-08",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "HfMAF"
+    },
+{
+      "vrm": "HQ57UIE",
+      "start": "2019-11-08",
+      "end": "2020-01-05",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "knHot"
+    },
+{
+      "vrm": "OX75UXC",
+      "start": "2019-12-06",
+      "end": "2020-01-03",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "NRANa"
+    },
+{
+      "vrm": "CR70JYS",
+      "start": "2020-01-12",
+      "end": "2020-02-06",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "DRCFn"
+    },
+{
+      "vrm": "RN26VIV",
+      "start": "2019-12-11",
+      "end": "2019-12-29",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "CfuMQ"
+    },
+{
+      "vrm": "MJ33DGP",
+      "start": "2019-12-18",
+      "end": "2020-02-13",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "XmFBJ"
+    },
+{
+      "vrm": "LI98AJF",
+      "start": "2019-11-11",
+      "end": "2019-11-23",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "MTXGi"
+    },
+{
+      "vrm": "GZ77BNP",
+      "start": "2019-12-16",
+      "end": "2020-03-14",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "PbEAF"
+    },
+{
+      "vrm": "FW31DSG",
+      "start": "2019-12-23",
+      "end": "2020-01-13",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "YtPje"
+    },
+{
+      "vrm": "WP73QSF",
+      "start": "2019-11-24",
+      "end": "2020-01-28",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "psQGt"
+    },
+{
+      "vrm": "JL60NUA",
+      "start": "2019-11-13",
+      "end": "2019-12-15",
+      "taxiOrPHV":"PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "susJJ"
+    },
+{
+      "vrm": "SF86CNV",
+      "start": "2019-12-26",
+      "end": "2020-01-20",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "bWLrW"
+    },
+{
+      "vrm": "KJ10PYW",
+      "start": "2019-12-18",
+      "end": "2020-03-17",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "hyjji"
+    },
+{
+      "vrm": "OU39RCW",
+      "start": "2019-12-19",
+      "end": "2020-02-26",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "SZIle"
+    },
+{
+      "vrm": "NU23FSI",
+      "start": "2019-11-29",
+      "end": "2020-01-01",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "mGUbm"
+    },
+{
+      "vrm": "CD66NQX",
+      "start": "2019-12-09",
+      "end": "2020-02-29",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "TzEpU"
+    },
+{
+      "vrm": "KA13JBK",
+      "start": "2019-12-19",
+      "end": "2020-01-04",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "PJPSR"
+    },
+{
+      "vrm": "IL74XNM",
+      "start": "2019-10-29",
+      "end": "2019-11-08",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "SXCJz"
+    },
+{
+      "vrm": "EZ71TUC",
+      "start": "2020-01-15",
+      "end": "2020-04-10",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "pPcyk"
+    },
+{
+      "vrm": "SS37RDY",
+      "start": "2020-01-13",
+      "end": "2020-02-09",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "TvBnK"
+    },
+{
+      "vrm": "CX48FQE",
+      "start": "2019-12-09",
+      "end": "2019-12-15",
+      "taxiOrPHV":"taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "qUifJ"
+    }
+]}

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0010-1.0-drop-deprecated-tables
+      author: informed
+      changes:
+      - dropTable:
+          cascadeConstraints: true
+          schemaName: public
+          tableName: retrofitted_vehicles
+      - dropTable:
+          cascadeConstraints: true
+          schemaName: public
+          tableName: military_vehicle

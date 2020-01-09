@@ -1,0 +1,34 @@
+### Integration tests configuration
+spring:
+  datasource:
+    url: jdbc:postgresql://${postgres.url:localhost:9999}/caz-national-taxi-phv
+#    url: jdbc:postgresql://${postgres.url:localhost:5432}/caz-national-taxi-phv
+    hikari:
+      maximum-pool-size: 10
+
+redis:
+  enabled: true
+  endpoint: ${redis.url:localhost}
+  port: ${redis.custom.port:6380}
+#  port: ${redis.custom.port:6379}
+
+application:
+  validation:
+    max-errors-count: 10
+  job-clean-up-request:
+    queue-url: ${job.clean.up.request.queue.url:http://localhost:4576/queue/job-clean-up-request}
+    max-records-count: 100
+    message-visibility-delay-in-seconds: 10
+  
+services:
+  connection-timeout-seconds: 29
+  read-timeout-seconds: 29
+  vehicle-compliance-checker:
+    root-url: http://localhost:1080 # mock-server.com library
+    cache-eviction-of-ntr-data-enabled: true
+
+aws:
+  s3:
+    endpoint: http://${aws.s3.url:localhost:4572}
+  sqs:
+    endpoint: http://${aws.sqs.url:localhost:4576}

@@ -1,0 +1,34 @@
+{
+  "errors": [
+    {
+      "vrn": "SW61BYDDDDDDDDDDDDDDDDD",
+      "title": "Invalid field value",
+      "detail": "invalid VRN format",
+      "status": 400
+    },
+    {
+      "vrn": "SW61BYDDDDDDDDDDDDDDDDD",
+      "title": "Invalid field value",
+      "detail": "invalid timestamp format:2012/10-01T155300Z",
+      "status": 400
+    },
+    {
+      "vrn": "FFFFFFFFFFFFFFFFFFF",
+      "title": "Invalid field value",
+      "detail": "invalid VRN format",
+      "status": 400
+    },
+    {
+      "vrn": null,
+      "title": "Mandatory field missing",
+      "detail": "vrn",
+      "status": 400
+    },
+    {
+      "vrn": null,
+      "title": "Mandatory field empty",
+      "detail": "vrn",
+      "status": 400
+    }
+  ]
+}

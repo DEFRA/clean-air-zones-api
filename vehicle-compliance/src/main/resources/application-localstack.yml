@@ -1,0 +1,23 @@
+# This profile is used when running Localstack - simulated, Docker mocked AWS environment.
+# Running 'make localstack-run' sets Spring profile to 'localstack' and runs Spring-Boot app normally.
+# Application can be tested as normal Spring-Boot with REST endpoints.
+---
+spring:
+  profiles: localstack
+
+aws:
+  s3:
+    endpoint: http://localhost:4572
+  sqs:
+    endpoint: http://localhost:4576
+  sns:
+    endpoint: http://localhost:4575
+    
+services:
+  remote-vehicle-data:
+    use-remote-api: false
+
+redis:
+  endpoint: localhost
+  port: 6379
+  enabled: false

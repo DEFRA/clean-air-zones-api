@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0023-1.0
+      author: informed
+      changes:
+      - renameColumn:
+          newColumnName: revenueweight
+          oldColumnName: grossweight
+          remarks: A String
+          schemaName: public
+          tableName: vehicle

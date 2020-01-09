@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0005.1-1.1
+      author: tuan.phan
+      changes:
+        - addColumn:
+            tableName: T_MD_REGISTER_JOBS
+            columns:
+              - column:
+                  name: IMPACTED_LOCAL_AUTHORITY
+                  type: int[]
+                  constraints:
+                    nullable: true
+        - dropIndex:
+            indexName: T_MD_REGISTER_JOBS_UPLOADER_ID_IDX
+            tableName: T_MD_REGISTER_JOBS      
+        - createIndex:
+            indexName: T_MD_REGISTER_JOBS_STATUS_IDX
+            tableName: T_MD_REGISTER_JOBS
+            columns:
+              - column:
+                  name: STATUS
+                  type: varchar(128)                          

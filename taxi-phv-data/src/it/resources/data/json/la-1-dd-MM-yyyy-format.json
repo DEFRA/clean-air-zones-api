@@ -1,0 +1,31 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "SJ84VSX",
+      "start": "14/04/2019",
+      "end": "13/06/2019",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "iragG",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "SJ62OMB",
+      "start": "15/04/2019",
+      "end": "17/05/2019",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "beBCC",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "SJS312",
+      "start": "11/04/2019",
+      "end": "20/12/2019",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "wHOlp",
+      "wheelchairAccessibleVehicle": false
+    }
+  ]
+}

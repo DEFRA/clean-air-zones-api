@@ -1,0 +1,67 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "DS98UDG",
+      "start": "2019-03-11",
+      "end": "2019-07-24",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "iragG",
+      "wheelchairAccessibleVehicle": null
+    },
+    {
+      "vrm": "ND84VSX",
+      "start": "2019-04-14",
+      "end": "2019-06-13",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "Oretr",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "DL76MWX",
+      "start": "2019-04-11",
+      "end": "2019-05-20",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "wHOlp",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "BW91HUN",
+      "start": "2019-03-09",
+      "end": "2019-05-06",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "yGSJC",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "LE35LMK",
+      "start": "2019-06-17",
+      "end": "2019-07-11",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "FhMxv",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "LV98HYW",
+      "start": "2019-03-02",
+      "end": "2019-03-17",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "kAejQ",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "RG35XNP",
+      "start": "2019-04-04",
+      "end": "2019-04-15",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "cBate",
+      "wheelchairAccessibleVehicle": false
+    }
+  ]
+}

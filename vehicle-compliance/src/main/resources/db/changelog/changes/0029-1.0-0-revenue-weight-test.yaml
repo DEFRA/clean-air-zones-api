@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0029-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Add test cases for mass values of 0.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, euroStatus, revenueWeight, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS395', 'M2', 'Ford', 'Focus', 'White', 'Diesel', 'EURO6', '0', false, false, '');
+
+              INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, euroStatus, revenueWeight, massInService, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS396', 'M2', 'Ford', 'Focus', 'White', 'Diesel', 'EURO6', '3500', '0', false, false, '');

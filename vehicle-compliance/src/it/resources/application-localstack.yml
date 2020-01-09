@@ -1,0 +1,25 @@
+### Integration tests configuration
+
+# Uncomment if microservice uses Postgres/RDS, delete otherwise
+#spring:
+#  datasource:
+#    url: jdbc:postgresql://localhost:9999/caz_vcc
+spring:
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+aws:
+  s3:
+    endpoint: http://localhost:4572
+
+services:
+  connection-timeout-seconds: 29
+  read-timeout-seconds: 29
+  remote-vehicle-data:
+    use-remote-api: false
+
+exemptions:
+  leedscaz: d579cdd9-69b6-4099-9257-3b91573d76
+  
+redis:
+    enabled: false

@@ -1,0 +1,49 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "XQ25QVS",
+      "start": "2009-03-23",
+      "end": "2012-01-17",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "roSMT",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "IT46ZZZ",
+      "start": "2014-07-20",
+      "end": "2015-01-26",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "fsXWS",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "IT46ZPL",
+      "start": "2001-07-20",
+      "end": "2005-05-17",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "fsXWE",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "GQ87HDL",
+      "start": "2001-08-29",
+      "end": "2021-06-17",
+      "taxiOrPHV": "",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "bzTYA",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "TY85WUM",
+      "start": "2008-05-31",
+      "end": "2018-12-28",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "quVOH",
+      "wheelchairAccessibleVehicle": false
+    }
+  ]
+}

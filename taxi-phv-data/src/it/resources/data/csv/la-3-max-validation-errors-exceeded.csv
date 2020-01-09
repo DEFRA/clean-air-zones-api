@@ -1,0 +1,15 @@
+this line is a joke
+ZC22OMB,2019-04-15,2019-05-17,PHV,abc,def,true
+ZC22OMB,2019-04-15,2019-05-17,taxi,?#,def,true
+ZC12OMB,invalid-date-2019-04-15,invalid-date-2019-05-17,PHV,abc,def,true
+#ZC22OMB,2019-04-15,2019-05-17-invalid-date,PHV,abc,def,true
+invalid-vrm,2019-04-15,2019-05-17,PHV,abc,def,true
+?
+$ZC42OMB,invalid-date-2019-04-15,2019-05-17-invalid-date,PHV,abc,def,true
+// can I put a comment here?
+ZC52OMB,2019-04-15,2019-05-17,PHV,abc,def,true
+-___-
+<3
+
+something after the empty line
+another error

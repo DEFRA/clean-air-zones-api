@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0019-1.0
+      author: informed
+      changes:
+      - renameColumn:
+          newColumnName: failedidentificationid
+          oldColumnName: id
+          schemaName: public
+          tableName: t_failed_identification_logs
+      - renameColumn:
+          newColumnName: exceptioncause
+          oldColumnName: causeofexception
+          schemaName: public
+          tableName: t_failed_identification_logs
+      - addColumn:
+          columns:
+          - column:
+              name: inserttimestamp
+              type: timestamp
+          schemaName: public
+          tableName: t_failed_identification_logs

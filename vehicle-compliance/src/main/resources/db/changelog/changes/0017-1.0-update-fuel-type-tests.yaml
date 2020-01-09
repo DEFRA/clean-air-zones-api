@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0017-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update fuel types for test data.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: UPDATE vehicle SET fuelType = 'Heavy oil'
+              WHERE fuelType = 'diesel/gas oil';
+
+              UPDATE vehicle SET fuelType = 'Electric diesel'
+              WHERE fuelType = 'electric/diesel hybrid';
+
+              UPDATE vehicle SET fuelType = 'Gas diesel'
+              WHERE fuelType = 'gas/diesel hybrid';
+
+              UPDATE vehicle SET fuelType = 'Hybrid electric'
+              WHERE fuelType = 'electric/petrol hybrid';
+
+              UPDATE vehicle SET fuelType = 'Gas bi-fuel'
+              WHERE fuelType = 'gas/petrol hybrid';
+
+              INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, euroStatus, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS377', 'M1', 'BMW', 'X3', 'Rainbow', 'Gas', '5', true, false, 'Car');

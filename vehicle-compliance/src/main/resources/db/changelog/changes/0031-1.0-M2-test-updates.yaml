@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0031-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Upate test cases for M2 type approval vehicles
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: UPDATE vehicle
+              SET revenueWeight = 5000, seatingCapacity = 10
+              WHERE registrationNumber = 'CAS360';
+              
+              UPDATE vehicle
+              SET revenueWeight = 5000, seatingCapacity = 0
+              WHERE registrationNumber = 'CAS361';
+              
+              UPDATE vehicle
+              SET revenueWeight = 5000, seatingCapacity = 9
+              WHERE registrationNumber = 'CAS362';
+
+              UPDATE vehicle
+              SET revenueWeight = 0
+              WHERE registrationNumber = 'CAS363';             

@@ -1,0 +1,31 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "ND84VSX",
+      "start": "2019-04-14",
+      "end": "2019-06-13",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "Oretr",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "LE35LMK",
+      "start": "2019-06-17",
+      "end": "2019-07-11",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "FhMxv",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "ZA14APJ",
+      "start": "2019-03-27",
+      "end": "2019-06-19",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-2",
+      "licensePlateNumber": "TrxdV",
+      "wheelchairAccessibleVehicle": true
+    }
+  ]
+}

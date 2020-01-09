@@ -1,0 +1,19 @@
+{
+  "cleanAirZoneId": "39e54ed8-3ed2-441d-be3f-38fc9b70c8d3",
+  "name": "Leeds",
+  "tariffClass": "C",
+  "chargeIdentifier": "LCC01",
+  "rates": {
+    "bus": 14,
+    "car": 15.5,
+    "miniBus": 25,
+    "coach": 15.6,
+    "taxi": 2,
+    "phv": 80.1,
+    "hgv": 5.69,
+    "largeVan": 100,
+    "smallVan": 80,
+    "motorcycle": 80.01,
+    "moped": 49.49
+  }
+}

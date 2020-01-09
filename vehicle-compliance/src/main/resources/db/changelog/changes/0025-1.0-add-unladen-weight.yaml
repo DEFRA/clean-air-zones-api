@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0025-1.0
+      author: informed
+      changes:
+      - addColumn:
+          comment: Add unladen weight columns.
+          tableName: vehicle
+          columns:
+          - column:
+              name: unladenweight
+              type: varchar(4)

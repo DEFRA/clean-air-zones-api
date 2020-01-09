@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0004-1.0
+      author: patryk.lenza
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0004-1.1-create_functions_to_get_licensing_authorities_which_have_not_uploaded_in_last_days.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

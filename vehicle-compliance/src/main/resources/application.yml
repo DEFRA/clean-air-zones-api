@@ -1,0 +1,173 @@
+spring:
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5433/caz_vcc
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 1
+  jpa:
+    hibernate:
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+        implicit-strategy: org.hibernate.boot.model.naming.ImplicitNamingStrategyLegacyJpaImpl
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+    drop-first: false
+  profiles:
+    active: dev
+
+redis:
+  endpoint: localhost
+  port: 7000
+  ttlInHours: 24
+  enabled: false
+  licenseinfo:
+    ttlInHours: ${redis.licenseinfo.cache.ttl:168} #7 days
+  authToken:
+    ttlInMinutes: 50
+
+application:
+  title: Vehicle Compliance Checker API
+  version: '@project.version@'
+  leeds-caz-identifier: 39e54ed8-3ed2-441d-be3f-38fc9b70c8d3
+  petrol-types: petrol,hybrid electric,gas bi-fuel,gas/petrol
+  diesel-types: diesel,heavy oil,electric diesel,gas diesel
+  exempt-tax-classes: electric motorcycle,electric,disabled passenger vehicle,historic vehicle,gas
+  exempt-type-approvals: T1,T2,T3,T4,T5
+  leeds:
+    exempt-fuel-types: steam,electricity,fuel cells,gas
+    chargeable-fuel-types: hybrid electric
+  vehicle-identifier:
+    agricultural-type-approvals: T1,T2,T3,T4,T5
+  validation:
+    vehicle-entrants:
+      max-errors-count: 5
+
+services:
+  connection-timeout-seconds: 29
+  read-timeout-seconds: 29
+  national-taxi-register:
+    root-url: https://dev-api.taxiphvdata.co.uk
+  tariff-service:
+    root-url: https://l5us0jv0rc.execute-api.eu-west-2.amazonaws.com/dev
+  payments:
+    root-url: https://t4oig4d3g0.execute-api.eu-west-2.amazonaws.com/dev
+    enabled: false
+  remote-vehicle-data:
+    use-remote-api: false
+
+management:
+  endpoints:
+    web:
+      base-path:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    diskspace:
+      enabled: false
+
+swagger:
+  api:
+    title: Vehicle Compliance Checker (API)
+    description: REST API for JAQU CAZ Vehicle Compliance Checker
+    version: 0.1
+
+  operations:
+    db:
+      migration:
+        description: Evolve DB schema
+    vehicle:
+      details:
+        description: Returns vehicle registation details
+      unrecognised:
+        description: Returns list of charges for given type to be used by Payments.
+      compliance:
+        description: Returns vehicle compliance details
+    cleanAirZones:
+      description: Returns list of available CAZs
+    vehicleResults:
+      description: Returns list of vehicle result
+    cacheInvalidation:
+      cleanAirZones:
+        description: Evicting a cached clean-air-zones from redis
+      licences:
+        description: Evicting a cached licenses from redis
+
+  model.descriptions:
+    vehicle:
+      registrationNumber: Registration number of the vehicle
+      typeApproval: Vehicle type approval category
+      type: Type of the vehicle
+      make: Vehicle manifacturer
+      model: Vehicle model
+      colour: Colour of the vehicle
+      fuelType: Fuel type of the vehicle
+      isTaxiOrPhv: Returns true if the vehicle is a taxi or PHV
+      isExempt: Returns true if the vehicle is exempt
+      licensingAuthoritiesNames: Returns list of authority names that the taxi or phv is licensed with
+    cleanAirZones:
+      cleanAirZoneDetails: List of Clean Air Zones
+    cleanAirZone:
+      cleanAirZoneId: System ID of the clean air zone
+      name: Name of Tariff
+      boundaryUrl: URL provided by zone operators, boundary
+    complianceResults:
+      registationNumber: Registration number of the vehicle
+      isRetrofitted: Returns true if the vehicle is retrofitted
+      isExempt: Returns true if the vehicle is not to be charged in any Clean Air Zone due to national exemption
+      complianceOutcomes: A list of compliance results for a vehicle in a set of Clean Air Zones
+    complianceResult:
+      cleanAirZoneId: System ID of the clean air zone
+      name: Official name of the zone
+      charge: Charge to pay in £, 0 means 'no charge'
+      charges: List of Charges
+    informationUrls:
+      description: A series of informational URLs to guidance published by a given Clean Air Zone operator
+      emissionsStandardsUrl: A URL linking to emission standards guidance published by a given Clean Air Zone operator
+      mainInfoUrl: A URL linking to the main information guidance published by a given Clean Air Zone operator
+      pricingUrl: A URL linking to pricing information guidance published by a given Clean Air Zone operator
+      hoursOfOperationUrl: A URL linking to operating hours guidance published by a given Clean Air Zone operator
+      exemptionOrDiscountUrl: A URL linking to exemptions or discounts guidance published by a given Clean Air Zone operator
+      payCazUrl: A URL linking to charge payment guidance published by a given Clean Air Zone operator
+      becomeCompliantUrl: A URL linking to vehicle compliance guidance published by a given Clean Air Zone operator
+      financialAssistanceUrl: A URL linking to financial assistance guidance published by a given Clean Air Zone operator
+      boundaryUrl: A URL linking to geographic boundary guidance published by a given Clean Air Zone operator
+      additionalInfoUrl: A URL linking to additional info published by a given Clean Air Zone operator
+    vehicleEntrants:
+      vehicleEntrantsDetails: List of vehicle entrant
+      vrn: String containing Vehicle registration mark
+      timestamp: ISO-8601 formatted datetime indicating  when the vehicle was witnessed entering the CAZ
+    vehicleResult:
+      vehicleResultDetails: List of Vehicle Result
+      vrn: Registration number of the vehicle
+      make: Vehicle make
+      model: Vehicle model
+      colour: Vehicle colour
+      typeApproval: Vehicle type approval category
+      status: Returns one of the following values (exempt, compliant, notCompliantPaid, notCompliantNotPaid, unrecognisedPaid, unrecognisedNotPaid)
+      exemptionCode: A code that uniquely identifies the national exemption on which the exempt status is based
+      tariffCode: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay
+      isTaxiOrPhv: Returns true if the vehicle is a taxi or PHV
+      licensingAuthority: Return list of Licensing Authority that the taxi or Private Hire vehicle is licensed with
+    vrms:
+      vrmsDetails: List of vrms (registration number of the vehicle)
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /v1/swagger-docs
+
+aws:
+  region: eu-west-2
+  secret-name: /config/vccs.dev
+
+# Note these are default values that will be overriden by aws secrets manager values 
+dvla-api-username:
+dvla-api-password:
+dvla-api-endpoint:
+dvla-authentication-endpoint:
+dvla-api-key:

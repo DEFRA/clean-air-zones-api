@@ -1,0 +1,42 @@
+version: '3.3'
+
+services:
+  postgres:
+    image: postgres:11-alpine
+    container_name: postgres.docker.integration
+    ports:
+      - 9999:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: caz-national-taxi-phv
+    networks:
+      - localstack_network
+      
+  redis:
+    image: redis
+    container_name: redis.docker.integration
+    ports:
+      - 6380:6379
+    networks:
+      - localstack_network
+
+  localstack:
+    image: localstack/localstack:0.10.2
+    ports:
+      - "4567-4584:4567-4584"
+      - "${PORT_WEB_UI-8055}:${PORT_WEB_UI-8055}"
+    environment:
+      - SERVICES=${SERVICES- }
+      - DEBUG=${DEBUG- }
+      - DATA_DIR=${DATA_DIR- }
+      - PORT_WEB_UI=${PORT_WEB_UI- }
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+    volumes:
+      - "~/tmp/localstack:/tmp/localstack"
+    networks:
+      - localstack_network
+
+networks:
+  localstack_network:

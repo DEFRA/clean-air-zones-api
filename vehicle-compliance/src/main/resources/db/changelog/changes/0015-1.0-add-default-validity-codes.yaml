@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0015-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Inserts (if not exist) default validity codes to T_CHARGE_VALIDITY
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: INSERT INTO T_CHARGE_VALIDITY (CHARGE_VALIDITY_CODE, VALIDITY_CODE_DESC)
+              VALUES ('CVC01', 'FULL CHARGE APPLIED') ON CONFLICT DO NOTHING;
+
+              INSERT INTO T_CHARGE_VALIDITY (CHARGE_VALIDITY_CODE, VALIDITY_CODE_DESC)
+              VALUES ('CVC02', 'FULL EXEMPTION') ON CONFLICT DO NOTHING;
+
+              INSERT INTO T_CHARGE_VALIDITY (CHARGE_VALIDITY_CODE, VALIDITY_CODE_DESC)
+              VALUES ('CVC03', 'NO CHARGE UNRECOGNISED VRN') ON CONFLICT DO NOTHING;
+
+              INSERT INTO T_CHARGE_VALIDITY (CHARGE_VALIDITY_CODE, VALIDITY_CODE_DESC)
+              VALUES ('CVC04', 'PARTIAL CHARGE') ON CONFLICT DO NOTHING;

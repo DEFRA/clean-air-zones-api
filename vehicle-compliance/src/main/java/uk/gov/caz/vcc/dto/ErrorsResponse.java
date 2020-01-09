@@ -1,0 +1,38 @@
+package uk.gov.caz.vcc.dto;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Value;
+import org.springframework.http.HttpStatus;
+import uk.gov.caz.vcc.dto.validation.ValidationError;
+
+@Value
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+public class ErrorsResponse {
+
+  private static final ErrorsResponse UNHANDLED_EXCEPTION_RESPONSE = new ErrorsResponse(
+      Collections.singletonList(
+          ErrorResponse.builder()
+              .vrn("")
+              .title("Unknown error")
+              .detail("Internal server error")
+              .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+              .build())
+  );
+
+  List<ErrorResponse> errors;
+
+  public static ErrorsResponse internalError() {
+    return UNHANDLED_EXCEPTION_RESPONSE;
+  }
+
+  public static ErrorsResponse from(List<ValidationError> validationErrors) {
+    List<ErrorResponse> errorResponses = validationErrors.stream()
+        .map(ValidationError::asErrorResponse)
+        .collect(Collectors.toList());
+    return new ErrorsResponse(errorResponses);
+  }
+}

@@ -1,0 +1,58 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "SW40NRN",
+      "start": "2019-04-06",
+      "end": "2019-06-16",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-2",
+      "licensePlateNumber": "rKXry",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "SW40NRN",
+      "start": "2019-05-06",
+      "end": "2019-08-16",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-2",
+      "licensePlateNumber": "rKXry",
+      "wheelchairAccessibleVehicle": null
+    },
+    {
+      "vrm": "DS98UDG",
+      "start": "2019-03-12",
+      "end": "2019-06-25",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-2",
+      "licensePlateNumber": "hragF",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "ZC62OMB",
+      "start": "2019-04-15",
+      "end": "2019-05-17",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-2",
+      "licensePlateNumber": "beBCC",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "SV57THC",
+      "start": "2019-05-22",
+      "end": "2019-06-16",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-2",
+      "licensePlateNumber": "VDNIv",
+      "wheelchairAccessibleVehicle": true
+    },
+    {
+      "vrm": "ZA14APJ",
+      "start": "2019-03-27",
+      "end": "2019-06-19",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-2",
+      "licensePlateNumber": "TrxdV",
+      "wheelchairAccessibleVehicle": true
+    }
+  ]
+}

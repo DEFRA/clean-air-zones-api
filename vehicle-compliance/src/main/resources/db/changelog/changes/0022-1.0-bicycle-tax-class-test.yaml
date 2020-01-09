@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0022.1-1.0
+      author: informed
+      changes:
+        - modifyDataType:
+            columnName: bodytype
+            newDataType: varchar(27)
+            schemaName: public
+            tableName: vehicle
+  - changeSet:
+      id: 0022.2-1.0
+      author: informed
+      changes:
+        - modifyDataType:
+            columnName: typeapproval
+            newDataType: varchar(15)
+            schemaName: public
+            tableName: vehicle
+  - changeSet:
+      id: 0022.3-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update fuel types for test data.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, euroStatus, taxClass, bodyType, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS378', 'Unrecognised TA', 'Vespa', 'ARMANI', 'Celeste Green', 'Petrol', 'Euro 5', 'Bicycle', 'Moped', false, true, 'Motorcycle');

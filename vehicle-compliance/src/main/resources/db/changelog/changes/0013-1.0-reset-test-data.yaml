@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0013.1-1.0
+      author: informed
+      changes:
+       - sql:
+          comment: Drop test data for cleaning purposes.
+          dbms: postgresql
+          endDelimiter: ;GO
+          splitStatements: true
+          sql: DELETE FROM public."vehicle";
+          stripComments: true
+  - changeSet:
+      id: 0013.2-1.0
+      author: informed
+      changes:
+       - dropColumn:
+          comment: Drop redundant column.
+          columnName: istaxiorphv
+          schemaName: public
+          tableName: vehicle
+  - changeSet:
+      id: 0013.3-1.0
+      author: informed
+      changes:
+       - addColumn:
+          comment: Extend public."vehicle" to include expected calculation results.
+          tableName: vehicle
+          columns:
+            - column:
+                name: expectedexempt
+                type: boolean
+                remarks: Indicates if this test vehicle is expected to be exepmt by virtue of tax class or fuel type (not whitelists).
+            - column:
+                name: expectedcompliant
+                type: boolean
+                remarks: Indicates if this test vehicle is expected to be compliant.
+            - column:
+                name: expectedtype
+                type: varchar(50)
+                remarks: Indicates the expected type for this vehicle.
+  - changeSet:
+      id: 0013.4-1.0
+      author: informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0013-1.0-reset-test-data.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

@@ -1,0 +1,31 @@
+{
+  "vehicleResult": [
+    {
+      "vrn": "SW61BYD",
+      "make": "volkswagen",
+      "model": "golf",
+      "colour": "black",
+      "typeApproval": "m1",
+      "status": "notCompliantNotPaid",
+      "exemptionCode": null,
+      "tariffCode": "271TC001",
+      "isTaxiOrPhv": true,
+      "licensingAuthority": [
+        "Authority A",
+        "Authority B"
+      ]
+    },
+    {
+      "vrn": "MK16YZR",
+      "make": "ford",
+      "model": "mondeo",
+      "colour": "white",
+      "typeApproval": "m1",
+      "status": "exempt",
+      "exemptionCode": "NEC001",
+      "tariffCode": null,
+      "isTaxiOrPhv": false,
+      "licensingAuthority": null
+    }
+  ]
+}

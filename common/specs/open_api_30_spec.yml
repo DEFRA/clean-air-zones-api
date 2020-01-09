@@ -1,0 +1,2586 @@
+openapi: 3.0.0
+info:
+  description: Frontend - Backend contract in JAQU-CAZ project
+  version: "1.12.6"
+  title: JAQU-CAZ Frontend - Backend Contract
+paths:
+  "/v1/compliance-checker/vehicles/:vrn/details":
+    get:
+      summary: returns vehicle registation details
+      tags:
+        - VCC
+      operationId: vehicleDetails
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      responses:
+        200:
+          description: vehicle details
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDetails'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        422:
+          description: invalid vrn - not valid according to business logic
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/compliance-checker/vehicles/:vrn/compliance":
+    get:
+      summary: returns vehicle compliance details
+      tags:
+        - VCC
+      operationId: complianceUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+        - $ref: '#/components/parameters/zones'
+      responses:
+        200:
+          description: compliance details in selected zones
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceResults'
+        400:
+          description: correlation ID or zones missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        422:
+          description: invalid registation number (according to business logic ) or zone (eg. not valid uuid)
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/compliance-checker/vehicles/unrecognised/:vehicleType/compliance":
+    get:
+      summary: returns charges for given vehicle type
+      tags:
+        - VCC
+      operationId: unrecognisedVehiclesCharges
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vehicleType'
+        - $ref: '#/components/parameters/zones'
+      responses:
+        200:
+          description: list of charges applicable for given vehicle type
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleTypeCazCharges'
+        400:
+          description: correlation ID or zones missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/compliance-checker/clean-air-zones":
+    get:
+      summary: returns list of available CAZs
+      tags:
+        - VCC
+      operationId: caz
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        200:
+          description: CAZ list
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CAZList'
+        400:
+          description: correlation ID missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/vehicle-entrants":
+    post:
+      summary: returns list of vehicle result
+      tags:
+        - VCC
+      operationId: VehicleEntrants
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/xApiKey'
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/VehicleEntrants"
+        required: true
+      responses:
+        200:
+          description: vehicleResult list
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleResults'
+        400:
+          description: validation error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleEntrantsValidationError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/cache-invalidations/clean-air-zones":
+    post:
+      summary: returns only status 202
+      tags:
+        - VCC
+      operationId: Cache evict for clean air zones
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        202:
+          description: Cache evict for clean air zones
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: validation error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/cache-invalidations/licences":
+    post:
+      summary: returns only status 202
+      tags:
+        - VCC
+      operationId: Cache evict for licenses
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/Vrms"
+        required: true
+      responses:
+        202:
+          description: Cache evict for licences
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: validation error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/cache-invalidations/vehicles":
+    post:
+      summary: returns only status 202
+      tags:
+        - VCC
+      operationId: Cache evict for vehicles
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        202:
+          description: Cache evict for vehicles
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: validation error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/clean-air-zones":
+    get:
+      summary: returns list of CAZs
+      tags:
+        - Tariff
+      operationId: cazs
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        "200":
+          description: CAZ list
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CleanAirZoneList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/CleanAirZoneList'
+        "400":
+          description: correlation ID missing
+        "500":
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+  "/v1/clean-air-zones/:cleanAirZoneId/tariff":
+    get:
+      summary: returns tariff for given cleanAirZoneId
+      tags:
+        - Tariff
+      operationId: tariff
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        "200":
+          description: Tariff
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tariff'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/Tariff'
+        "400":
+          description: correlation ID missing
+        "404":
+          description: Tariff not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "500":
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+  "/v1/vehicles/:vrm/licence-info":
+    get:
+      summary: Looks up vehicle's information about its active licences and wheelchair accessibility by VRM
+      tags:
+        - NTR
+      operationId: licenceInfo
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrm'
+      responses:
+        200:
+          description: list of licence details
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LicenceDetails'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/vehicles/:vrm/licence-info-audit":
+    get:
+      summary: For a given VRM performs a check whether it had any active licences on a given past date and if so returns names of their licensing authorities. If the licensing authority is absent in the database (it was removed after the licence was registered) at the time of querying, UNKNOWN is used as its name
+      tags:
+        - NTR
+      operationId: getLicensingAuthoritiesOfActiveLicencesForVrmOnUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrm'
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+            example: 2019-09-09
+          required: false
+      responses:
+        200:
+          description: Names of licensing authorities
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/LicensingAuthoritiesAuditInfo'
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/LicensingAuthoritiesAuditInfo'
+        400:
+          description: Missing 'X-Correlation-Id' header
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        405:
+          description: The status code returned for all request methods except GET
+        500:
+          description: Internal server error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/licensing-authorities/:licensingAuthorityId:/vrm-audit":
+    get:
+      summary: For a given licensing authority (represented by its database identifier) returns a list of VRMs which had at least one active licence in the given licensing authority on the given date. When the given licensing authority id does not exist in the database, an empty list is returned with 200 status code
+      tags:
+        - NTR
+      operationId: getActiveLicencesForLicensingAuthorityOnUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - in: path
+          required: true
+          name: licensingAuthorityId
+          schema:
+            type: integer
+            example: 1
+      responses:
+        200:
+          description: VRMs which had at least one active licence for a given licensing authority on a given date
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ActiveLicencesAuditInfo'
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ActiveLicencesAuditInfo'
+        400:
+          description: Missing 'X-Correlation-Id' header
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        405:
+          description: The status code returned for all request methods except GET
+        500:
+          description: Internal server error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/scheme-management/register-csv-from-s3/jobs":
+    post:
+      summary: Request to start register job. Source will be CSV file located on AWS S3
+      tags:
+        - NTR
+      operationId: startRegisteringJobUsingPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
+        description: startRegisterCsvFromS3JobCommand
+        required: true
+      responses:
+        "201":
+          description: A handle which uniquely identifies register job that has been started
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
+        "400":
+          description: Correlation Id missing
+        "500":
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+      deprecated: false
+  "/v1/scheme-management/register-csv-from-s3/jobs/:registerJobName":
+    get:
+      summary: Gets status of register job identified by name
+      tags:
+        - NTR
+      operationId: queryForStatusOfRegisterJobUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/registerJobName'
+      responses:
+        "200":
+          description: Status of register job identified by register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
+        "400":
+          description: Correlation Id missing
+        "404":
+          description: Register job not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "422":
+          description: Incorrect format of register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "500":
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+      deprecated: false
+  "/v1/scheme-management/taxiphvdatabase":
+    post:
+      summary: Register details of licensed taxis and Private Hire Vehicles (PHVs)
+      tags:
+        - NTR
+      operationId: registerUsingPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/Vehicles"
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Vehicles"
+        required: true
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorsResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorsResponse'
+        "406":
+          description: Not acceptable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorsResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorsResponse'
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorsResponse'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/ErrorsResponse'
+  "/v1/retrofit/register-csv-from-s3/jobs/:registerJobName":
+    get:
+      summary: Gets status of register job identified by name
+      tags:
+        - Retrofit
+      operationId: queryForStatusOfRegisterRetrofittedVehiclesJobUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/registerJobName'
+      responses:
+        "200":
+          description: Status of register job identified by register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
+        "400":
+          description: Correlation Id missing
+        "404":
+          description: Register job not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "422":
+          description: Incorrect format of register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "500":
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+      deprecated: false
+  "/v1/retrofit/register-csv-from-s3/jobs":
+    post:
+      summary: Request to start register job. Source will be CSV file located on AWS S3
+      tags:
+        - Retrofit
+      operationId: startRegisteringRetrofittedVehiclesJobUsingPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
+        description: startRegisterCsvFromS3JobCommand
+        required: true
+      responses:
+        "201":
+          description: A handle which uniquely identifies register job that has been started
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
+        "400":
+          description: Correlation Id missing
+        "500":
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+      deprecated: false
+  "/v1/mod/register-csv-from-s3/jobs/:registerJobName":
+    get:
+      summary: Gets status of register job identified by name
+      tags:
+        - MOD
+      operationId: queryForStatusOfRegisterModVehiclesJobUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/registerJobName'
+      responses:
+        "200":
+          description: Status of register job identified by register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
+        "400":
+          description: Correlation Id missing
+        "404":
+          description: Register job not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "422":
+          description: Incorrect format of register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "500":
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+      deprecated: false
+  "/v1/mod/register-csv-from-s3/jobs":
+    post:
+      summary: Request to start register job. Source will be CSV file located on AWS S3
+      tags:
+        - MOD
+      operationId: startRegisteringModVehiclesJobUsingPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/xml:
+            schema:
+              $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
+        description: startRegisterCsvFromS3JobCommand
+        required: true
+      responses:
+        "201":
+          description: A handle which uniquely identifies register job that has been started
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/xml:
+              schema:
+                $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
+        "400":
+          description: Correlation Id missing
+        "500":
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+      deprecated: false
+  "/v1/charge-settlement/payment-info":
+    get:
+      summary: Allows LAs to query and retrieve data about a payment that has been made via GOV.UK Pay in relation to a vehicle that has entered their CAZ (a 'vehicle entrant')
+      tags:
+        - PSR
+      operationId: getPaymentInfoUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/xApiKey'
+        - $ref: '#/components/parameters/authorization'
+        - $ref: '#/components/parameters/timestamp'
+        - in: query
+          name: fromDatePaidFor
+          schema:
+            type: string
+            format: date
+          required: false
+          description: ISO 8601 formatted date string that can be used to obtain information about payments that have been made to travel in to a CAZ (identified by the x-api-key header parameter) on the specified date. This date is inclusive. If no VRN is specified, payment information for all vehicles that have paid to travel in to a CAZ (identified by the x-api-key header parameter) on the specified date will be returned. If no toDatePaidFor is specified, all settled charges for the 24 hour period corresponding to the specified date will be returned.
+        - in: query
+          name: paymentProviderId
+          schema:
+            type: string
+            maxLength: 255
+          required: false
+          description: GOV.UK Pay unique payment identifier. Can be used to obtain data associated with a specific GOV.UK Pay payment transaction. Can be specified as an alternative to vrn, fromDatePaidFor and toDatePaidFor to obtain information about a specific payment that a vehicle has made to travel in to a CAZ (identified by the x-api-key header parameter).
+        - in: query
+          name: toDatePaidFor
+          schema:
+            type: string
+            format: date
+          required: false
+          description: ISO 8601 formatted date string that can be used to determine what vehicles have paid to travel in to a CAZ (identified by the x-api-key header parameter) during a specified date range. This date is inclusive. If no VRN is specified, all settled charges for all vehicles that have paid a charge to enter the CAZ (identified by the x-api-key header parameter) during the specified date range will be returned. If no fromDatePaidFor is specified, all settled charges for the prior 24 hour period corresponding to the specified date will be returned.
+        - in: query
+          name: vrn
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 15
+          required: false
+          description: Identifies a vehicle for the purpose of obtaining information about associated payments that have been made to travel in to a CAZ (identified by the x-api-key header parameter). Attribute must exclude whitespace and is case insensitive. Typical usage of this attribute would be to specify it in combination with fromDatePaidFor and toDatePaidFor to obtain information about the payments associated with a specific vehicle that has paid to travel in to a CAZ (identified by the x-api-key header parameter) within a specific date range. If no fromDatePaidFor or toDatePaidFor is specified, information about all payments associated with the specified VRN and CAZ (identified by the x-api-key header parameter) will be returned.
+      responses:
+        200:
+          description: Success response for a payment info query
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInfoResponse'
+        400:
+          description: The request is missing a mandatory element
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInfoErrorsResponse'
+        401:
+          description: Unauthorised
+        405:
+          description: Method not allowed
+        429:
+          description: Too many requests
+        500:
+          description: System error message will be populated
+  "/v1/charge-settlement/payment-status":
+    get:
+      summary: Allows LAs to query and retrieve data that enables them to determine whether a vehicle that has entered their CAZ (a 'vehicle entrant') has paid the charge that they are liable for in order to determine whether enforcement action is required
+      tags:
+        - PSR
+      operationId: getPaymentStatusUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/xApiKey'
+        - $ref: '#/components/parameters/authorization'
+        - $ref: '#/components/parameters/timestamp'
+        - in: query
+          name: dateofCazEntry
+          schema:
+            type: string
+            format: date
+          required: true
+          description: ISO 8601 formatted date string indicating the date that the vehicle (identified by the ‘vrn’ attribute) entered the CAZ (identified by the x-api-key header parameter).
+        - in: query
+          name: vrn
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 15
+          required: true
+          description: Identifies a vehicle for the purpose of determining whether it has paid to travel in to the CAZ (identified by the x-api-key header parameter).Attribute must exclude whitespace and is case insensitive.
+      responses:
+        200:
+          description: Success response for a payment status query
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentStatusResponse'
+        400:
+          description: The request is missing a mandatory element
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentStatusErrorsResponse'
+        401:
+          description: Unauthorised
+        405:
+          description: Method not allowed
+        429:
+          description: Too many requests
+        500:
+          description: System error message will be populated
+    put:
+      summary: Allows Local Authorities to update the status of one or more paid CAZ charges to reflect any action that is being taken with the payment (e.g. such as the processing of a refund or chargeback)
+      tags:
+        - PSR
+      operationId: updatePaymentStatusUsingPUT
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/xApiKey'
+        - $ref: '#/components/parameters/authorization'
+        - $ref: '#/components/parameters/timestamp'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentStatusUpdateRequest'
+      responses:
+        200:
+          description: Success response
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/PaymentUpdateSuccessResponse'
+        400:
+          description: The request is missing a mandatory element
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/PaymentStatusErrorsResponse'
+        401:
+          description: Unauthorised
+        405:
+          description: Method not allowed
+        429:
+          description: Too many requests
+        500:
+          description: System error message will be populated
+  "/v1/payments/vehicle-entrants":
+    post:
+      summary: Creates (unless it exists) an entry in the database that represents an entrance of a vehicle into a CAZ. Upon completion of this operation the status of the payment associated with the entry is returned
+      operationId: createVehicleEntranceAndGetPaymentDetailsUsingPOST
+      tags:
+        - PSR
+      parameters:
+        - $ref: '#/components/headers/X-Correlation-ID'
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: '#/components/schemas/VehicleEntranceRequest'
+      responses:
+        200:
+          description: Success response for the vehicle entrants endpoint
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/VehicleEntranceResponse'
+        400:
+          description: The request is missing a mandatory element
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: '#/components/schemas/ErrorsResponse'
+        401:
+          description: Unauthorised
+        405:
+          description: Method not allowed
+        429:
+          description: Too many requests
+        500:
+          description: System error message will be populated
+  "/v1/payments":
+    post:
+      summary: Request to create Payment
+      tags:
+        - PSR
+      operationId: createPaymentPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/PaymentRequest"
+        required: true
+      responses:
+        201:
+          description: payment created
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentCreatedResult'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: payment creation error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/payments/:paymentId":
+    get:
+      summary: returns payment details (with status)
+      tags:
+        - PSR
+      operationId: paymentDetailsGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/paymentId'
+      responses:
+        200:
+          description: payment details
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: payment not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/payments/billable-days":
+    get:
+      summary: returns days which can be paid
+      tags:
+        - PSR
+      operationId: paymentDetails
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/cleanAirZoneId'
+      responses:
+        200:
+          description: return array of days
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BillableDaysResponse'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts":
+    post:
+      summary: Creates admin account (is_administrator = true)
+      tags:
+        - Accounts
+      operationId: createAdminAccountPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/AccountCreation"
+        required: true
+      responses:
+        201:
+          description: admin created
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Invalid parameters or correlation id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: admin creation error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/:accountId/users/:accountUserId/verify":
+    post:
+      summary: Verify account email address
+      tags:
+        - Accounts
+      operationId: verifyAccountPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+        - $ref: '#/components/parameters/accountUserId'
+      responses:
+        200:
+          description: Account email verified successfully
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Email already confirmed
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/auth/login":
+    post:
+      summary: Login endpoint for Accounts Microservice
+      tags:
+        - Accounts
+      operationId: LoginPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/LoginParams"
+        required: true
+      responses:
+        200:
+          description: Successfull login
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Invalid parameters or missing correlation ID
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        401:
+          description: User not found or invalid credentials
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: User not confirmed
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: Internal exception
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/whitelisting/vehicles":
+    post:
+      summary: Adds given vehicle to the whitelisting
+      tags: [WL]
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/WLNewVehicle"
+        required: true
+      responses:
+        201:
+          description: Vehicle added to whitelisting
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WLVehicle'
+        400:
+          description: Invalid parameters
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: Vehicle already whitelisted
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/whitelisting/vehicles/:vrn":
+    get:
+      summary: Returns whitelisted vehicle data
+      tags: [WL]
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      responses:
+        200:
+          description: Vehicle is present in whitelisting
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WLVehicle'
+        404:
+          description: Vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+    patch:
+      summary: Update the whitelisted vehicle
+      tags: [WL]
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/WLUpdateVehicle"
+      responses:
+        200:
+          description: Vehicle updated successfully
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WLVehicle'
+        404:
+          description: Vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        422:
+          description: Invalid parameters
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    delete:
+      summary: Remove the whitelisted vehicle
+      tags: [WL]
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      responses:
+        200:
+          description: Vehicle removed successfully
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WLVehicle'
+        404:
+          description: Vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/whitelisting/register-csv-from-s3/jobs":
+    post:
+      summary: Request to start register job. Source will be CSV file located on AWS S3
+      tags: [WL]
+      operationId: WLStartRegisteringJobUsingPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
+        description: startRegisterCsvFromS3JobCommand
+        required: true
+      responses:
+        "201":
+          description: A handle which uniquely identifies register job that has been started
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
+        "400":
+          description: Correlation Id missing
+  "/v1/whitelisting/register-csv-from-s3/jobs/:registerJobName":
+    get:
+      summary: Gets status of register job identified by name
+      tags: [WL]
+      operationId: WLQueryForStatusOfRegisterJobUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/registerJobName'
+      responses:
+        "200":
+          description: Status of register job identified by register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
+        "400":
+          description: Correlation Id missing
+        "404":
+          description: Register job not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "422":
+          description: Incorrect format of register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+  "/health":
+    get:
+      summary: Gets system status of service component. Endpoint exposed by each service.
+      tags:
+        - Others
+      responses:
+        "200":
+          description: Json with "UP" or "DOWN" and some details
+  "/v1/swagger-docs":
+    get:
+      summary: Gets Json with Swagger 2.0 Api specification. Endpoint exposed by each service.
+      tags:
+        - Others
+      responses:
+        "200":
+          description: Json with Swagger 2.0 Api specification
+  "/v1/migrate-db":
+    post:
+      summary: This endpoint will be used by VCCS, Tariff and NTR
+      tags:
+        - VCC
+        - Tariff
+        - NTR
+      operationId: Migrate db
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        200:
+          description: DB Schema migration succeeded
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+components:
+  parameters:
+    vrn:
+      in: path
+      name: vrn
+      required: true
+      schema:
+        $ref: "#/components/schemas/VRN"
+    vrm:
+      in: path
+      name: vrm
+      required: true
+      schema:
+        type: string
+    correlationId:
+      in: header
+      name: X-Correlation-ID
+      description: CorrelationID to track the request from the API gateway through the Enquiries stack
+      required: true
+      schema:
+        type: string
+        format: uuid
+    xApiKey:
+      in: header
+      name: x-api-key
+      description: "A unique key that is used to: (1) secure access to the API; and, (2) identify the Clean Air Zone that operations invoked via this API apply to."
+      required: true
+      schema:
+        type: string
+        format: uuid
+    zones:
+      in: query
+      name: zones
+      description: The identifiers of the clean air zones to be queried against for compliance checking purposes.
+      schema:
+        type: string
+      required: true
+      example: "zones=b4974ef2-145a-46de-b696-7bfe3a8a0e85,b4974ef2-145a-46de-b696-7bfe3a8a0e85"
+    vehicleType:
+      in: query
+      name: vehicleType
+      description: Vehicle type that is used to fetch corresponding charges.
+      schema:
+        type: string
+        enum:
+          - bus
+          - coach
+          - hgv
+          - large_van
+          - minibus
+          - small_van
+          - private_car
+          - motorcycle
+          - taxi_or_phv
+          - agricultural
+      required: true
+      example: "bus"
+    registerJobName:
+      in: path
+      name: registerJobName
+      required: true
+      schema:
+        type: string
+      description: Name that uniquely identifies register job which status should be returned. Obtained from POSTing to /register-csv-from-s3/jobs
+    paymentId:
+      in: path
+      name: paymentId
+      required: true
+      schema:
+        type: string
+      description: ID of internal Payment
+    cleanAirZoneId:
+      in: path
+      name: cleanAirZoneId
+      required: true
+      schema:
+        type: string
+      description: ID if clean air zone
+    accountId:
+      in: path
+      name: accountId
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Account id, should match the primary key of Account table
+    accountUserId:
+      in: path
+      name: accountUserId
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: Account User id, should match the primary key of Account_User table
+    authorization:
+      in: header
+      name: Authorization
+      description: OAuth 2.0 authorisation token
+      schema:
+        type: string
+      required: true
+    timestamp:
+      in: header
+      name: Timestamp
+      description: ISO 8601 formatted datetime string indicating the time that the request was made
+      schema:
+        type: string
+        format: date-time
+      required: true
+  headers:
+    X-Correlation-ID:
+      schema:
+        type: string
+        format: uuid
+      description: CorrelationID to track the request from the API gateway through the Enquiries stack
+    x-api-key:
+      schema:
+        type: string
+        format: uuid
+      description: "A unique key that is used to: (1) secure access to the API; and, (2) identify the Clean Air Zone that operations invoked via this API apply to."
+  schemas:
+    PaymentStatusUpdateRequest:
+      type: object
+      properties:
+        vrn:
+          type: string
+          description: Vehicle registration number
+        statusUpdates:
+          type: array
+          description: An array containing details of separate payments which need to be updated
+          items:
+            $ref: '#/components/schemas/PaymentStatusUpdateDetails'
+    PaymentStatusUpdateDetails:
+      type: object
+      properties:
+        caseReference:
+          description: A unique identifier that provides traceability between the central CAZ Service and Local Authority case management systems in the event that a payment is subject to some form of customer support query (e.g. a refund or chargeback)
+          type: string
+        dateOfCazEntry:
+          description: ISO 8601 formatted date string. Used in combination with the vrn attribute to uniquely identify a payment whose status requires updating
+          type: string
+          format: date
+        paymentProviderId:
+          description: GOV.UK Pay unique payment identifier returned by the payment-status GET method
+          type: string
+        paymentStatus:
+          description: Status of the payment. Can be either 'paid', 'notPaid','refunded' or 'chargeback'
+          type: string
+          enum: ["paid", "notPaid", "refunded", "chargeback"]
+          example: refunded
+    PaymentInfoResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          description: An array containig details about payments of queried VRNs
+          items:
+            $ref: '#/components/schemas/PaymentsInfo'
+    PaymentsInfo:
+      type: object
+      properties:
+        vrn:
+          type: string
+          description: Vehicle registration number
+          example: AB11CDE
+        payments:
+          description: An array containing information about particular payments of the given VRN
+          type: array
+          items:
+            $ref: '#/components/schemas/SinglePaymentInfo'
+    SinglePaymentInfo:
+      type: object
+      properties:
+        paymentDate:
+          type: string
+          format: date
+          description: ISO 8601 formatted date string that specifies the date on which the payment was made via GOV.UK Pay
+        paymentProviderId:
+          type: string
+          description: GOV.UK Pay unique payment identifier
+        totalPaid:
+          type: number
+          format: double
+          example: 8.46
+          description: The total GBP value of the payment linked to the paymentProviderId. If the motorist paid in advance to travel in to the CAZ on multiple dates, then the payment amount will be a multiple of the daily charge due (e.g. if the daily charge for a car entering a CAZ is £8.00, but the motorist paid in advance for 3 days of travel, then the chargePaid would be equal to £24.00). Expressed in pounds and pence format to 2 decimal places
+        lineItems:
+          description: >-
+            Array containing objects that specify the: (1) date(s) for which the vehicle has paid to journey in to the CAZ (identified by the x-api-key header parameter); (2) the charge associated with the journey; (3) the payment status of the charge (i.e. whether it has been paid or refunded); and, (4) any Local Authority case reference associated with the charge (e.g. that may be linked to a customer query relating to the charge). 1 object will be returned for each date of travel associated with the payment.
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleEntrantPaymentInfo'
+    VehicleEntrantPaymentInfo:
+      type: object
+      properties:
+        caseReference:
+          description: A unique identifier that provides traceability between the central CAZ Service and Local Authority case management systems in the event that a payment is subject to some form of customer support query (e.g. a refund or chargeback)
+          type: string
+        chargePaid:
+          type: number
+          format: double
+          example: 4.23
+          description: The GBP value of the payment linked to the paymentProviderId. If the motorist paid in advance to travel in to the CAZ on multiple dates, then the payment amount will be a multiple of the daily charge due (e.g. if the daily charge for a car entering a CAZ is £8.00, but the motorist paid in advance for 3 days of travel, then the chargePaid would be equal to £24.00). Expressed in pounds and pence format to 2 decimal places.
+        paymentStatus:
+          description: Status of the payment. Can be either 'paid', 'notPaid','refunded' or 'chargeback'
+          type: string
+          enum: ["paid", "notPaid", "refunded", "chargeback"]
+          example: paid
+        travelDate:
+          type: string
+          format: date
+          description: ISO 8601 formatted date string that specifies a date(s) for which the vehicle has paid to travel in to the CAZ (identified by the x-api-key header parameter)
+          items:
+            type: string
+    PaymentStatusResponse:
+      type: object
+      properties:
+        caseReference:
+          description: A unique identifier that provides traceability between the central CAZ Service and Local Authority case management systems in the event that a payment is subject to some form of customer support query (e.g. a refund or chargeback)
+          type: string
+        paymentProviderId:
+          description: GOV.UK Pay unique payment identifier
+          type: string
+        paymentStatus:
+          description: Status of the payment. Can be either 'paid', 'notPaid', 'refunded' or 'chargeback'
+          enum: ["paid", "notPaid", "refunded", "chargeback"]
+          example: refunded
+    PaymentUpdateSuccessResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+    VehicleEntranceRequest:
+      type: object
+      properties:
+        cleanZoneId:
+          type: string
+          format: uuid
+          description: Clean Air Zone identifier
+        cazEntryTimestamp:
+          type: string
+          format: dateTime
+          description: ISO 8601 formatted date and time string that specifies the date and time on which the vehicle entered the CAZ
+        vrn:
+          type: string
+          description: Vehicle registration number
+    VehicleEntranceResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: Payment status (PAID/NOT_PAID)
+          example: "PAID"
+    ActiveLicencesAuditInfo:
+      type: object
+      properties:
+        auditDate:
+          type: string
+          format: date
+          example: "2019-09-09"
+        licensingAuthorityId:
+          type: integer
+          example: 1
+        vrmsWithActiveLicences:
+          type: array
+          items:
+            type: string
+          example: ["PC00SNK"]
+    LicensingAuthoritiesAuditInfo:
+      type: object
+      properties:
+        licensingAuthoritiesNames:
+          type: array
+          items:
+            type: string
+          example: ["Leeds"]
+    BasicError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "500"
+          description: HTTP status
+        message:
+          type: string
+          example: Something went wrong
+          description: error message
+    VehicleError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "500"
+          description: HTTP status
+        registrationNumber:
+          type: string
+          example: CU12345
+          description: vrn from request
+        message:
+          type: string
+          example: Something went wrong
+          description: error message
+    PaymentStatusErrorsResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentStatusErrorResponse'
+    PaymentStatusErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+        status:
+          type: integer
+          example: 400
+        title:
+          type: string
+        vrn:
+          type: string
+          example: CU12345
+    PaymentInfoErrorsResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaymentInfoErrorResponse'
+    PaymentInfoErrorResponse:
+      type: object
+      properties:
+        detail:
+          type: string
+        status:
+          type: integer
+          example: 400
+        title:
+          type: string
+    ErrorResponse:
+      type: object
+      properties:
+        vrm:
+          type: string
+          example: "PC00SNK"
+        title:
+          type: string
+          example: "Validation error"
+        detail:
+          type: string
+          example: "Max number of vehicles exceeded"
+        status:
+          type: number
+          format: int
+          example: 500
+    ErrorsResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ErrorResponse'
+    PaymentError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "500"
+          description: HTTP status
+        message:
+          type: string
+          example: Something went wrong
+          description: error message
+    VehicleTypeCazCharges:
+      type: object
+      properties:
+        charges:
+          type: array
+          items:
+            $ref: '#/components/schemas/Charge'
+    Charge:
+      type: object
+      properties:
+        cleanAirZoneId:
+          type: string
+          example: "b4974ef2-145a-46de-b696-7bfe3a8a0e85"
+        name:
+          type: string
+          example: "Leeds"
+          description: CAZ name for given charge
+        charge:
+          type: number
+          example: 5.0
+        tariffCode:
+          type: string
+          example: BCC01-private_car
+          description: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay.
+    ComplianceResults:
+      type: object
+      properties:
+        registationNumber:
+          type: string
+          example: CU12345
+          description: Registration number of the vehicle
+        isRetrofitted:
+          type: boolean
+          description: Returns true if the vehicle is retrofitted
+        isExempt:
+          type: boolean
+          description: Returns true if the vehicle is not to be charged
+        complianceOutcomes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplianceOutcome'
+    ComplianceOutcome:
+      type: object
+      properties:
+        cleanAirZoneId:
+          type: string
+          example: b4974ef2-145a-46de-b696-7bfe3a8a0e85
+          description: System ID of the clean air zone
+        name:
+          type: string
+          example: Leeds
+          description: Official name of the zone
+        charge:
+          type: number
+          format: float
+          description: charge to pay in £, 0 means 'no charge'
+        tariffCode:
+          type: string
+          example: BCC01-private_car
+          description: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay.
+        informationUrls:
+          $ref: '#/components/schemas/InformationUrls'
+    InformationUrls:
+      type: object
+      properties:
+        emissionsStandards:
+          type: string
+          format: url
+          description: A URL linking to emission standards guidance published by a given Clean Air Zone operator
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/5"
+        mainInfo:
+          type: string
+          format: url
+          description: A URL linking to the main information guidance published by a given Clean Air Zone operator
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham"
+        pricing:
+          type: string
+          format: url
+          description: A URL linking to pricing information guidance published by a given Clean Air Zone operator
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/5"
+        hoursOfOperation:
+          type: string
+          format: url
+          description: A URL linking to operating hours guidance published by a given Clean Air Zone operator
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/4"
+        exemptionOrDiscount:
+          type: string
+          format: url
+          description: A URL linking to exemptions or discounts guidance published by a given Clean Air Zone operator
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/7"
+        payCaz:
+          type: string
+          format: url
+          description: A URL linking to charge payment guidance published by a given Clean Air Zone operator
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham"
+        becomeCompliant:
+          type: string
+          format: url
+          description: A URL linking to vehicle compliance guidance published by a given Clean Air Zone operator
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/8"
+        financialAssistance:
+          type: string
+          format: url
+          description: A URL linking to financial assistance guidance published by a given Clean Air Zone operator
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/7"
+        boundary:
+          type: string
+          format: url
+          description: A URL linking to geographic boundary guidance published by a given Clean Air Zone operator
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3"
+        additionalInfo:
+          type: string
+          format: url
+          description: A URL linking to additional info published by a given Clean Air Zone operator
+          example: "https://www.brumbreathes.co.uk/what-does-it-mean-for-me"
+        publicTransportOptions:
+          type: string
+          format: url
+          description: A URL linking to public transport options published by a given Clean Air Zone operator
+          example: "https://www.brumbreathes.co.uk/what-does-it-mean-for-me"
+    VehicleEntrants:
+      type: object
+      properties:
+        vehicleEntrants:
+          type: array
+          description: Array containing vrn and timestamp
+          items:
+            $ref: '#/components/schemas/VehicleEntrant'
+    VehicleEntrant:
+      type: object
+      properties:
+        vrn:
+          type: string
+          example: "SW61BYD"
+          minLength: 1
+          maxLength: 9
+          description: Vehicle registration number
+        timestamp:
+          type: string
+          format: uuid
+          example: "2017-10-01T155300Z"
+          minLength: 18
+          maxLength: 18
+          description: ISO-8601 formatted datetime indicating  when the vehicle was witnessed entering the CAZ
+    VehicleResults:
+      type: object
+      properties:
+        vehicleResult:
+          type: array
+          description: Array containing vehicle result
+          items:
+            $ref: '#/components/schemas/VehicleResult'
+    VehicleResult:
+      type: object
+      properties:
+        vrn:
+          type: string
+          example: "SW61BYD"
+          description: Vehicle registration number
+        make:
+          type: string
+          example: "volkswagen"
+          description: Vehicle make
+        model:
+          type: string
+          example: "golf"
+          description: Vehicle model
+        colour:
+          type: string
+          example: "black"
+          description: Vehicle colour
+        typeApproval:
+          type: string
+          example: "m1"
+          description: Vehicle type approval category.
+        status:
+          type: string
+          example: "notCompliantNotPaid"
+          description: Returns one of the following values (exempt, compliant, notCompliantPaid, notCompliantNotPaid, unrecognisedPaid, unrecognisedNotPaid).
+        exemptionCode:
+          type: string
+          example: "NEC001"
+          description: A code that uniquely identifies the national exemption on which the exempt status is based.
+        tariffCode:
+          type: string
+          example: "271TC001"
+          description: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay.
+        isTaxiOrPhv:
+          type: boolean
+          example: true
+          description: A value of 'true' indicates that the VRN is registered to a vehicle that operates as a licensed taxi or Private Hire Vehicle.
+        licensingAuthority:
+          type: array
+          items:
+            type: string
+            example:
+              - "Authority A"
+              - "Authority B"
+            description: Uniquely identifies the Licensing Authority that the taxi or Private Hire vehicle is licensed with.
+    VehicleEntrantsValidationError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: string
+            example:
+              - "Vehicle index: 0; reason: Invalid field value; details: vrn:SW61BYDDDDDDD"
+              - "Vehicle index: 0; reason: Invalid field value; details: timestamp:2012/10-01T155300Z"
+              - "Vehicle index: 1; reason: Invalid field value; details: vrn:FFFFFFFFFFFF"
+              - "Vehicle index: 2; reason: Mandatory field missing; details: vrn"
+              - "Vehicle index: 2; reason: Mandatory field empty; details: vrn"
+            description: Array contains validation errors for vehicle entrants request
+    Vrms:
+      type: object
+      properties:
+        vrms:
+          type: array
+          description: Array containing vrn
+          items:
+            type: string
+            example:
+              - "SW61BYD"
+              - "MK16YZR"
+    CleanAirZoneList:
+      type: object
+      properties:
+        cleanAirZones:
+          type: array
+          description: Array contains clean air zone objects
+          items:
+            $ref: '#/components/schemas/CAZ'
+    CAZList:
+      type: object
+      properties:
+        cleanAirZones:
+          $ref: '#/components/schemas/CAZ'
+    CAZ:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Birmingham
+          description: Official name of the zone
+        cleanAirZoneId:
+          type: string
+          format: uuid
+          example: e59539bd-0ca0-4a08-844d-3365841b1868
+          description: System ID of the clean air zone
+        boundaryUrl:
+          type: string
+          format: url
+          description: URL provided by zone operators, boundary
+          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3"
+    Tariff:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Birmingham
+          description: Official name of the zone
+        cleanAirZoneId:
+          type: string
+          format: uuid
+          example: e59539bd-0ca0-4a08-844d-3365841b1868
+          description: ID of the clean air zone
+        tariffClass:
+          type: string
+          format: char
+          example: C
+          description: Tariff class
+        chargeIdentifier:
+          type: string
+          example: BCC01
+          description: Charge identifier
+        rates:
+          type: object
+          description: Rates for every vehicle
+          properties:
+            bus:
+              type: number
+              format: bigdecimal
+              description: Rate for bus
+              example: 50.00
+            car:
+              type: number
+              format: bigdecimal
+              description: Rate for car
+              example: 50.00
+            miniBus:
+              type: number
+              format: bigdecimal
+              description: Rate for mini bus
+              example: 50.00
+            coach:
+              type: number
+              format: bigdecimal
+              description: Rate for coach
+              example: 50.00
+            taxi:
+              type: number
+              format: bigdecimal
+              description: Rate for taxi
+              example: 50.00
+            phv:
+              type: number
+              format: bigdecimal
+              description: Rate for phv
+              example: 50.00
+            hgv:
+              type: number
+              format: bigdecimal
+              description: Rate for hgv
+              example: 50.00
+            largeVan:
+              type: number
+              format: bigdecimal
+              description: Rate for large van
+              example: 50.00
+            smallVan:
+              type: number
+              format: bigdecimal
+              description: Rate for small van
+              example: 50.00
+            motorcycle:
+              type: number
+              format: bigdecimal
+              description: Rate for motorcycle
+              example: 50.00
+            moped:
+              type: number
+              format: bigdecimal
+              description: Rate for moped
+              example: 50.00
+        informationUrls:
+          $ref: '#/components/schemas/InformationUrls'
+    LicenceDetails:
+      type: object
+      properties:
+        active:
+          type: boolean
+          description: Boolean to indicate whether a given vehicle has any active operating licence
+        wheelchairAccessible:
+          type: boolean
+          description: Boolean to indicate whether a given vehicle is wheelchair accessible by any active operating licence
+        licensingAuthoritiesNames:
+          type: array
+          description: Array of Licensing Authorities (names) that currently have a given VRN
+          items:
+            type: string
+            example: Birmingham
+            description: Licensing Authority Name
+    Vehicles:
+      type: object
+      properties:
+        vehicleDetails:
+          type: array
+          description: Array containing vehicle detail objects
+          items:
+            $ref: '#/components/schemas/VehicleDto'
+    VehicleDto:
+      type: object
+      properties:
+        vrm:
+          $ref: '#/components/schemas/VRN'
+        start:
+          type: string
+          example: "2000-10-31"
+          description: "ISO 8601 formatted date string indicating the date from which a license is valid"
+          minLength: 8
+          maxLength: 10
+        end:
+          type: string
+          example: "2000-10-31"
+          description: "ISO 8601 formatted date string indicating the date until which a license is valid"
+          minLength: 8
+          maxLength: 10
+        taxiOrPhv:
+          type: string
+          description: String to indicate if the vehicle is a taxi or PHV
+          enum:
+            - taxi
+            - PHV
+        licensingAuthorityName:
+          type: string
+          description: String containing the name if the submitting licensing authority
+          minLength: 1
+          maxLength: 50
+        licensePlateNumber:
+          type: string
+          description: String containing the unique reference number granted (by the licensing authority) to a vehicle
+          minLength: 1
+          maxLength: 15
+        wheelchairAccessibleVehicle:
+          type: boolean
+          description: Boolean to indicate if the vehicle is wheelchair accessible or not
+    VehicleDetails:
+      type: object
+      properties:
+        registrationNumber:
+          type: string
+          example: CU12345
+          description: Registration number of the vehicle
+        type:
+          type: string
+          example: car
+          description: Type of the vehicle
+        make:
+          type: string
+          example: Audi
+          description: Vehicle manifacturer
+        colour:
+          type: string
+          example: red
+          description: Colour of the vehicle
+        fuelType:
+          type: string
+          example: diesel
+          description: Fual type of the vehicle
+        taxiOrPhv:
+          type: boolean
+          description: Returns true if the vehicle is a taxi or PHV
+        exempt:
+          type: boolean
+          description: Returns true if the vehicle is not to be charged
+        licensingAuthoritiesNames:
+          type: array
+          description: Array of Licensing Authorities Names
+          items:
+            type: string
+            example: Birmingham
+            description: Licensing Authority Name
+    RegisterCsvFromS3JobHandle:
+      type: object
+      properties:
+        jobName:
+          type: string
+          description: Name that uniquely identifies job of registering CSV from S3
+      title: RegisterCsvFromS3JobHandle
+    StartRegisterCsvFromS3JobCommand:
+      type: object
+      properties:
+        filename:
+          type: string
+          description: Name of CSV file that should be registered
+        s3Bucket:
+          type: string
+          description: Name of S3 Bucket in which CSV file is stored
+      title: StartRegisterCsvFromS3JobCommand
+    StatusOfRegisterCsvFromS3JobQueryResult:
+      type: object
+      properties:
+        errors:
+          type: array
+          description: List of any errors that happened during job processing. They are
+            supposed to be displayed to the end user. Can be missing/null/empty
+          items:
+            type: string
+        status:
+          type: string
+          description: Status code of register job identified by name
+          enum:
+            - RUNNING
+            - SUCCESS
+            - FAILURE
+      title: StatusOfRegisterCsvFromS3JobQueryResult
+    PaymentRequest:
+      type: object
+      properties:
+        days:
+          type: array
+          description: Array of days to pay
+          items:
+            type: string
+            format: date
+            example: 2019-09-09
+          example: ['2019-09-09']
+        vrn:
+          type: string
+          description: Vehicle registration number
+          example: BD51SMR
+        amount:
+          type: number
+          format: integer
+          description: Amount to pay in pence
+          example: 5010
+        cleanAirZoneId:
+          type: string
+          format: uuid
+          example: e59539bd-0ca0-4a08-844d-3365841b1868
+          description: System ID of the clean air zone
+        returnUrl:
+          type: string
+          format: url
+          description: A URL where user should be return after payment confirmation
+          example: "https://example.com/payments/result"
+        tariffCode:
+          type: string
+          example: BCC01-private_car
+          description: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay.
+    PaymentCreatedResult:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          format: uuid
+          example: e59539bd-0ca0-4a08-844d-3365841b1868
+          description: System ID of the payment
+        nextUrl:
+          type: string
+          format: url
+          description: A URL where user should be returned to make payment
+          example: "https://an.example.link/from/payment/platform"
+    Payment:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          format: uuid
+          example: e59539bd-0ca0-4a08-844d-3365841b1868
+          description: System ID of the payment
+        status:
+          type: string
+          example: 'success'
+        userEmail:
+          type: string
+          format: email
+          example: test@example.com
+          description: Email address submitted by the user during the payment process on Gov.UK Pay
+    BillableDaysResponse:
+      type: object
+      properties:
+        billableDays:
+          type: array
+          description: Array containing ISO 8601 formatted date strings that specify the date(s) which can user pay for
+          items:
+            type: string
+    AccountCreation:
+      type: object
+      properties:
+        accountName:
+          type: string
+          example: Royal Mail
+          description: Name of the created account account. It is not unique.
+        email:
+          type: string
+          format: email
+          description: Unique login credential. Should be used as the username in Cognito.
+        password:
+          type: string
+          description: User password used to login to the application.
+    User:
+      type: object
+      properties:
+        accountUserId:
+          type: string
+          format: uuid
+          description: Primary key of Account_User table
+        accountId:
+          type: string
+          format: uuid
+          description: AccountId in AccountUser table (must match PK in Account table)
+        accountName:
+          type: string
+          example: Royal Mail
+          description: Name of the created account. It is not unique. (accountName form Account table)
+        email:
+          type: string
+          format: email
+          description: Unique login credential. It is stored on Cognito level
+        admin:
+          type: boolean
+          description: Returns true for the fleet admin account
+    AccountError:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "422"
+          description: HTTP status
+        message:
+          type: string
+          example: "Submitted parameters are invalid"
+        errorCode:
+          type: string
+          description: code specifying what error which occured during account creation
+          enum: [emailNotUnique, passwordNotValid]
+    LoginParams:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Unique login credential.
+        password:
+          type: string
+          description: User password used to login to the application.
+    WLNewVehicle:
+      type: object
+      properties:
+        vrn:
+          $ref: '#/components/schemas/VRN'
+        addedBy:
+          type: string
+          format: uuid
+          description: User's sub
+        reasonAdded:
+          $ref: '#/components/schemas/WLAddReason'
+    WLVehicle:
+      type: object
+      properties:
+        vrn:
+          $ref: '#/components/schemas/VRN'
+        whitelisted:
+          type: boolean
+          description: Determines if the vehicle is currently marked as whitelisted. False means "removed from the list"
+        addedBy:
+          type: string
+          format: uuid
+          description: User's sub
+        updatedBy:
+          type: string
+          format: uuid
+          description: User's sub
+          nullable: true
+        removedBy:
+          type: string
+          format: uuid
+          description: User's sub
+          nullable: true
+        reasonAdded:
+          $ref: '#/components/schemas/WLAddReason'
+        reasonRemoved:
+          $ref: '#/components/schemas/WLRemoveReason'
+        dateAdded:
+          type: string
+          format: date
+          example: 2019-09-09
+        dateUpdated:
+          type: string
+          format: date
+          example: 2019-09-09
+          nullable: true
+        dateRemoved:
+          type: string
+          format: date
+          example: 2019-09-09
+          nullable: true
+    WLUpdateVehicle:
+      type: object
+      properties:
+        reasonAdded:
+          $ref: '#/components/schemas/WLAddReason'
+        reasonRemoved:
+          $ref: '#/components/schemas/WLRemoveReason'
+        updatedBy:
+          type: string
+          format: uuid
+          description: User's sub
+    WLAddReason:
+      type: string
+      enum: [other, earlyAdopter]
+    WLRemoveReason:
+      type: string
+      enum: [other]
+      nullable: true
+    VRN:
+      type: string
+      example: CU12345
+      description: String containing Vehicle registration number without whitespace
+      minLength: 2
+      maxLength: 7
+      pattern: "^([A-Za-z]{3}[0-9]{1,4})|([A-Za-z][0-9]{1,3}[A-Za-z]{3})|([A-Za-z]{3}[0-9]{1,3}[A-Za-z])|([A-Za-z]{2}[0-9]{2}[A-Za-z]{3})|([A-Za-z]{1,3}[0-9]{1,3})|([0-9]{1,4}[A-Za-z]{1,3})|([A-Za-z]{1,2}[0-9]{1,4})$"
+tags:
+  - name: VCC
+    description: Vehicle Compliance Checker
+  - name: Tariff
+    description: Tariff Service
+  - name: NTR
+    description: National Taxi Register
+  - name: Retrofit
+    description: Retrofit
+  - name: MOD
+    description: Mod
+  - name: PSR
+    description: Payments
+  - name: Accounts
+    description: Accounts API
+  - name: WL
+    description: Whitelisting
+  - name: Others
+    description: Others
+# Added by API Auto Mocking Plugin
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/musztardem/JAQU-CAZ-contract/1.8.4

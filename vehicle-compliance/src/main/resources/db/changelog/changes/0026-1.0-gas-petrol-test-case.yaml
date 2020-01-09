@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0026-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Add test case for gas/petrol.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: INSERT INTO vehicle (registrationNumber, typeapproval, make, model, colour, fuelType, euroStatus, revenueweight, unladenweight, seatingcapacity, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS382', 'M2', 'Ford', 'Focus', 'White', 'Gas/Petrol', 'Euro 4', '4998', '2814', '8', false, false, 'Car');

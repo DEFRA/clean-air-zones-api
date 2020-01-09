@@ -1,0 +1,42 @@
+application:
+  title: Retrofit Register API
+  validation:
+    max-errors-count: 5
+
+management:
+  endpoints:
+    web:
+      base-path:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    diskspace:
+      enabled: false
+
+swagger:
+  api:
+    title: Retrofit Register API
+    description: This service allows uploading CSV files with retroffited vehicles. Uploaded CSV files are processed asynchronously. Data saved by Retrofit service is read by Vehicle Compliance Checker service directly from database.
+    version: 0.1
+
+registerjob:
+  db:
+    max-errors-count: 100
+  lambda:
+    name: RetrofitRegisterCsvFromS3Function
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/caz_vcc
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 1
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /v1/swagger-docs

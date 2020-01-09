@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001-1.0
+      author: informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/001-create-initial-tables.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

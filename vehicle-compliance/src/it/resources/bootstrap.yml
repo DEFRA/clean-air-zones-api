@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: vehicle-compliance
+
+aws:
+  secretsmanager:
+    enabled: false
+
+cloud:
+  aws:
+    region:
+      auto: false
+      static: eu-west-2
+    stack:
+      auto: false

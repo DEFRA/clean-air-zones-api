@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0028.1-1.0
+      author: informed
+      changes:
+      - modifyDataType:
+          columnName: eurostatus
+          newDataType: varchar(15)
+          schemaName: public
+          tableName: vehicle
+  - changeSet:
+      id: 0028.2-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Add test cases for additional euro status values.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, euroStatus, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS390', 'M1', 'Ford', 'Focus', 'Red', 'Diesel', 'EURO6', false, true, 'Car');
+            
+              INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, euroStatus, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS391', 'M1', 'Ford', 'Focus', 'Blue', 'Diesel', 'EURO 6D TEMP', false, true, 'Car');
+              
+              INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, euroStatus, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS392', 'M1', 'Ford', 'Focus', 'Yellow', 'Diesel', 'EURO 6  AD', false, true, 'Car');
+              
+              INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, euroStatus, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS393', 'M1', 'Ford', 'Focus', 'Green', 'Diesel', 'EURO6B Y', false, true, 'Car');
+              
+              INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, euroStatus, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS394', 'N3', 'Scania', 'Truck', 'Black', 'Diesel', 'EUROIV', false, false, 'Heavy Goods Vehicle');
+              

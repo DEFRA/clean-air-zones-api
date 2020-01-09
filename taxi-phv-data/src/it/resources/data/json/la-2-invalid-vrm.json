@@ -1,0 +1,13 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "A99A99A",
+      "start": "2019-08-19",
+      "end": "2019-08-20",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-2",
+      "licensePlateNumber": "la-plate-1",
+      "wheelchairAccessibleVehicle": true
+    }
+  ]
+}

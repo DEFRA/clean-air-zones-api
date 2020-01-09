@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0030-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Upate test cases to incldue vehicle whose compliance is undetermined.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: INSERT INTO vehicle (registrationNumber, typeApproval, make, model, colour, fuelType, dateOfFirstRegistration, seatingCapacity) 
+                VALUES ('ERR422', 'M1', 'Ford', 'Focus', 'Black', null, '2016-03-01', '8');

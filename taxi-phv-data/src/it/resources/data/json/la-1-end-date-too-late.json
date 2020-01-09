@@ -1,0 +1,13 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "XQ25QVS",
+      "start": "2019-03-23",
+      "end": "2100-01-01",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "roSMT",
+      "wheelchairAccessibleVehicle": true
+    }
+  ]
+}

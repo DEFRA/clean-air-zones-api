@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0021-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - modifyDataType:
+            columnName: VRN
+            newDataType: varchar(15)
+            schemaName: public
+            tableName: T_CLEAN_AIR_ZONE_ENTRANT

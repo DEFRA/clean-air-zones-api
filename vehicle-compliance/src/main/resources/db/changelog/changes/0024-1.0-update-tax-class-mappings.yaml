@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0024-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update fuel types for test data.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: UPDATE vehicle 
+              SET taxclass  = 'DISABLED PASSENGER VEHICLE'
+              WHERE registrationNumber = 'CAS370'; 

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0027-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update fuel type test data.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: -- Update fuel cell value
+              UPDATE vehicle
+              SET fuelType = 'Fuel cells'
+              WHERE fuelType = 'fuel cell';

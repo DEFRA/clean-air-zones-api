@@ -1,0 +1,186 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0011.1-1.0
+      author: patryk.lenza
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              schemaName: public
+              tableName: T_NATIONAL_WHITELIST_TYPE
+      changes:
+        - createTable:
+            comment: Create table that holds type of MOD whitelist (Green or White)
+            tableName: T_NATIONAL_WHITELIST_TYPE
+            columns:
+              - column:
+                  name: NATIONAL_WHITELIST_TYPE
+                  type: varchar(35)
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: mod_national_whitelist_type_pkey
+              - column:
+                  name: WHITELIST_TYPE_DESCRIPTION
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - sql:
+            comment: Create Audit Trigger on T_NATIONAL_WHITELIST_TYPE table
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER T_NATIONAL_WHITELIST_TYPE_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_NATIONAL_WHITELIST_TYPE
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+            stripComments: true
+        - insert:
+            tableName: T_NATIONAL_WHITELIST_TYPE
+            columns:
+              - column:
+                  name: NATIONAL_WHITELIST_TYPE
+                  value: 'WHITE VEHICLE'
+              - column:
+                  name: WHITELIST_TYPE_DESCRIPTION
+                  value: "White type Military Vehicle"
+        - insert:
+            tableName: T_NATIONAL_WHITELIST_TYPE
+            columns:
+              - column:
+                  name: NATIONAL_WHITELIST_TYPE
+                  value: 'GREEN VEHICLE'
+              - column:
+                  name: WHITELIST_TYPE_DESCRIPTION
+                  value: "Green type Military Vehicle"
+  - changeSet:
+      id: 0011.2-1.0
+      author: patryk.lenza
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              schemaName: public
+              tableName: T_WHITELIST_DISCOUNT_CODE
+      changes:
+        - createTable:
+            comment: Create table that holds type of exemption
+            tableName: T_WHITELIST_DISCOUNT_CODE
+            columns:
+              - column:
+                  name: WHITELIST_DISCOUNT_CODE
+                  type: varchar(32)
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: mod_whitelist_discount_code_pkey
+              - column:
+                  name: DISCOUNT_CODE_DESCRIPTION
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - sql:
+            comment: Create Audit Trigger on T_WHITELIST_DISCOUNT_CODE table
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER T_WHITELIST_DISCOUNT_CODE_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_WHITELIST_DISCOUNT_CODE
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+            stripComments: true
+        - insert:
+            tableName: T_WHITELIST_DISCOUNT_CODE
+            columns:
+              - column:
+                  name: WHITELIST_DISCOUNT_CODE
+                  value: 'WDC001'
+              - column:
+                  name: DISCOUNT_CODE_DESCRIPTION
+                  value: "MOD"
+        - insert:
+            tableName: T_WHITELIST_DISCOUNT_CODE
+            columns:
+              - column:
+                  name: WHITELIST_DISCOUNT_CODE
+                  value: 'WDC002'
+              - column:
+                  name: DISCOUNT_CODE_DESCRIPTION
+                  value: "RETROFIT"
+        - insert:
+            tableName: T_WHITELIST_DISCOUNT_CODE
+            columns:
+              - column:
+                  name: WHITELIST_DISCOUNT_CODE
+                  value: 'WDC003'
+              - column:
+                  name: DISCOUNT_CODE_DESCRIPTION
+                  value: "OTHERS"
+  - changeSet:
+      id: 0011.3-1.0
+      author: patryk.lenza
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              schemaName: public
+              tableName: T_MOD_WHITELIST
+      changes:
+        - createTable:
+            comment: Create table that holds list of military VRNs to be exempted
+            tableName: T_MOD_WHITELIST
+            columns:
+              - column:
+                  name: MOD_WHITELIST_ID
+                  type: int(18)
+                  autoIncrement: true
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: mod_whitelist_id_pkey
+              - column:
+                  name: MOD_WHITELIST_TYPE
+                  type: varchar(35)
+                  constraints:
+                    references: T_NATIONAL_WHITELIST_TYPE(NATIONAL_WHITELIST_TYPE)
+                    foreignKeyName: fk_mod_whitelist_to_national_whitelist_type
+                    nullable: false
+              - column:
+                  name: WHITELIST_DISCOUNT_CODE
+                  type: varchar(32)
+                  defaultValue: WDC001
+                  constraints:
+                    nullable: false
+              - column:
+                  name: VRN
+                  type: varchar(7)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - sql:
+            comment: Create Audit Trigger on T_MOD_WHITELIST table
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER T_MOD_WHITELIST_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON T_MOD_WHITELIST
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+            stripComments: true

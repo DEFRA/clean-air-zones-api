@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0005-1.0
+      author: adam.jedro
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              schemaName: audit
+              tableName: logged_actions
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0005-1.0-create_audit_log_table_and_trigger.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+  - changeSet:
+      id: 0005.2-0
+      author: adam.jedro
+      changes:
+        - sql:
+            comment: Create Audit Trigger on all tables
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER vehicle
+              AFTER INSERT OR UPDATE OR DELETE ON vehicle
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+
+              CREATE TRIGGER military_vehicle
+              AFTER INSERT OR UPDATE OR DELETE ON military_vehicle
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+
+              CREATE TRIGGER retrofitted_vehicles
+              AFTER INSERT OR UPDATE OR DELETE ON retrofitted_vehicles
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+            stripComments: true

@@ -1,0 +1,26 @@
+### Integration tests configuration
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${postgres.url:localhost:9999}/postgres
+    hikari:
+      maximum-pool-size: 10
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+redis:
+  enabled: true
+  endpoint: ${redis.url:localhost}
+  port: ${redis.custom.port:6380}
+
+services:
+  national-taxi-register:
+    root-url: http://localhost:1080
+  tariff-service:
+    root-url: http://localhost:1080
+  payments:
+    root-url: http://localhost:1080
+    enabled: true
+
+dvla-api-endpoint: http://localhost:1080
+dvla-authentication-endpoint: http://localhost:1080/

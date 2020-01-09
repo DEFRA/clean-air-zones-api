@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0018.1-1.0
+      author: informed
+      changes:
+      - modifyDataType:
+          columnName: eurostatus
+          newDataType: varchar(8)
+          schemaName: public
+          tableName: vehicle
+
+  - changeSet:
+      id: 0018.2-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update fuel types for test data.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: -- Update Euro status values
+
+              UPDATE vehicle SET euroStatus = 'Euro 3'
+              WHERE euroStatus = '3';
+
+              UPDATE vehicle SET euroStatus = 'Euro 4'
+              WHERE euroStatus = '4';
+
+              UPDATE vehicle SET euroStatus = 'Euro 5'
+              WHERE euroStatus = '5';
+
+              UPDATE vehicle SET euroStatus = 'Euro 6'
+              WHERE euroStatus = '6';
+
+              -- Fix individual cases for heavy emissions vehicles (i.e. Roman numeral euroStatus)
+
+              UPDATE vehicle SET euroStatus = 'Euro IV'
+              WHERE registrationNumber = 'CAS315';
+
+              UPDATE vehicle SET euroStatus = 'Euro IV'
+              WHERE registrationNumber = 'CAS316';

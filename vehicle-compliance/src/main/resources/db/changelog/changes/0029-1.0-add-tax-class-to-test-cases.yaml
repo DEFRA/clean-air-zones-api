@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0029-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Upate test cases to incldue tax classes.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: UPDATE vehicle
+                SET taxClass = 'STANDEE BUS'
+                WHERE registrationNumber = 'CAS307';
+                
+                UPDATE vehicle
+                SET taxClass = 'DISABLED'
+                WHERE registrationNumber = 'CAS347';

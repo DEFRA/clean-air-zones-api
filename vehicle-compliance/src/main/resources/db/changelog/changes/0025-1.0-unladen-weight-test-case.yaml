@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0025-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Add test case for unladen weight use.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: INSERT INTO vehicle (registrationNumber, typeapproval, make, model, colour, fuelType, euroStatus, revenueweight, unladenweight, seatingcapacity, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS379', 'M2', 'Ford', 'Focus', 'White', 'Diesel', 'Euro 5', '4998', '2814', '8', false, false, 'Car');
+
+              INSERT INTO vehicle (registrationNumber, typeapproval, make, model, colour, fuelType, euroStatus, revenueweight, unladenweight, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS380', 'N1', 'Ford', 'Transit', 'Red', 'Petrol', 'Euro 5', '3499', '1278', true, false, 'Small Van');
+              
+              INSERT INTO vehicle (registrationNumber, typeapproval, make, model, colour, fuelType, euroStatus, revenueweight, unladenweight, expectedexempt, expectedcompliant, expectedtype)
+              values ('CAS381', 'N2', 'Scania', 'R-Series', 'White', 'Diesel', 'Euro IV', '3501', '2816', false, false, 'HGV');

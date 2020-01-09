@@ -1,0 +1,63 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0014-1.0
+      author: informed
+      changes:
+        - createTable:
+            tableName: T_CHARGE_VALIDITY
+            columns:
+              - column:
+                  name: CHARGE_VALIDITY_CODE
+                  type: varchar(5)
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: VALIDITY_CODE_DESC
+                  type: text
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: T_CLEAN_AIR_ZONE_ENTRANT
+            columns:
+              - column:
+                  name: ENTRANT_ID
+                  type: int(18)
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: entrant_id_pkey
+              - column:
+                  name: CHARGE_VALIDITY_CODE
+                  type: varchar(5)
+                  constraints:
+                    references: T_CHARGE_VALIDITY(CHARGE_VALIDITY_CODE)
+                    foreignKeyName: fk_charge_validity
+              - column:
+                  name: CLEAN_AIR_ZONE_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CORRELATION_ID
+                  type: varchar(40)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: VRN
+                  type: varchar(7)
+              - column:
+                  name: ENTRANT_TIMESTMP
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false

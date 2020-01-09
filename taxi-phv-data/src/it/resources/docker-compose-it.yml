@@ -1,0 +1,33 @@
+version: '2' # only version 2.x is supported by the maven plugin
+
+services:
+  postgres-it:
+    image: postgres:11-alpine
+    ports:
+      # if you modify the port, remember to change it in application's configuration as well
+      - 9999:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: caz-national-taxi-phv
+
+  redis-it:
+    image: redis
+    container_name: redis.docker
+    ports:
+      - 6380:6379
+
+  localstack-it:
+    image: localstack/localstack:0.10.2
+    ports:
+      - "4572:4572"
+      - "4576:4576"
+    environment:
+      - SERVICES=s3,sqs
+    volumes:
+      - "~/tmp/localstack:/tmp/localstack"
+    networks:
+      - localstack_network
+
+networks:
+  localstack_network:
