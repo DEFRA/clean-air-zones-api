@@ -1,0 +1,1 @@
+DELETE FROM caz_account.t_account_direct_debit_mandate;

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0016-1.0-add-status-column-to-direct-debit-mandates
+      author: antoni.pstras
+      changes:
+        - addColumn:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_DIRECT_DEBIT_MANDATE
+            columns:
+              - column:
+                  name: STATUS
+                  type: varchar(9)
+                  constraints:
+                    nullable: true

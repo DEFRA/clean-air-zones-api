@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0030.1-accounts-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName:  T_VEHICLE_CHARGEABILITY
+            baseTableSchemaName:  CAZ_ACCOUNT
+            constraintName:  T_VEHICLE_CHARGEABILITY_ACCOUNT_VEHICLE_ID_FKEY
+        - addForeignKeyConstraint:
+            baseColumnNames:  ACCOUNT_VEHICLE_ID
+            baseTableName:  T_VEHICLE_CHARGEABILITY
+            baseTableSchemaName:  CAZ_ACCOUNT
+            constraintName:  T_VEHICLE_CHARGEABILITY_ACCOUNT_VEHICLE_ID_FKEY
+            onDelete:  CASCADE
+            referencedColumnNames:  ACCOUNT_VEHICLE_ID
+            referencedTableName:  T_ACCOUNT_VEHICLE
+            referencedTableSchemaName:  CAZ_ACCOUNT

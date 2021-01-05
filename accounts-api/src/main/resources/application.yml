@@ -1,0 +1,198 @@
+application:
+  title: Accounts API
+  validation:
+    max-errors-count: 10
+  password-reset-token-in-minutes: 1440
+  verification-token-expiry-in-minutes: 1440
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /v1/swagger-docs
+
+logging:
+  level:
+    uk:
+      gov:
+        caz:
+          correlationid: INFO
+
+services:
+  connection-timeout-seconds: 29
+  read-timeout-seconds: 29
+  vehicle-compliance-checker:
+    root-url: http://localhost:1090
+  account-pay:
+    root-url: http://localhost:1090
+  fleets-ui:
+    root-url: http://localhost:3001
+  sqs:
+    new-queue-name: notify-gateway_new_dev.fifo
+    template-id: 36c3e259-e03c-415e-bf62-c7fbdb9d49a5
+    verification-template-id: 1d4e5cac-4081-4282-83a7-6e89b0f9ae83
+    email-change-template-id: f4b34c83-41dd-49ff-8336-8fce10b76a3c
+    invite-template-id: 3f159644-2354-48ab-9144-47667b30bf5a
+    charge-calculation-complete-template-id: 7758fcc1-7ec7-4766-b51a-166877d80c05
+    inactivity-165days-id: 5ea969de-5c48-480f-b30e-164e774c9bfc
+    inactivity-175days-id: 3275c592-d4cc-4f01-94e8-99793e5498ed
+    inactivity-180days-id: c7068800-9930-4e7a-a672-08eee2218a67
+
+management:
+  endpoints:
+    web:
+      base-path:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    diskspace:
+      enabled: false
+
+spring:
+  jpa:
+    open-in-view: false
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 100
+
+  # Please uncomment the lines below for debugging purposes
+  #    properties:
+  #      hibernate:
+  #        show_sql: true
+  #        format_sql: true
+
+  datasource:
+    platform: postgres
+    url: jdbc:postgresql://localhost:5432/accounts_caz
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 1
+      connection-timeout: 5000 # in ms
+      max-lifetime: 0 # always keep the connection in the pool unless it has been closed
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+    drop-first: false
+  main:
+    banner-mode: "off"
+  profiles:
+    active: dev
+
+swagger:
+  operations:
+    db:
+      migration:
+        description: Evolve DB schema
+    accounts:
+      create:
+        description: Creates a new user account based on provided payload
+      update:
+        description: Updates existing account based on provided payload
+      verify:
+        description: Verify account email address
+      account-vehicles:
+        retrieve-offset:
+          description: Retrieve a page of vehicles using offset
+        retrieve-cursor:
+          description: Retrieve a page of vehicles using cursor
+      create-user-for-account:
+        description: Creates a new user for the provided account
+        verification-url: URL to which user will be redirected in order to verify email.
+      resend-verification-email:
+        description: Sends verification email for the provided recipient.
+      create-and-invite-user-for-account:
+        description: Creates a user and sends an invitation email.
+    password-reset:
+      description: Endpoint used to initiate password reset
+      attributes:
+        email: Unique email which will be used to sign in
+        reset-url: UI address which should be used in the reset link
+    password-validate-token:
+      description: Validates reset password token
+    login:
+      description: Login endpoint for Accounts Microservice
+    account-vehicles:
+      create:
+        description: Creates a single AccountVehicle in organisation
+      delete:
+        description: Removes a single AccountVehicle from organisation
+      get:
+        description: Gets a single AccountVehicle from organisation
+    users:
+      get-standard-users:
+        description: Get non owner users for specified account
+      get-standard-user:
+        description: Get a specified non owner user for the account
+      get-user:
+        description: Get a specified user for the account.
+      manage-userdata:
+        description: Manages user's data - permissions or new name.
+      init-change-email:
+        description: Initiates the process of changing the user's email address.
+      confirm-email-change:
+        description: Finalizes the process of the email change.
+    csv-export:
+      description: Upload csv to S3 and generate presigned URL.
+    model:
+      descriptions:
+        account:
+          account-name: Name of the created account
+          email: Unique email which will be used to sign in
+          password: User password used to login to the application
+        login:
+          email: Unique email which will be used to sign in
+          password: User password used to login to the application
+        account-vehicle:
+          vrn: Vehicle Registration Number
+          account-id: Account ID
+        create-and-invite-user-for-account:
+          is-administered-by: Internal identifier of a inviting user
+          name: Name of the invited user
+          email: Email of the invited user
+        users:
+          permissions: >-
+            A list of permissions that needs to be set for a given user. Can be empty.
+          name: New name for the user
+        account-users:
+          multi-payer-account: Information whether this account is multi-payer
+          users: The list of VRNs associated with the account ID provided in the request
+        csv-export:
+          fileUrl: Presigned URL
+          bucketName: Bucket name
+    direct-debit-mandate:
+      create:
+        description: Creates a single DirectDebitMandate for Account
+      delete:
+        description: Deletes a single DirectDebitMandate which belongs to Account
+      get:
+        description: Gets all DirectDebitMandates assigned to Account
+    update-password:
+      description: Updates password of an user
+
+csv-export-bucket: fleet-csv-export-bucket
+
+registerjob:
+  lambda:
+    name: FleetVehiclesRegisterCsvFromS3Lambda
+
+lockout:
+  timeout: 30
+  login-attempts: 5
+
+charge-calculation:
+  lambda:
+    name: ChargeCalculationLambdaHandler
+    max-vehicles-to-process: 5000
+    max-invocation-count: 40
+  vccs:
+    bulk-check-batch-size: 10
+
+aws:
+  region: eu-west-2
+  cognito:
+    user-pool-id: cognito-user-pool-id
+    client-id: cognito-client-id
+    client-secret: cognito-client-secret

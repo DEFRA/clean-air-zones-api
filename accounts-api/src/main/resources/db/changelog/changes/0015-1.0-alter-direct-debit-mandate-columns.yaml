@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0015-1.0-alter-direct-debit-mandate-columns
+      author: antoni.pstras
+      changes:
+        - modifyDataType:
+            columnName: DIRECT_DEBIT_MANDATE_ID
+            newDataType: uuid
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_DIRECT_DEBIT_MANDATE
+        - modifyDataType:
+            columnName: PAYMENT_PROVIDER_MANDATE_ID
+            newDataType: varchar(100)
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_DIRECT_DEBIT_MANDATE

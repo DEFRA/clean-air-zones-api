@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0028.1-accounts-1.0
+      author: informed
+      changes:
+        - addForeignKeyConstraint:
+            baseTableSchemaName: CAZ_ACCOUNT
+            baseColumnNames: IS_ADMINISTRATED_BY
+            baseTableName: T_ACCOUNT_USER
+            referencedTableSchemaName: CAZ_ACCOUNT
+            referencedColumnNames: ACCOUNT_USER_ID
+            referencedTableName: T_ACCOUNT_USER
+            constraintName: fk_user_id_administrated_by

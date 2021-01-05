@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0020.1-accounts-1.0
+      author: informed
+      changes:
+        - modifyDataType:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT
+            columnName: ACCOUNT_NAME
+            newDataType: VARCHAR(180)
+            

@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0017.1-accounts-1.0
+      author: radoslaw.morytko
+      changes:
+        - createTable:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_PROHIBITED_LANGUAGE
+            columns:
+              - column:
+                  name: PROHIBITED_LANGUAGE_ID
+                  type: int(18)
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: prohibited_language_id_pkey
+              - column:
+                  name: TERM
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: TYPE
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+        - loadData:
+            tableName: T_PROHIBITED_LANGUAGE
+            schemaName: CAZ_ACCOUNT
+            columns:
+              - column:
+                  name: TERM
+                  type: STRING
+              - column:
+                  name: TYPE
+                  type: STRING
+            encoding: UTF-8
+            separator: ','
+            usePreparedStatements: true
+            file: db/changelog/data/csv/profanity_list.csv
+        - insert: # this is a temporary value that needs to be deleted once the list is provided
+            tableName: T_PROHIBITED_LANGUAGE
+            schemaName: CAZ_ACCOUNT
+            columns:
+              - column:
+                  name: TERM
+                  value: prohibitedtest
+              - column:
+                  name: TYPE
+                  value: ABUSE
+

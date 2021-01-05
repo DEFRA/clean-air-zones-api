@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0034.1-accounts-1.0
+      author: antoni.pstras
+      changes:
+        - addColumn:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT
+            columns:
+              - column:
+                  name: INACTIVATION_TSTAMP
+                  type: timestamp
+

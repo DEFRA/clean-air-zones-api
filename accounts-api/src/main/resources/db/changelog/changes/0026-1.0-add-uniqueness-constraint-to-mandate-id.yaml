@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0026-1.0-add-uniqueness-constraint-to-mandate-id
+      author: informed
+      changes:
+        - addUniqueConstraint:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_DIRECT_DEBIT_MANDATE
+            columnNames: payment_provider_mandate_id
+            constraintName: payment_provider_mandate_id_unique

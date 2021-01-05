@@ -1,0 +1,23 @@
+{
+  "vehicles": [
+    {
+      "vrn": "CAS123",
+      "isExempt": true,
+      "isRetrofitted": true,
+      "vehicleType": "HGV",
+      "cachedCharges": [
+        {
+          "cazId": "4a09097a-2175-4146-b7df-90dd9e58ac5c",
+          "charge": 1.15,
+          "tariffCode": null
+        },
+        {
+          "cazId": "4b384b63-0c0e-4979-90bf-aee3b7b51c3a",
+          "charge": 1.15,
+          "tariffCode": null
+        }
+      ]
+    }
+  ],
+  "totalVehiclesCount": 1
+}

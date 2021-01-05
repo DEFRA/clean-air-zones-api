@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0023.1-accounts-1.0
+      author: informed
+      changes:
+        - renameColumn:
+            newColumnName: is_owner
+            oldColumnName: is_administrator
+            schemaName: caz_account
+            tableName: t_account_user

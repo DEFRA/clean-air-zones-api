@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0024.1-accounts-1.0
+      author: antoni.pstras
+      changes:
+        - loadData:
+            tableName: T_PROHIBITED_LANGUAGE
+            schemaName: CAZ_ACCOUNT
+            columns:
+              - column:
+                  name: TERM
+                  type: STRING
+              - column:
+                  name: TYPE
+                  type: STRING
+            encoding: UTF-8
+            separator: ','
+            usePreparedStatements: true
+            file: db/changelog/data/csv/abusive_list.csv
+        - delete:
+            tableName: T_PROHIBITED_LANGUAGE
+            schemaName: CAZ_ACCOUNT
+            where: term='prohibitedtest'

@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0022.1-accounts-1.0
+      author: dawid.ratka
+      changes:
+        - addColumn:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_USER
+            columns:
+              - column:
+                  name: LAST_SIGN_IN_TIMESTMP
+                  type: timestamp

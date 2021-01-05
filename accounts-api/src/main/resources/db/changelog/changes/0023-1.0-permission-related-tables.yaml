@@ -1,0 +1,126 @@
+databaseChangeLog:
+  - changeSet:
+     id: 0023.1-accounts-1.0
+     author: lukasz.kuczynski
+     changes:
+      - createTable:
+          schemaName: CAZ_ACCOUNT
+          tableName: T_ACCOUNT_PERMISSION
+          columns:
+            - column:
+                name: ACCOUNT_PERMISSION_ID
+                type: bigint
+                autoIncrement: true
+                constraints:
+                    primaryKey: true
+                    primaryKeyName: T_ACCOUNT_PERMISSION_ACCOUNT_PERMISSION_ID_PKEY
+                    nullable: false
+            - column:
+                name: NAME
+                type: varchar(30)
+                constraints:
+                    nullable: false
+                    unique: true
+            - column:
+                name: DESCRIPTION
+                type: varchar(255)
+                constraints:
+                    nullable: false
+
+      - createTable:
+          schemaName: CAZ_ACCOUNT
+          tableName: T_ACCOUNT_USER_PERMISSION
+          columns:
+            - column:
+                name: ACCOUNT_USER_ID
+                type: uuid
+                constraints:
+                    nullable: false
+                    references: CAZ_ACCOUNT.T_ACCOUNT_USER(ACCOUNT_USER_ID)
+                    foreignKeyName: T_ACCOUNT_USER_PERMISSION_ACCOUNT_USER_ID_FKEY
+            - column:
+                name: ACCOUNT_PERMISSION_ID
+                type: bigint
+                constraints:
+                    nullable: false
+                    references: CAZ_ACCOUNT.T_ACCOUNT_PERMISSION(ACCOUNT_PERMISSION_ID)
+                    foreignKeyName: T_ACCOUNT_USER_PERMISSION_ACCOUNT_PERMISSION_ID_FKEY
+
+      - addPrimaryKey:
+           columnNames:  ACCOUNT_USER_ID, ACCOUNT_PERMISSION_ID
+           constraintName:  T_ACCOUNT_PERMISSION_ACCOUNT_USER_ID_ACCOUNT_PERMISSION_ID_PKEY
+           schemaName:  CAZ_ACCOUNT
+           tableName:  T_ACCOUNT_USER_PERMISSION
+           validate:  true
+           clustered: true
+
+  - changeSet:
+      id: 0023.2-accounts-1.0
+      author: lukasz.kuczynski
+      comment: Fill default values of T_ACCOUNT_PERMISSION table
+      changes:
+        - insert:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_PERMISSION
+            columns:
+              - column:
+                   name: ACCOUNT_PERMISSION_ID
+                   value:  1
+              - column:
+                   name: NAME
+                   value: VIEW_PAYMENTS
+              - column:
+                  name: DESCRIPTION
+                  value: View payment history
+        - insert:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_PERMISSION
+            columns:
+              - column:
+                  name: ACCOUNT_PERMISSION_ID
+                  value: 2
+              - column:
+                  name: NAME
+                  value: MAKE_PAYMENTS
+              - column:
+                  name: DESCRIPTION
+                  value: Make payments
+        - insert:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_PERMISSION
+            columns:
+              - column:
+                  name: ACCOUNT_PERMISSION_ID
+                  value: 3
+              - column:
+                  name: NAME
+                  value: MANAGE_VEHICLES
+              - column:
+                  name: DESCRIPTION
+                  value: Manage vehicles
+        - insert:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_PERMISSION
+            columns:
+              - column:
+                  name: ACCOUNT_PERMISSION_ID
+                  value: 4
+              - column:
+                  name: NAME
+                  value: MANAGE_USERS
+              - column:
+                  name: DESCRIPTION
+                  value: Manage users
+        - insert:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_PERMISSION
+            columns:
+              - column:
+                  name: ACCOUNT_PERMISSION_ID
+                  value: 5
+              - column:
+                  name: NAME
+                  value: MANAGE_MANDATES
+              - column:
+                  name: DESCRIPTION
+                  value: Set up direct debits

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0019.1-accounts-1.0
+      author: informed
+      changes:
+        - addColumn:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_DIRECT_DEBIT_MANDATE
+            columns:
+              - column:
+                  name: CREATED
+                  type: timestamp(6)
+                  defaultValueComputed: CURRENT_TIMESTAMP
