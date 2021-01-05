@@ -1,0 +1,29 @@
+version: '3.3'
+services:
+  localstack:
+    image: localstack/localstack:0.10.2
+    ports:
+      - "4567-4584:4567-4584"
+      - "${PORT_WEB_UI-8055}:${PORT_WEB_UI-8055}"
+    environment:
+      - SERVICES=${SERVICES- }
+      - DEBUG=${DEBUG- }
+      - DATA_DIR=${DATA_DIR- }
+      - PORT_WEB_UI=${PORT_WEB_UI- }
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+    volumes:
+      - "~/tmp/localstack:/tmp/localstack"
+    networks:
+      - localstack_network
+
+  redis:
+    image: grokzen/redis-cluster
+    container_name: redis.docker
+    ports:
+      - "7000-7009:7000-7009"
+    networks:
+      - localstack_network
+
+networks:
+  localstack_network:
