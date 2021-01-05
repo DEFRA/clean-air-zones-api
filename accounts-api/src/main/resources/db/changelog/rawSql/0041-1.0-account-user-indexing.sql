@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS account_id ON caz_account. t_account_user (account_id);

@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0035.1-accounts-1.0
+      author: radoslaw.morytko
+      changes:
+        - modifyDataType:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_DIRECT_DEBIT_MANDATE
+            columnName: STATUS
+            newDataType: varchar(30)

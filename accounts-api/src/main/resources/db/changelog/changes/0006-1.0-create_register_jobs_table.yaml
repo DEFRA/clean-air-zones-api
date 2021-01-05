@@ -1,0 +1,88 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0006.1-accounts-1.0
+      author: radoslaw.morytko
+      changes:
+        - createTable:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_JOB_REGISTER
+            columns:
+              - column:
+                  name: REGISTER_JOB_ID
+                  type: int(18)
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: register_job_id_pkey
+              - column:
+                  name: TRIGGER
+                  type: varchar(115)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: JOB_NAME
+                  type: varchar(256)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: UPLOADER_ID
+                  type: UUID
+                  constraints:
+                    nullable: false
+              - column:
+                  name: STATUS
+                  type: varchar(128)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: ERRORS
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: CORRELATION_ID
+                  type: varchar(256)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: LAST_MODIFIED_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - createIndex:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_JOB_REGISTER
+            indexName: T_ACCOUNT_JOB_REGISTER_TRIGGER_IDX
+            columns:
+              - column:
+                  name: TRIGGER
+                  type: varchar(128)
+        - createIndex:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_JOB_REGISTER
+            indexName: T_ACCOUNT_JOB_REGISTER_JOB_NAME_IDX
+            columns:
+              - column:
+                  name: JOB_NAME
+                  type: varchar(256)
+  - changeSet:
+      id: 0006.2-accounts-1.0
+      author: radoslaw.morytko
+      changes:
+        - sql:
+            comment: Create audit trigger on CAZ_ACCOUNT.T_ACCOUNT_JOB_REGISTER
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER T_ACCOUNT_JOB_REGISTER_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON CAZ_ACCOUNT.T_ACCOUNT_JOB_REGISTER
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();

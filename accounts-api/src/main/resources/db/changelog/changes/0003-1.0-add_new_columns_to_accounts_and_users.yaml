@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0003.1-accounts-1.0
+      author: dawid.ratka
+      changes:
+        - addColumn:
+            tableName: ACCOUNT
+            columns:
+              - column:
+                  name: ACCOUNT_TYPE
+                  type: varchar(128)
+                  constraints:
+                    nullable: true
+        - addColumn:
+            tableName: ACCOUNT_USER
+            columns:
+              - column:
+                  name: IS_ADMINISTRATED_BY
+                  type: uuid
+                  constraints:
+                    nullable: true

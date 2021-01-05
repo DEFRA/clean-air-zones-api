@@ -1,0 +1,9 @@
+{
+  "accountUserId":"0aff1b60-c997-4fea-9f7b-f405ddb383b4",
+  "accountId":"55701413-bc48-4e07-922c-830ac457ef52",
+  "accountName":"AccountName",
+  "email":"test@gov.uk",
+  "passwordUpdateTimestamp": "2020-01-10 05:42:45",
+  "owner": true,
+  "betaTester": false
+}

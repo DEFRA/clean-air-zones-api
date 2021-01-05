@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0008.1-accounts-1.0
+      author: dawid.ratka
+      changes:
+        - sql:
+            comment: Create schema for accounts audit
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE SCHEMA CAZ_ACCOUNT_AUDIT;
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0008-1.0-move-audit-to-valid-schema.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

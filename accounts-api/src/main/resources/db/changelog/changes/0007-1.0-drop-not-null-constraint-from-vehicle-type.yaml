@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0007.1-accounts-1.0
+      author: antoni.pstras
+      changes:
+        - dropNotNullConstraint:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_VEHICLE
+            columnName: CAZ_VEHICLE_TYPE
+            columnDataType: varchar(30)

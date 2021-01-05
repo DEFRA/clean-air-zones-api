@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0024.1-accounts-1.0
+      author: informed
+      changes:
+        - dropNotNullConstraint:
+            columnName: user_id
+            schemaName: caz_account
+            tableName: t_account_user

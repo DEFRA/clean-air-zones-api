@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0013-1.1-add-roles-fix
+      author: informed
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0013-1.1-add-roles-fix.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

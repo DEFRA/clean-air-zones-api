@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0021.1-accounts-1.0
+      author: dawid.ratka
+      changes:
+        - addColumn:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_USER
+            columns:
+              - column:
+                  name: INSERT_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP

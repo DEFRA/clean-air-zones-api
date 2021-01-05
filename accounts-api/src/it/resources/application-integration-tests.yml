@@ -1,0 +1,39 @@
+### Integration tests configuration
+
+application:
+  validation:
+    max-errors-count: 8
+  password-reset-token-in-minutes: 1440
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${postgres.url:localhost:9999}/accounts_caz
+    hikari:
+      maximum-pool-size: 1
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  jpa:
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+
+aws:
+  s3:
+    endpoint: http://${aws.s3.url:localhost:4572}
+  sqs:
+    endpoint: http://${aws.sqs.url:localhost:4576}
+  secretsmanager:
+    endpoint: http://${aws.secretsmanager.url:localhost:4584}
+    environment: localstack
+    name: config
+    prefix: accounts
+    profileSeparator: .
+
+services:
+  sqs:
+    message-group-id-payments: TEST_RECEIPT
+    new-queue-name: testqueue.fifo
+    template-id: test-template-id
+  vehicle-compliance-checker:
+    root-url: http://localhost:1090

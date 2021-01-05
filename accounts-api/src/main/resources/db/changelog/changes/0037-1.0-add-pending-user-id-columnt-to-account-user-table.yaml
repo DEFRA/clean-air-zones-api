@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0037.1-accounts-1.0
+      author: radoslaw.morytko
+      changes:
+        - addColumn:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_USER
+            columns:
+              - column:
+                  name: PENDING_USER_ID
+                  type: uuid
+                  constraints:
+                    nullable: true
+                    unique: true

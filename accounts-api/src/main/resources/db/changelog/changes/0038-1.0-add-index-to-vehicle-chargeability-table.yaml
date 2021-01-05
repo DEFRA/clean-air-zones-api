@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0038-1.0-add-index-to-vehicle-chargeability-table
+      author: Informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0038-1.0-add-index-to-vehicle-chargeability-table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true 

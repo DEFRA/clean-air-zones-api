@@ -1,0 +1,10 @@
+{
+  "name": "cognito-user-migration",
+  "version": "0.0.1",
+  "description": "Migrate users by setting their sub as preferred_username attribute",
+  "main": "index.js",
+  "author": "r.morytko",
+  "dependencies": {
+    "aws-sdk": "^2.700.0"
+  }
+}

@@ -1,0 +1,1 @@
+ALTER VIEW IF EXISTS caz_account.profile_of_vehicle_types_per_account SET SCHEMA caz_reporting;

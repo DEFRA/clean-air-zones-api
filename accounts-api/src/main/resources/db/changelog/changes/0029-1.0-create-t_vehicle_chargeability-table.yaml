@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0029.1-accounts-1.0
+      author: radoslaw.morytko
+      changes:
+        - createTable:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_VEHICLE_CHARGEABILITY
+            columns:
+              - column:
+                  name: ACCOUNT_VEHICLE_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    references: CAZ_ACCOUNT.T_ACCOUNT_VEHICLE(ACCOUNT_VEHICLE_ID)
+                    foreignKeyName: T_VEHICLE_CHARGEABILITY_ACCOUNT_VEHICLE_ID_FKEY
+              - column:
+                  name: CAZ_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CHARGE
+                  type: numeric(18,2)
+                  constraints:
+                    nullable: true # for undetermined vehicle should be null
+              - column:
+                  name: IS_EXEMPT
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: IS_RETROFITTED
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: TARIFF_CODE
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: REFRESH_TIMESTMP
+                  type: timestamp
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_VEHICLE_CHARGEABILITY
+            columnNames: ACCOUNT_VEHICLE_ID, CAZ_ID
+            constraintName: T_VEHICLE_CHARGEABILITY_ACCOUNT_VEHICLE_ID_CAZ_ID_PKEY

@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: accounts
+
+aws:
+  secretsmanager:
+    prefix: /config
+    defaultContext: accounts
+    profileSeparator: .
+    failFast: true
+    enabled: false
+
+cloud:
+  aws:
+    region:
+      auto: false
+      static: eu-west-2
+    stack:
+      auto: false

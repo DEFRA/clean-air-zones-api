@@ -1,0 +1,2 @@
+CREATE INDEX account_vehicle_account_id_idx 
+ON caz_account.t_account_vehicle(account_id);

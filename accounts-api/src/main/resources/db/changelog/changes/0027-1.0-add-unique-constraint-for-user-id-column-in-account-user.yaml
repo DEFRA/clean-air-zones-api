@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0027.1-accounts-1.0
+      author: radoslaw.morytko
+      changes:
+        - addUniqueConstraint:
+            schemaName: CAZ_ACCOUNT
+            columnNames: USER_ID
+            constraintName: T_ACCOUNT_USER_USER_ID_KEY
+            tableName: T_ACCOUNT_USER

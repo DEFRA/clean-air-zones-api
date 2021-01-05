@@ -1,0 +1,38 @@
+CREATE ROLE accounts_readonly_role WITH
+NOLOGIN
+NOSUPERUSER
+NOINHERIT
+NOCREATEDB
+NOCREATEROLE
+NOREPLICATION;
+
+GRANT CONNECT ON DATABASE accounts_caz TO accounts_readonly_role;
+GRANT USAGE ON SCHEMA public TO accounts_readonly_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO accounts_readonly_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO accounts_readonly_role;
+GRANT USAGE ON SCHEMA audit TO accounts_readonly_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA audit TO accounts_readonly_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA audit GRANT SELECT ON TABLES TO accounts_readonly_role;
+GRANT USAGE ON SCHEMA caz_account TO accounts_readonly_role;
+GRANT SELECT ON ALL TABLES IN SCHEMA caz_account TO accounts_readonly_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA caz_account GRANT SELECT ON TABLES TO accounts_readonly_role;
+
+
+CREATE ROLE accounts_readwrite_role WITH
+NOLOGIN
+NOSUPERUSER
+NOINHERIT
+NOCREATEDB
+NOCREATEROLE
+NOREPLICATION;
+
+GRANT CONNECT ON DATABASE accounts_caz TO accounts_readwrite_role;
+GRANT USAGE ON SCHEMA public TO accounts_readwrite_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO accounts_readwrite_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO accounts_readwrite_role;
+GRANT USAGE ON SCHEMA audit TO accounts_readwrite_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA audit TO accounts_readwrite_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA audit GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO accounts_readwrite_role;
+GRANT USAGE ON SCHEMA caz_account TO accounts_readonly_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA caz_account TO accounts_readwrite_role;
+ALTER DEFAULT PRIVILEGES IN SCHEMA caz_account GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO accounts_readwrite_role;

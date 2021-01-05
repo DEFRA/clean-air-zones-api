@@ -1,0 +1,140 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0002.1-accounts-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - sql:
+            comment: uuid-ossp extension
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: create extension if not exists "uuid-ossp";
+  - changeSet:
+      id: 0002.2-accounts-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - createTable:
+            tableName: ACCOUNT
+            columns:
+              - column:
+                  name: ACCOUNT_ID
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v1mc()
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: account_id_pkey
+              - column:
+                  name: ACCOUNT_NAME
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: ACCOUNT_USER
+            columns:
+              - column:
+                  name: ACCOUNT_USER_ID
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v1mc()
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: account_user_id_pkey
+              - column:
+                  name: ACCOUNT_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    references: ACCOUNT(ACCOUNT_ID)
+                    foreignKeyName: fk_account_id
+              - column:
+                  name: USER_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: IS_ADMINISTRATOR
+                  type: boolean
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: ACCOUNT_VEHICLE
+            columns:
+              - column:
+                  name: ACCOUNT_VEHICLE_ID
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v1mc()
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: account_vehicle_id_pkey
+              - column:
+                  name: ACCOUNT_ID
+                  type: uuid
+                  constraints:
+                    references: ACCOUNT(ACCOUNT_ID)
+                    foreignKeyName: fk_account_id
+              - column:
+                  name: VRN
+                  type: varchar(15)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CAZ_VEHICLE_TYPE
+                  type: varchar(30)
+                  constraints:
+                    nullable: false
+        - createTable:
+            tableName: DIRECT_DEBIT_MANDATE
+            columns:
+              - column:
+                  name: DIRECT_DEBIT_MANDATE_ID
+                  type: varchar(100)
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: direct_debit_mandate_id
+              - column:
+                  name: ACCOUNT_ID
+                  type: uuid
+                  constraints:
+                    references: ACCOUNT(ACCOUNT_ID)
+                    foreignKeyName: fk_account_id
+              - column:
+                  name: CAZ_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: PAYMENT_PROVIDER_MANDATE_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 0002.3-accounts-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - sql:
+            comment: Create Audit Trigger on ACCOUNT, ACCOUNT_USER, ACCOUNT_VEHICLE and DIRECT_DEBIT_MANDATE
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER ACCOUNT_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON ACCOUNT
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+
+              CREATE TRIGGER ACCOUNT_USER_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON ACCOUNT_USER
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+
+              CREATE TRIGGER ACCOUNT_VEHICLE_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON ACCOUNT_VEHICLE
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+
+              CREATE TRIGGER DIRECT_DEBIT_MANDATE_AUDIT
+              AFTER INSERT OR UPDATE OR DELETE ON DIRECT_DEBIT_MANDATE
+              FOR EACH ROW EXECUTE PROCEDURE audit.if_modified_func();
+            stripComments: true

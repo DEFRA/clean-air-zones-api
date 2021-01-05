@@ -1,0 +1,95 @@
+{
+  "vehicles": [
+    {
+      "vrn": "KQ93NFL",
+      "isExempt": false,
+      "isRetrofitted": false,
+      "vehicleType": "Bus",
+      "cachedCharges": [
+        {
+          "cazId": "4a09097a-2175-4146-b7df-90dd9e58ac5c",
+          "charge": 3.33,
+          "tariffCode": null
+        },
+        {
+          "cazId": "4b384b63-0c0e-4979-90bf-aee3b7b51c3a",
+          "charge": 3.33,
+          "tariffCode": null
+        }
+      ]
+    },
+    {
+      "vrn": "DKC789",
+      "isExempt": true,
+      "isRetrofitted": true,
+      "vehicleType": "Van",
+      "cachedCharges": [
+        {
+          "cazId": "4a09097a-2175-4146-b7df-90dd9e58ac5c",
+          "charge": 5.55,
+          "tariffCode": null
+        },
+        {
+          "cazId": "4b384b63-0c0e-4979-90bf-aee3b7b51c3a",
+          "charge": 5.55,
+          "tariffCode": null
+        }
+      ]
+    },
+    {
+      "vrn": "CAS123",
+      "isExempt": true,
+      "isRetrofitted": true,
+      "vehicleType": "HGV",
+      "cachedCharges": [
+        {
+          "cazId": "4a09097a-2175-4146-b7df-90dd9e58ac5c",
+          "charge": 1.15,
+          "tariffCode": null
+        },
+        {
+          "cazId": "4b384b63-0c0e-4979-90bf-aee3b7b51c3a",
+          "charge": 1.15,
+          "tariffCode": null
+        }
+      ]
+    },
+    {
+      "vrn": "BX92 CNE",
+      "isExempt": false,
+      "isRetrofitted": false,
+      "vehicleType": "Coach",
+      "cachedCharges": [
+        {
+          "cazId": "4a09097a-2175-4146-b7df-90dd9e58ac5c",
+          "charge": 9.65,
+          "tariffCode": "t-10"
+        },
+        {
+          "cazId": "4b384b63-0c0e-4979-90bf-aee3b7b51c3a",
+          "charge": 12.94,
+          "tariffCode": "t-20"
+        }
+      ]
+    },
+    {
+      "vrn": "ABC456",
+      "isExempt": false,
+      "isRetrofitted": false,
+      "vehicleType": "Van",
+      "cachedCharges": [
+        {
+          "cazId": "4a09097a-2175-4146-b7df-90dd9e58ac5c",
+          "charge": 2.56,
+          "tariffCode": "t-1"
+        },
+        {
+          "cazId": "4b384b63-0c0e-4979-90bf-aee3b7b51c3a",
+          "charge": 4.89,
+          "tariffCode": "t-2"
+        }
+      ]
+    }
+  ],
+  "totalVehiclesCount": 5
+}

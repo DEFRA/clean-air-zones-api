@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0014-1.0-add-audit-access-fix
+      author: informed
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0014-1.0-add-audit-access-fix.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

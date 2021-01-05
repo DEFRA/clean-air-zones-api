@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0036.1-accounts-1.0
+      author: lukasz.kuczynski
+      changes:
+        - addColumn:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT
+            columns:
+              - column:
+                  name: MULTI_PAYER_ACCOUNT
+                  type: boolean
+                  defaultValue: FALSE
+                  constraints:
+                    nullable: false
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0036-1.0-update-taccount-set-multipayer.sql
+            relativeToChangelogFile: true
