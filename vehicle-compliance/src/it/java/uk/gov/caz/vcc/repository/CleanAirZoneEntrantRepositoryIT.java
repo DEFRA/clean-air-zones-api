@@ -1,7 +1,7 @@
 package uk.gov.caz.vcc.repository;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static uk.gov.caz.vcc.util.CleanAirZoneEntrantAssert.assertThat;
 
 import java.time.LocalDateTime;
@@ -11,6 +11,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.TransactionSystemException;
 import uk.gov.caz.vcc.annotation.IntegrationTest;
 import uk.gov.caz.vcc.domain.ChargeValidity;
 import uk.gov.caz.vcc.domain.CleanAirZoneEntrant;
@@ -57,13 +58,14 @@ public class CleanAirZoneEntrantRepositoryIT {
     assertThat(all).hasSize(1);
 
     //check fields equality
-    assertThat(persistedCleanAirZoneEntrant.getEntrantId()).isGreaterThan(0);
+    assertThat(persistedCleanAirZoneEntrant.getEntrantId()).isNotNull();
 
     assertThat(entrantFromDb)
         .hasChargeValidityCode(chargeValidity.getChargeValidityCode())
         .hasCleanAirZoneId(cleanAirZoneEntrant.getCleanAirZoneId())
         .hasCorrelationId(cleanAirZoneEntrant.getCorrelationId())
         .hasVrn(cleanAirZoneEntrant.getVrn())
+        .hasEntrantPaymentId(cleanAirZoneEntrant.getEntrantPaymentId())
         .hasEntrantTimestamp(cleanAirZoneEntrant.getEntrantTimestamp())
         .hasInsertTimestamp(cleanAirZoneEntrant.getInsertTimestamp())
         .insertTimestampIsAfter(LocalDateTime.now().minusMinutes(1));
@@ -89,9 +91,12 @@ public class CleanAirZoneEntrantRepositoryIT {
     CleanAirZoneEntrant cleanAirZoneEntrant = buildCleanAirZoneEntrant(getChargeValidity(),
         "vrn1234567890123");
 
-    // expect
-    assertThrows(ConstraintViolationException.class,
+    // when
+    Throwable thrown = catchThrowable(
         () -> cleanAirZoneEntrantRepository.save(cleanAirZoneEntrant));
+    //then
+    assertThat(thrown).isInstanceOf(TransactionSystemException.class);
+    assertThat(thrown).hasStackTraceContaining(ConstraintViolationException.class.getName());
   }
 
   private CleanAirZoneEntrant buildCleanAirZoneEntrant(ChargeValidity chargeValidity, String vrn) {
@@ -105,6 +110,7 @@ public class CleanAirZoneEntrantRepositoryIT {
 
     cleanAirZoneEntrant.setChargeValidityCode(chargeValidity);
     cleanAirZoneEntrant.setVrn(vrn);
+    cleanAirZoneEntrant.setEntrantPaymentId(UUID.randomUUID());
     return cleanAirZoneEntrant;
   }
 

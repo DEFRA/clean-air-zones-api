@@ -11,10 +11,9 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
 import uk.gov.caz.vcc.annotation.IntegrationTest;
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
 import uk.gov.caz.vcc.domain.service.FuelTypeService;
 
 @IntegrationTest
@@ -26,7 +25,7 @@ public class EuroStatusNullComplianceServiceTestIT {
   @ParameterizedTest
   @MethodSource("NonEuroCompliantVehicles")
   void givenNonEuroCompliantVehicleThenPositiveComplianceCheck(Vehicle vehicle) {
-    assertTrue(cazComplianceService.isVehicleCompliance(vehicle));
+    assertTrue(cazComplianceService.isVehicleCompliant(vehicle));
   }
 
   private static Stream<Arguments> NonEuroCompliantVehicles() throws ParseException {
@@ -51,11 +50,14 @@ public class EuroStatusNullComplianceServiceTestIT {
     Vehicle privatePetrolHgv = makeVehicle(VehicleType.HGV, FuelTypeService.PETROL, null, 0, dateFormatter.parse("2006-01-02"));
     Vehicle privateDieselHgv = makeVehicle(VehicleType.HGV, FuelTypeService.DIESEL, null, 0, dateFormatter.parse("2014-01-01"));
 
-    Vehicle privatePetrolSmallVan = makeVehicle(VehicleType.SMALL_VAN, FuelTypeService.PETROL, null, 0, dateFormatter.parse("2006-01-02"));
-    Vehicle privateDieselSmallVan = makeVehicle(VehicleType.SMALL_VAN, FuelTypeService.DIESEL, null, 0, dateFormatter.parse("2015-09-02"));
-
-    Vehicle privatePetrolLargeVan = makeVehicle(VehicleType.LARGE_VAN, FuelTypeService.PETROL, null, 0, dateFormatter.parse("2007-01-02"));
-    Vehicle privateDieselLargeVan = makeVehicle(VehicleType.LARGE_VAN, FuelTypeService.DIESEL, null, 0, dateFormatter.parse("2016-09-02"));
+    Vehicle privateLowWeightPetrolVan = makeVehicle(VehicleType.VAN, FuelTypeService.PETROL, null, 1330, dateFormatter.parse("2006-01-02"));
+    Vehicle privateLowWeightDieselVan = makeVehicle(VehicleType.VAN, FuelTypeService.DIESEL, null, 1330, dateFormatter.parse("2015-09-02"));
+    
+    Vehicle privateNullWeightPetrolVan = makeVehicleNullWeight(VehicleType.VAN, FuelTypeService.PETROL, null, dateFormatter.parse("2006-01-02"));
+    Vehicle privateNullWeightDieselVan = makeVehicleNullWeight(VehicleType.VAN, FuelTypeService.DIESEL, null, dateFormatter.parse("2015-09-02"));
+    
+    Vehicle privateHighWeightPetrolVan = makeVehicle(VehicleType.VAN, FuelTypeService.PETROL, null, 1331, dateFormatter.parse("2007-01-02"));
+    Vehicle privateHighWeightDieselVan = makeVehicle(VehicleType.VAN, FuelTypeService.DIESEL, null, 1331, dateFormatter.parse("2016-09-02"));
 
     Vehicle privateMotorCycle = makeVehicle(VehicleType.MOTORCYCLE, FuelTypeService.PETROL, null, 0, dateFormatter.parse("2007-01-02"));
     
@@ -73,12 +75,15 @@ public class EuroStatusNullComplianceServiceTestIT {
                       Arguments.of(privateDieselCoach),
                       Arguments.of(privatePetrolHgv),
                       Arguments.of(privateDieselHgv),
-                      Arguments.of(privatePetrolSmallVan),
-                      Arguments.of(privateDieselSmallVan),
-                      Arguments.of(privatePetrolLargeVan),
-                      Arguments.of(privateDieselLargeVan),
+                      Arguments.of(privateLowWeightPetrolVan),
+                      Arguments.of(privateLowWeightDieselVan),
+                      Arguments.of(privateNullWeightPetrolVan),
+                      Arguments.of(privateNullWeightDieselVan),
+                      Arguments.of(privateHighWeightPetrolVan),
+                      Arguments.of(privateHighWeightDieselVan),
                       Arguments.of(privateMotorCycle));
   }  
+  
   private static Vehicle makeVehicle(VehicleType vehicleType,
                                     String fuelType,
                                     String euroStatus,
@@ -89,6 +94,18 @@ public class EuroStatusNullComplianceServiceTestIT {
     vehicle.setVehicleType(vehicleType);
     vehicle.setFuelType(fuelType);
     vehicle.setRevenueWeight(Integer.valueOf(revenueWeight));
+    vehicle.setDateOfFirstRegistration(dateOfFirstRegistration);
+    return vehicle;
+  }
+  
+  private static Vehicle makeVehicleNullWeight(VehicleType vehicleType,
+      String fuelType,
+      String euroStatus,
+      Date dateOfFirstRegistration) {
+    Vehicle vehicle = new Vehicle();
+    vehicle.setEuroStatus(euroStatus);
+    vehicle.setVehicleType(vehicleType);
+    vehicle.setFuelType(fuelType);
     vehicle.setDateOfFirstRegistration(dateOfFirstRegistration);
     return vehicle;
   }

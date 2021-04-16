@@ -1,9 +1,12 @@
 {
   "active": true,
+  "description": "TAXI",
   "wheelchairAccessible": true,
+  "licensedStatusExpires": "2099-12-31",
   "licensingAuthoritiesNames": [
     "la-1",
     "la-3",
     "la-4"
-  ]
+  ],
+  "addedTimestamp": "2020-11-19 17:02:39"
 }

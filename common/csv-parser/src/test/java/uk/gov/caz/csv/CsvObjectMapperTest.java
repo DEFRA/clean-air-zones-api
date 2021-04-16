@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.SneakyThrows;
@@ -57,6 +58,16 @@ class CsvObjectMapperTest {
       super(csvParser, maxErrorsCount, csvParseExceptionResolver);
     }
 
+    CsvObjectMapperImpl(ICSVParser csvParser, CsvParseExceptionResolver csvParseExceptionResolver) {
+      super(csvParser, csvParseExceptionResolver);
+    }
+
+    CsvObjectMapperImpl(ICSVParser csvParser, int maxErrorsCount,
+        CsvParseExceptionResolver csvParseExceptionResolver,
+        Consumer<CSVReaderBuilder> csvReaderModifier) {
+      super(csvParser, maxErrorsCount, csvParseExceptionResolver, csvReaderModifier);
+    }
+
     @Override
     public ValueClass mapToObject(String[] fields, int lineNo) {
       return new ValueClass(fields[0], lineNo);
@@ -79,8 +90,9 @@ class CsvObjectMapperTest {
   }
 
   @ParameterizedTest
-  @ValueSource(ints = {-10, -1, 0})
-  public void shouldThrowIllegalArgumentExceptionWhenMaxErrorIsNotPositive(int maxErrorCount) {
+  @ValueSource(ints = {-10, 0})
+  public void shouldThrowIllegalArgumentExceptionWhenMaxErrorIsNotPositiveOrMinusOne(
+      int maxErrorCount) {
     // when
     Throwable throwable = catchThrowable(() ->
         csvObjectMapper = new CsvObjectMapperImpl(parser, maxErrorCount, exceptionResolver)
@@ -90,6 +102,22 @@ class CsvObjectMapperTest {
     then(throwable)
         .hasMessageStartingWith("Max errors count must be positive")
         .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  public void shouldThrowNullPointerExceptionIfCsvReaderModifierIsNull() {
+    // given
+    Consumer<CSVReaderBuilder> builderConsumer = null;
+
+    // when
+    Throwable throwable = catchThrowable(() ->
+        csvObjectMapper = new CsvObjectMapperImpl(parser, 10, exceptionResolver, builderConsumer)
+    );
+
+    // then
+    then(throwable)
+        .hasMessage("csvReaderModifier cannot be null")
+        .isInstanceOf(NullPointerException.class);
   }
 
   @Test
@@ -122,10 +150,34 @@ class CsvObjectMapperTest {
   }
 
   @Nested
+  class WhenThereAreParseErrors {
+
+    @Test
+    public void shouldIncrementLineNumberWhenInitialAreSkipped() throws IOException {
+      // given
+      int skipLines = 2;
+      mockParsingResultsWithErrors(2);
+      csvObjectMapper = new CsvObjectMapperImpl(parser, 10, exceptionResolver,
+          csvReaderBuilder -> csvReaderBuilder.withSkipLines(skipLines));
+
+      // when
+      CsvParseResult<ValueClass> result = csvObjectMapper
+          .read(getFileInputStream("data/csv/data-with-header.csv"));
+
+      // then
+      then(result.getValidationErrors()).hasSize(1);
+      then(result.getValidationErrors().iterator().next())
+          .extracting(CsvValidationError::getLineNumber)
+          .isEqualTo(4);
+    }
+  }
+
+  @Nested
   class WhenThereAreNoParseErrors {
 
     @Value
     class TestClass {
+
       private String field1;
       private String field;
     }
@@ -148,7 +200,8 @@ class CsvObjectMapperTest {
     @Test
     public void shouldParseFileWithFieldsWithEmptyValues() throws IOException {
       // given
-      CsvObjectMapper<TestClass> csvObjectMapper = new CsvObjectMapper<TestClass>(new CSVParser(), ANY_MAX_ERROR_COUNT,
+      CsvObjectMapper<TestClass> csvObjectMapper = new CsvObjectMapper<TestClass>(new CSVParser(),
+          ANY_MAX_ERROR_COUNT,
           (exception, lineNumber) -> Optional.empty()) {
         @Override
         public TestClass mapToObject(String[] fields, int lineNo) {
@@ -205,6 +258,25 @@ class CsvObjectMapperTest {
     }
   }
 
+  @Nested
+  class WhenErrorsSizeIsEqualToMinusOne {
+
+    @Test
+    public void shouldNotStopParsingFile() throws IOException {
+      // given
+      int numberOfLines = 15;
+      csvObjectMapper = new CsvObjectMapperImpl(parser, exceptionResolver);
+      mockParsingResultsWithErrors(numberOfLines);
+
+      // when
+      CsvParseResult<ValueClass> result = csvObjectMapper.read(toInputStream(
+          createLines(numberOfLines)));
+
+      // then
+      then(result.getValidationErrors()).hasSize(7);
+    }
+  }
+
   private String getAsciiCharacter(int i) {
     return String.valueOf(Character.forDigit(i + 10 - 1, Character.MAX_RADIX));
   }
@@ -258,7 +330,8 @@ class CsvObjectMapperTest {
     return new CsvObjectMapperImpl(parser, Integer.MAX_VALUE, exceptionResolver) {
       @Override
       protected CSVReader createReader(InputStream inputStream) {
-        CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new InputStreamReader(inputStream));
+        CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(
+            new InputStreamReader(inputStream));
         csvReaderBuilder.withCSVParser(parser);
         csvReaderBuilder.withLineValidator(new LineValidator() {
           @Override

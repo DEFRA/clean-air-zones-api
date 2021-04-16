@@ -14,6 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -32,6 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.PreparedStatementSetter;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import uk.gov.caz.taxiregister.model.LicenseDates;
 import uk.gov.caz.taxiregister.model.LicensingAuthority;
 import uk.gov.caz.taxiregister.model.TaxiPhvVehicleLicence;
@@ -59,12 +61,12 @@ class TaxiPhvLicencePostgresRepositoryTest {
       .description("TAXI")
       .licenseDates(
           new LicenseDates(
-              LocalDate.now(), 
+              LocalDate.now(),
               LocalDate.now().plusDays(1))
-       )
+      )
       .licensingAuthority(
           new LicensingAuthority(1, "la-name")
-       ).build();
+      ).build();
 
   private static final Set<TaxiPhvVehicleLicence> ANY_TAXI_PHV_VEHICLE_LICENCES = ImmutableSet
       .of(ANY_TAXI_PHV_VEHICLE_LICENCE.toBuilder().id(1).vrm("1289J").build(),
@@ -74,6 +76,9 @@ class TaxiPhvLicencePostgresRepositoryTest {
   @Mock
   private JdbcTemplate jdbcTemplate;
 
+  @Mock
+  private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
   @Captor
   private ArgumentCaptor<PreparedStatementSetter> preparedStmtSetterArgumentCaptor;
 
@@ -82,7 +87,7 @@ class TaxiPhvLicencePostgresRepositoryTest {
   @BeforeEach
   public void init() {
     taxiPhvLicencePostgresRepository = new TaxiPhvLicencePostgresRepository(
-        jdbcTemplate, ANY_BATCH_SIZE, ANY_BATCH_SIZE);
+        jdbcTemplate, ANY_BATCH_SIZE, ANY_BATCH_SIZE, namedParameterJdbcTemplate);
   }
 
   @Test
@@ -259,10 +264,10 @@ class TaxiPhvLicencePostgresRepositoryTest {
       when(resultSet.getInt(anyString())).thenAnswer(answer -> {
         String argument = answer.getArgument(0);
         switch (argument) {
-        case "taxi_phv_register_id":
-          return 1;
-        case "licence_authority_id":
-          return 999;
+          case "taxi_phv_register_id":
+            return 1;
+          case "licence_authority_id":
+            return 999;
         }
         throw new RuntimeException("Value not stubbed!");
       });
@@ -278,22 +283,27 @@ class TaxiPhvLicencePostgresRepositoryTest {
                 return LocalDate.now().plusDays(1);
               }
             }
+            if (LocalDateTime.class.equals(clazz)) {
+              if ("insert_timestmp".equals(argument)) {
+                return LocalDateTime.now();
+              }
+            }
             return ANY_UPLOADER_ID;
           });
 
       when(resultSet.getString(anyString())).thenAnswer(answer -> {
         String argument = answer.getArgument(0);
         switch (argument) {
-        case "vrm":
-          return "AAA99";
-        case "licence_authority_name":
-          return "la-name-1";
-        case "licence_plate_number":
-          return "plate-1";
-        case "description":
-          return description;
-        case "wheelchair_access_flag":
-          return wheelchairAccessFlagValue;
+          case "vrm":
+            return "AAA99";
+          case "licence_authority_name":
+            return "la-name-1";
+          case "licence_plate_number":
+            return "plate-1";
+          case "description":
+            return description;
+          case "wheelchair_access_flag":
+            return wheelchairAccessFlagValue;
         }
         throw new RuntimeException("Value not stubbed!");
       });

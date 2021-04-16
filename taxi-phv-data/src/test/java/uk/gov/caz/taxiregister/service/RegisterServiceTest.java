@@ -42,9 +42,9 @@ import uk.gov.caz.taxiregister.model.LicensingAuthority;
 import uk.gov.caz.taxiregister.model.TaxiPhvVehicleLicence;
 import uk.gov.caz.taxiregister.model.ValidationError;
 import uk.gov.caz.taxiregister.model.VrmSet;
+import uk.gov.caz.taxiregister.repository.AuditingRepository;
 import uk.gov.caz.taxiregister.repository.TaxiPhvLicencePostgresRepository;
 import uk.gov.caz.taxiregister.service.RegisterService.RegisterContext;
-import uk.gov.caz.taxiregister.service.RegisterService.UniqueLicenceAttributes;
 
 @ExtendWith(MockitoExtension.class)
 class RegisterServiceTest {
@@ -54,6 +54,9 @@ class RegisterServiceTest {
 
   @Mock
   private TaxiPhvLicencePostgresRepository taxiPhvLicencePostgresRepository;
+  
+  @Mock
+  private AuditingRepository auditingRepository;
 
   @Mock
   private RegisterContextFactory registerContextFactory;

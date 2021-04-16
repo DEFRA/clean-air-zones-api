@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0065.1-0-update-pgaudit-level
+      author: informed
+      preConditions: # run this changeset unless we're in CI/CD
+        - onFail: MARK_RAN
+        - not:
+            changeLogPropertyDefined:
+              property: BUILD_ID # this env variable is set in CI execution environment
+      changes:
+        - sql:
+            comment: Uplift pgaudit to not log READ statements.
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: >-
+              CREATE EXTENSION if not exists pgaudit;
+              ALTER DATABASE "taxi_phv" set pgaudit.log = 'ALL, -READ';
+            stripComments: true

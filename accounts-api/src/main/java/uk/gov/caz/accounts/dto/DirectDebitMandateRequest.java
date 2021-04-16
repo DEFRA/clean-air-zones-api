@@ -29,6 +29,11 @@ public class DirectDebitMandateRequest {
   UUID cleanAirZoneId;
 
   /**
+   * An identifier of the account which creates the direct debit mandate.
+   */
+  UUID accountUserId;
+
+  /**
    * Public method that validates given object and throws exceptions if validation doesn't pass.
    */
   public void validate() {
@@ -47,6 +52,7 @@ public class DirectDebitMandateRequest {
       MapPreservingOrderBuilder.<Function<DirectDebitMandateRequest, Boolean>, String>builder()
           .put(debitMandateIdIsNotNullOrEmpty(), "directDebitMandateId cannot be null.")
           .put(cleanAirZoneIdIsNotNull(), "cleanAirZoneId cannot be null or empty.")
+          .put(accountUserIdIsNotNull(), "accountUserId cannot be null.")
           .build();
 
   /**
@@ -61,5 +67,12 @@ public class DirectDebitMandateRequest {
    */
   private static Function<DirectDebitMandateRequest, Boolean> cleanAirZoneIdIsNotNull() {
     return request -> !isNull(request.getCleanAirZoneId());
+  }
+
+  /**
+   * Returns a lambda that verifies if 'accountUserId' is not null.
+   */
+  private static Function<DirectDebitMandateRequest, Boolean> accountUserIdIsNotNull() {
+    return request -> !isNull(request.getAccountUserId());
   }
 }

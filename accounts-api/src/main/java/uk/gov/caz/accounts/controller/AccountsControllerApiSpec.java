@@ -23,6 +23,7 @@ import uk.gov.caz.accounts.dto.AccountCreationResponseDto;
 import uk.gov.caz.accounts.dto.AccountResponseDto;
 import uk.gov.caz.accounts.dto.AccountUpdateRequestDto;
 import uk.gov.caz.accounts.dto.AccountVerificationRequestDto;
+import uk.gov.caz.accounts.dto.CloseAccountRequestDto;
 import uk.gov.caz.accounts.dto.CreateAndInviteUserRequestDto;
 import uk.gov.caz.accounts.dto.UserCreationResponseDto;
 import uk.gov.caz.accounts.dto.UserForAccountCreationRequestDto;
@@ -65,7 +66,7 @@ public interface AccountsControllerApiSpec {
   /**
    * Endpoint specification that handles updates to the account.
    *
-   * @param accountId Id of the account to update.
+   * @param accountId               Id of the account to update.
    * @param accountUpdateRequestDto object representing account update details.
    */
   @ApiOperation(
@@ -257,4 +258,32 @@ public interface AccountsControllerApiSpec {
   })
   @GetMapping("/{accountId}")
   ResponseEntity<AccountResponseDto> getAccount(@PathVariable("accountId") UUID accountId);
+
+  /**
+   * Endpoint specification that handles closing account.
+   *
+   * @param accountId Id of the account to close.
+   */
+  @ApiOperation(value = "${swagger.operations.accounts.inactivate.description}")
+  @ApiResponses({
+      @ApiResponse(code = 503, message = "Service Unavailable Error (AWS Cognito)"),
+      @ApiResponse(code = 500, message = "Internal Server Error / No message available"),
+      @ApiResponse(code = 404, message = "Account Not Found"),
+      @ApiResponse(code = 400, message = "Missing Correlation Id header or invalid payload"),
+      @ApiResponse(code = 204, message = "Account Closed")
+  })
+  @ApiImplicitParams({
+      @ApiImplicitParam(name = X_CORRELATION_ID_HEADER,
+          required = true,
+          value = "UUID formatted string to track the request through the enquiries stack",
+          paramType = "header"),
+      @ApiImplicitParam(name = "accountId",
+          required = true,
+          value = "UUID formatted string from AccountUser table (must match PK in Account table)",
+          paramType = "path")
+  })
+  @PostMapping("/{accountId}/cancellation")
+  ResponseEntity<Void> closeAccount(
+      @PathVariable("accountId") UUID accountId,
+      @RequestBody CloseAccountRequestDto request);
 }

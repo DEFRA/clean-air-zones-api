@@ -14,9 +14,10 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
 import uk.gov.caz.vcc.annotation.IntegrationTest;
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
+import uk.gov.caz.vcc.domain.exceptions.UnableToIdentifyVehicleComplianceException;
 import uk.gov.caz.vcc.domain.service.FuelTypeService;
 
 @IntegrationTest
@@ -28,7 +29,7 @@ public class EuroStatusPresentComplianceServiceTestIT {
   @ParameterizedTest
   @MethodSource("EuroCompliantVehicles")
   void givenEuroCompliantVehicleThenPositiveComplianceCheck(Vehicle vehicle) {
-    assertTrue(cazComplianceService.isVehicleCompliance(vehicle));
+    assertTrue(cazComplianceService.isVehicleCompliant(vehicle));
   }
 
   private static Stream<Arguments> EuroCompliantVehicles() throws ParseException {
@@ -68,7 +69,7 @@ public class EuroStatusPresentComplianceServiceTestIT {
   @ParameterizedTest
   @MethodSource("EuroNonCompliantVehicles")
   void givenEuroNonCompliantVehicleThenNegativeComplianceCheck(Vehicle vehicle) {
-    assertFalse(cazComplianceService.isVehicleCompliance(vehicle));
+    assertFalse(cazComplianceService.isVehicleCompliant(vehicle));
   }
 
   private static Stream<Arguments> EuroNonCompliantVehicles() throws ParseException {
@@ -98,9 +99,9 @@ public class EuroStatusPresentComplianceServiceTestIT {
 
   @ParameterizedTest
   @MethodSource("EuroUnableToIdentifyVehicleCompliance")
-  void givenLeedsUnqualifiedVehicleInfoThenExceptionIsThrown(Vehicle vehicle) {
+  void givenBathUnqualifiedVehicleInfoThenExceptionIsThrown(Vehicle vehicle) {
     assertThrows(UnableToIdentifyVehicleComplianceException.class,
-        () -> cazComplianceService.isVehicleCompliance(vehicle));
+        () -> cazComplianceService.isVehicleCompliant(vehicle));
   }
 
   private static Stream<Arguments> EuroUnableToIdentifyVehicleCompliance() throws ParseException {

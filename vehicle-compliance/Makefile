@@ -29,8 +29,8 @@ scenario-test:
 	./mvnw test -Pcucumber-tests
 
 generate-test-data:
-	docker exec -u postgres postgres-vcc.docker psql -d caz_vcc -c "COPY vehicle TO STDOUT WITH CSV HEADER" > src/it/resources/test_data.csv
-	docker exec -u postgres postgres-vcc.docker psql -d caz_vcc -c "COPY (SELECT registrationnumber, vehicletype, expectedexempt FROM public.vehicle) TO STDOUT WITH CSV HEADER" > src/it/resources/test_compliance_data.csv
+	docker exec -u postgres postgres-vcc.docker psql -d vehicle_compliance -c "COPY vehicle TO STDOUT WITH CSV HEADER" > src/it/resources/test_data.csv
+	docker exec -u postgres postgres-vcc.docker psql -d vehicle_compliance -c "COPY (SELECT registrationnumber, vehicletype, expectedexempt FROM public.vehicle) TO STDOUT WITH CSV HEADER" > src/it/resources/test_compliance_data.csv
 
 integration-test:
 	./mvnw verify -DskipUnitTests -P jacoco

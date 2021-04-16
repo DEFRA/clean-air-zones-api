@@ -10,6 +10,7 @@
       "exemptionCode": null,
       "tariffCode": "271TC001",
       "isTaxiOrPhv": true,
+      "paymentMethod": null,
       "licensingAuthority": [
         "Authority A",
         "Authority B"

@@ -13,7 +13,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.input.BOMInputStream;
 import uk.gov.caz.csv.exception.CsvParseException;
 import uk.gov.caz.csv.model.CsvParseResult;
 import uk.gov.caz.csv.model.CsvValidationError;
@@ -28,18 +30,41 @@ public abstract class CsvObjectMapper<T> {
   private final ICSVParser csvParser;
   private final int maxErrorsCount;
   private final CsvParseExceptionResolver csvParseExceptionResolver;
+  private final Consumer<CSVReaderBuilder> csvReaderModifier;
 
   /**
-   * Creates an instance of this class.
+   * Creates an instance of this class with the default noop {@code csvReaderModifier}.
    */
   public CsvObjectMapper(ICSVParser csvParser, int maxErrorsCount,
       CsvParseExceptionResolver csvParseExceptionResolver) {
-    Preconditions.checkArgument(maxErrorsCount > 0, "Max errors count must be positive, "
-        + "but %s <= 0", maxErrorsCount);
+    this(csvParser, maxErrorsCount, csvParseExceptionResolver, builder -> {
+    });
+  }
+
+  /**
+   * Creates an instance of this class with {@code maxErrorsCount} = -1 and the default noop {@code
+   * csvReaderModifier}.
+   */
+  public CsvObjectMapper(ICSVParser csvParser,
+      CsvParseExceptionResolver csvParseExceptionResolver) {
+    this(csvParser, -1, csvParseExceptionResolver, builder -> {
+    });
+  }
+
+  /**
+   * Creates an instance of this class with a dedicated {@code csvReaderModifier}.
+   */
+  public CsvObjectMapper(ICSVParser csvParser, int maxErrorsCount,
+      CsvParseExceptionResolver csvParseExceptionResolver,
+      Consumer<CSVReaderBuilder> csvReaderModifier) {
+    Preconditions.checkNotNull(csvReaderModifier, "csvReaderModifier cannot be null");
+    Preconditions.checkArgument(maxErrorsCount == -1 || maxErrorsCount > 0,
+        "Max errors count must be positive or equal to -1, current value: %s", maxErrorsCount);
 
     this.csvParseExceptionResolver = csvParseExceptionResolver;
     this.csvParser = csvParser;
     this.maxErrorsCount = maxErrorsCount;
+    this.csvReaderModifier = csvReaderModifier;
   }
 
   /**
@@ -53,20 +78,26 @@ public abstract class CsvObjectMapper<T> {
    */
   public CsvParseResult<T> read(InputStream inputStream) throws IOException {
     Preconditions.checkNotNull(inputStream, "Input stream cannot be null");
+    
+    inputStream = new BOMInputStream(inputStream);
 
     ImmutableList.Builder<T> mappedObjects = ImmutableList.builder();
     LinkedList<CsvValidationError> errors = Lists.newLinkedList();
     CSVReader reader = createReader(inputStream);
 
     String[] fields;
-    int lineNo = 1;
-    while (errors.size() < maxErrorsCount && (fields = readLine(reader, errors, lineNo)) != null) {
+    int lineNo = 1 + reader.getSkipLines();
+    while ((maxErrorsCount == -1 || errors.size() < maxErrorsCount)
+        && (fields = readLine(reader, errors, lineNo)) != null) {
       if (fields.length == 0) {
         log.trace("Validation error on line {}, skipping it", lineNo);
       } else {
+        if (lineNo == 1) {
+          fields[0] = fields[0].replace("\uFEFF", "");
+        }
         T mappedObject = mapToObject(fields, lineNo);
         mappedObjects.add(mappedObject);
-        log.debug("Object read: {}", mappedObject);
+        log.debug("Object read successfully");
       }
       lineNo += 1;
     }
@@ -92,8 +123,9 @@ public abstract class CsvObjectMapper<T> {
    */
   @VisibleForTesting
   protected CSVReader createReader(InputStream inputStream) {
-    CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new InputStreamReader(inputStream));
-    csvReaderBuilder.withCSVParser(csvParser);
+    CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new InputStreamReader(inputStream))
+        .withCSVParser(csvParser);
+    csvReaderModifier.accept(csvReaderBuilder);
     return csvReaderBuilder.build();
   }
 
@@ -141,6 +173,6 @@ public abstract class CsvObjectMapper<T> {
    *     otherwise.
    */
   private boolean errorsMaxCountReached(LinkedList<CsvValidationError> errors) {
-    return errors.size() >= maxErrorsCount;
+    return maxErrorsCount != - 1 && errors.size() >= maxErrorsCount;
   }
 }

@@ -16,9 +16,9 @@ import uk.gov.caz.vcc.dto.validation.VehicleEntrantVrnValidator.VrnNonNullValida
 import uk.gov.caz.vcc.dto.validation.VehicleEntrantVrnValidator.VrnWithinSizeRangeValidator;
 
 class VehicleEntrantVrnValidatorTest {
-
+  
   @ParameterizedTest
-  @MethodSource({"testCases", "testCasesForVehicleEntrantValidator"})
+  @MethodSource("testCases")
   void shouldTestVrnValidator(TestCase testCase) {
     VehicleEntrantDto vehicleEntrantDto = new VehicleEntrantDto(testCase.vrn,
         "timestamp that is not tested");
@@ -27,10 +27,33 @@ class VehicleEntrantVrnValidatorTest {
         shouldPass(testCase), "Tested VRN: " + testCase.vrn
     );
   }
+  
+  @ParameterizedTest
+  @MethodSource("testCasesForVehicleEntrantValidator")
+  void shouldTestSpecialisedVrnValidator(TestCase testCase) {
+    VehicleEntrantDto vehicleEntrantDto = new VehicleEntrantDto(testCase.vrn,
+        "timestamp that is not tested");
+
+    assertThat(VehicleEntrantVrnValidator.INSTANCE.validate(vehicleEntrantDto)).matches(
+        shouldPass(testCase), "Tested VRN: " + testCase.vrn
+    );
+  } 
+  
 
   @ParameterizedTest
-  @MethodSource({"testCases", "testCasesTestingSpecializedVrnValidators"})
+  @MethodSource("testCases")
   void shouldTestForbiddenVrnValuesWithEachValidatorSeparately(TestCase testCase) {
+    //when
+    Optional<ValidationError> validationError = testCase.validator.validate(testCase.vrn, testCase.vrn);
+
+    //then
+    assertThat(validationError)
+        .matches(e -> e.isPresent() == testCase.error, "Tested VRN: " + testCase.vrn);
+  }
+  
+  @ParameterizedTest
+  @MethodSource("testCasesTestingSpecializedVrnValidators")
+  void shouldTestSpecialisedForbiddenVrnValuesWithEachValidatorSeparately(TestCase testCase) {
     //when
     Optional<ValidationError> validationError = testCase.validator.validate(testCase.vrn, testCase.vrn);
 
@@ -71,7 +94,9 @@ class VehicleEntrantVrnValidatorTest {
             .forValidator(new VrnWithinSizeRangeValidator()),
         TestCase.withVrn("16charssssssssss").shouldReturnError(true)
             .forValidator(new VrnWithinSizeRangeValidator()),
-        TestCase.withVrn("1").shouldReturnError(false)
+        TestCase.withVrn("1").shouldReturnError(true)
+            .forValidator(new VrnWithinSizeRangeValidator()),
+        TestCase.withVrn("ch").shouldReturnError(false)
             .forValidator(new VrnWithinSizeRangeValidator())
     );
   }

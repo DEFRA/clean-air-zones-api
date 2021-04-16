@@ -3,7 +3,7 @@
     {
       "vrn": "SW61BYDDDDDDDDDDDDDDDDD",
       "title": "Invalid field value",
-      "detail": "invalid VRN format",
+      "detail": "VRN should have from 2 to 15 characters",
       "status": 400
     },
     {
@@ -15,7 +15,7 @@
     {
       "vrn": "FFFFFFFFFFFFFFFFFFF",
       "title": "Invalid field value",
-      "detail": "invalid VRN format",
+      "detail": "VRN should have from 2 to 15 characters",
       "status": 400
     },
     {

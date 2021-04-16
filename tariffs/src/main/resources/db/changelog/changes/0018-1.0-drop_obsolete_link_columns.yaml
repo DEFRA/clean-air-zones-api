@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0018-1.0
+      author: patryk.lenza
+      changes:
+        - dropColumn:
+            tableName: T_CAZ_LINK_DETAIL
+            columnName: OPERATION_HOURS_URL
+        - dropColumn:
+            tableName: T_CAZ_LINK_DETAIL
+            columnName: PRICING_URL
+        - dropColumn:
+            tableName: T_CAZ_LINK_DETAIL
+            columnName: PAY_CAZ_URL
+        - dropColumn:
+            tableName: T_CAZ_LINK_DETAIL
+            columnName: FINANCIAL_ASSISTANCE_URL
+        - dropColumn:
+            tableName: T_CAZ_LINK_DETAIL
+            columnName: EMISSIONS_URL

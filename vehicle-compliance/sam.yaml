@@ -1,35 +1,37 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Transform: AWS::Serverless-2016-10-31
 Description: Example API written using the JAQU-CAZ archetype
 
-Globals:
-  Api:
-    # API Gateway regional endpoints
-    EndpointConfiguration: REGIONAL
-
 Resources:
-  JaquCazVccFunction:
-    Type: AWS::Serverless::Function
+  JaquCazVccFunctionInTest:
+    Type: AWS::Lambda::Function
     Properties:
+      Code:
+        S3Bucket: jaqu.caz
+        S3Key: vehicle-compliance-checker-api-1.55-SNAPSHOT-lambda-package.zip
       Handler: uk.gov.caz.vcc.amazonaws.StreamLambdaHandler::handleRequest
+      Role: arn:aws:iam::018330602464:role/vccsLambdaIAMRoledev
       Runtime: java8
-      CodeUri: target/vehicle-compliance-checker-api-1.0-SNAPSHOT-lambda-package.zip
       MemorySize: 1512
-      Policies: AWSLambdaBasicExecutionRole
-      Timeout: 60
-      Events:
-        GetResource:
-          Type: Api
-          Properties:
-            Path: /{proxy+}
-            Method: any
+      Timeout: 150
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-039a2faa85b35fdda
+        SubnetIds:
+          - subnet-04b9eb48cb0d05776
+          - subnet-0d575f70ba6a289fc
       Environment:
         Variables:
-          SPRING_PROFILES_ACTIVE: default
-
-Outputs:
-  SpringBootJaquCazVccApi:
-    Description: URL for application
-    Value: !Sub 'https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/entities'
-    Export:
-      Name: SpringBootJaquCazVccApi
+          SPRING_PROFILES_ACTIVE: dev
+          AWS_SECRET_NAME: /config/vccs.dev
+          REDIS_ENABLED: true
+          REDIS_ENDPOINT: vccs-cluster-dev.nke7rq.clustercfg.euw2.cache.amazonaws.com
+          REDIS_PORT: 6379
+          SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.amazonaws.secretsmanager.sql.AWSSecretsManagerPostgreSQLDriver
+          SPRING_DATASOURCE_URL: jdbc-secretsmanager:postgresql://vehicle-compliance-database-dev.cwgrthqevp2i.eu-west-2.rds.amazonaws.com:6000/vehicle_compliance
+          SPRING_DATASOURCE_USERNAME: /secret/vccs.dev/db
+          SPRING_LIQUIBASE_ENABLED: false
+          SERVICES_NATIONAL_TAXI_REGISTER_ROOT_URL: https://6peqaav570.execute-api.eu-west-2.amazonaws.com/dev
+          SERVICES_PAYMENTS_ENABLED: true
+          SERVICES_PAYMENTS_ROOT_URL: https://t4oig4d3g0.execute-api.eu-west-2.amazonaws.com/dev
+          SERVICES_REMOTE_VEHICLE_DATA_USE_REMOTE_API: false
+          SERVICES_TARIFF_SERVICE_ROOT_URL: https://l5us0jv0rc.execute-api.eu-west-2.amazonaws.com/dev 

@@ -1,9 +1,10 @@
 package uk.gov.caz.vcc.domain.service.vehicleidentifiers;
 
 import java.util.ArrayList;
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
-import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
+
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
 
 /**
  * VehicleIdentifer class for vehicles with L* typeApproval.
@@ -27,13 +28,17 @@ public class LVehicleIdentifier extends VehicleIdentifier {
     motorcycleTypeApprovals.add("L6");
     motorcycleTypeApprovals.add("L7");
   }
-
+  
+  /**
+   * Method to identify L type approval vehicles.
+   */
   @Override
   public void identifyVehicle(Vehicle vehicle) {
 
     if (motorcycleTypeApprovals.contains(vehicle.getTypeApproval())) {
       vehicle.setVehicleType(VehicleType.MOTORCYCLE);
     } else {
+      vehicle.setTypeApproval(null);
       throw new UnidentifiableVehicleException("typeApproval not recognised.");
     }
   }

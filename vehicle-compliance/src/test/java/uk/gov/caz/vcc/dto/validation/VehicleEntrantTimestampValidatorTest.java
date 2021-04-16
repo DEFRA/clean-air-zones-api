@@ -46,7 +46,8 @@ class VehicleEntrantTimestampValidatorTest {
   @MethodSource("testCases")
   void shouldTestForbiddenTimestampValues(TestCase testCase) {
     //when
-    Optional<ValidationError> validationError = testCase.validator.validate(testCase.vrn, testCase.timestamp);
+    Optional<ValidationError> validationError = testCase.validator
+        .validate(testCase.vrn, testCase.timestamp);
 
     //then
     assertThat(validationError)

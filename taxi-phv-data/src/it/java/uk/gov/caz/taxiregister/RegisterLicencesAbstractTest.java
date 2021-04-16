@@ -21,7 +21,6 @@ import org.junit.jupiter.api.Test;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.model.HttpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
@@ -63,9 +62,6 @@ public abstract class RegisterLicencesAbstractTest {
   public void cleanup() {
     mockServer.stop();
   }
-
-  @Value("${application.validation.max-errors-count}")
-  private int maxErrorsCount;
 
   private int currentExpectedTotalLicencesCount;
 
@@ -121,9 +117,16 @@ public abstract class RegisterLicencesAbstractTest {
     andRegisterJobShouldHaveFinishedWithValidationErrorsCount(1);
     andJobsInfoTableShouldNotContainAnyNewRecords();
 
-    whenThereIsAttemptToRegisterLicencesWithTooManyErrors();
+    whenThereIsAttemptToRegisterLicenceWithVrmStartingWithZero();
     thenTotalNumberOfRecordsStaysTheSame();
-    andRegisterJobShouldHaveFinishedWithValidationErrorsCount(maxErrorsCount);
+    andRegisterJobShouldHaveFinishedWithValidationErrorsCount(1);
+    andJobsInfoTableShouldNotContainAnyNewRecords();
+
+    whenThereIsAttemptToRegisterLicencesWithManyErrors();
+    thenTotalNumberOfRecordsStaysTheSame();
+    andRegisterJobShouldHaveFinishedWithValidationErrorsCount(1);
+    andRegisterJobShouldHaveFinishedWithOneErrorWithMessage(
+        "CSV file upload unsuccessful. You will receive an email with error messages detailed.");
     andJobsInfoTableShouldNotContainAnyNewRecords();
 
     whenThereIsAttemptToRegisterLicencesWithEmptyTaxiOrPhv();
@@ -141,22 +144,35 @@ public abstract class RegisterLicencesAbstractTest {
     andRegisterJobShouldHaveFinishedWithValidationErrorsCount(1);
     andJobsInfoTableShouldNotContainAnyNewRecords();
 
+    whenThereIsAttemptToRegisterLicencesWithInvalidWheelchairAccessibleValues();
+    thenTotalNumberOfRecordsStaysTheSame();
+    andRegisterJobShouldHaveFinishedWithValidationErrorsCount(4);
+    andJobsInfoTableShouldNotContainAnyNewRecords();
+
     whenThereIsAttemptToRegisterLicencesByUnauthorisedLicensingAuthority();
     thenTotalNumberOfRecordsStaysTheSame();
     andRegisterJobShouldHaveFinishedWithOneErrorWithMessage(
         "You are not authorised to submit data for la-4");
     andJobsInfoTableShouldNotContainAnyNewRecords();
-    
+
     whenThereIsAttemptToUpdateLicensingAuthorityLockedByAnotherJob();
     thenTotalNumberOfRecordsStaysTheSame();
     andRegisterJobShouldHaveFinishedWithOneErrorWithMessage(
         "Licence Authority is locked because it is being updated now by another Uploader");
     andJobsInfoTableShouldNotContainAnyNewRecords();
 
+    whenThereAreDuplicatedLicensesInSingleCsv();
+    thenTotalNumberOfRecordsStaysTheSame();
+    andRegisterJobShouldHaveFinishedWithOneErrorWithMessage(
+        "There are multiple vehicles with the same VRN");
+    andJobsInfoTableShouldNotContainAnyNewRecords();
+
     andAllFailedFilesShouldBeRemovedFromS3();
   }
 
   abstract int getServerPort();
+
+  abstract void whenThereAreDuplicatedLicensesInSingleCsv();
 
   abstract void whenThreeLicencesAreUpdatedByFirstLicensingAuthority();
 
@@ -172,21 +188,25 @@ public abstract class RegisterLicencesAbstractTest {
 
   abstract void whenThereIsAttemptToRegisterLicenceWithInvalidVrm();
 
-  abstract void whenThereIsAttemptToRegisterLicencesWithTooManyErrors();
+  abstract void whenThereIsAttemptToRegisterLicenceWithVrmStartingWithZero();
+
+  abstract void whenThereIsAttemptToRegisterLicencesWithManyErrors();
 
   abstract void whenThereIsAttemptToRegisterLicencesByUnauthorisedLicensingAuthority();
 
   abstract int getSecondLicensingAuthorityTotalLicencesCount();
 
   abstract void whenThereIsAttemptToRegisterLicencesWithEmptyTaxiOrPhv();
-  
+
   abstract void whenThereIsAttemptToUpdateLicensingAuthorityLockedByAnotherJob();
-  
+
   abstract void whenThereIsAttemptToRegisterLicencesWithStartDateTooFarInPast();
-  
+
   abstract void whenThereIsAttemptToRegisterLicencesWithEndDateTooFarInFuture();
 
   abstract void whenThereIsAttemptToRegisterLicensesWithddMMyyyyFormat();
+
+  abstract void whenThereIsAttemptToRegisterLicencesWithInvalidWheelchairAccessibleValues();
 
   abstract int getTotalVehiclesCountAfterFirstUpload();
 
@@ -321,6 +341,7 @@ public abstract class RegisterLicencesAbstractTest {
   final StatusOfRegisterCsvFromS3JobQueryResult getJobInfo(String jobName) {
     String correlationId = UUID.randomUUID().toString();
     return RestAssured.given()
+        .contentType(ContentType.JSON)
         .accept(ContentType.JSON)
         .header(CORRELATION_ID_HEADER, correlationId)
         .when()

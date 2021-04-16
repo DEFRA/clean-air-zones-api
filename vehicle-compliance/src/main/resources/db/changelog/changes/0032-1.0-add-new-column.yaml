@@ -1,0 +1,12 @@
+databaseChangeLog:
+    - changeSet:
+          id: 0032-1.0
+          author: informed
+          changes:
+              - addColumn:
+                    columns:
+                        - column:
+                              name: clean_air_zone_entrant_payment_id
+                              type: uuid
+                    schemaName: public
+                    tableName: t_clean_air_zone_entrant

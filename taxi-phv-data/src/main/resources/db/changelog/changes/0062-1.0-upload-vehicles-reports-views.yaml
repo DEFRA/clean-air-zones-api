@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0062-1.0-upload-vehicles-reports-views
+      author: infrormed
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0062-1.0-upload-vehicles-reports-views.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

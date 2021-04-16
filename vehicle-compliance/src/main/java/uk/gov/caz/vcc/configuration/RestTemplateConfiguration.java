@@ -1,15 +1,20 @@
 package uk.gov.caz.vcc.configuration;
 
 import static uk.gov.caz.correlationid.Constants.X_CORRELATION_ID_HEADER;
-import static uk.gov.caz.correlationid.MdcCorrelationIdInjector.getCurrentValue;
 
 import java.time.Duration;
+import java.util.UUID;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
+import uk.gov.caz.correlationid.MdcCorrelationIdInjector;
 
+/**
+ * Configuration class for Spring's RestTemplateBuilder utility.
+ *
+ */
 @Configuration
 public class RestTemplateConfiguration {
   /***
@@ -33,7 +38,10 @@ public class RestTemplateConfiguration {
 
   private ClientHttpRequestInterceptor correlationIdAppendingInterceptor() {
     return (request, body, execution) -> {
-      request.getHeaders().add(X_CORRELATION_ID_HEADER, getCurrentValue());
+      request.getHeaders().add(X_CORRELATION_ID_HEADER,
+          MdcCorrelationIdInjector.getCurrentValue() == null
+              ? UUID.randomUUID().toString()
+              : MdcCorrelationIdInjector.getCurrentValue());
       return execution.execute(request, body);
     };
   }

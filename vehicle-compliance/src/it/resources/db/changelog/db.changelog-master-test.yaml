@@ -1,0 +1,6 @@
+databaseChangeLog:
+  - includeAll:
+      path: db/changelog/test-changes
+  - includeAll:
+      path: db/changelog/changes
+      

@@ -1,15 +1,16 @@
 version: '2' # only version 2.x is supported by the maven plugin
 
 services:
-  postgres-it:
-    image: postgres:11-alpine
+  postgres-pgaudit-local:
+    build: ../../../docker/postgres-with-pgaudit
+    image: postgres-pgaudit-local:1
     ports:
       # if you modify the port, remember to change it in application's configuration as well
       - 9999:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: caz_vcc
+      POSTGRES_DB: vehicle_compliance
 
   redis-it:
     image: redis
@@ -21,8 +22,9 @@ services:
     image: localstack/localstack:0.10.2
     ports:
       - "4572:4572"
+      - "4576:4576"
     environment:
-      - SERVICES=s3
+      - SERVICES=s3,sqs
     volumes:
       - "~/tmp/localstack:/tmp/localstack"
     networks:

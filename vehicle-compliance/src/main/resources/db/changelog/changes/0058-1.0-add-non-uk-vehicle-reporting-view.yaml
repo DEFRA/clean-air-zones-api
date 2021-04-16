@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0057.1.0-add-non-uk-reporting-views
+      author: informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0058-1.0-add-non-uk-vehicle-reporting-views.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0021-1.0-add-direct-debit-enabled-field
+      author: informed
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: DIRECT_DEBIT_ENABLED
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+            schemaName: public
+            tableName: t_charge_definition

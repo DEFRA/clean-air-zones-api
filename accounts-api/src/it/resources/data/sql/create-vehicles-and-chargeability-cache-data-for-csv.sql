@@ -20,10 +20,10 @@ INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, char
 VALUES ('ccbc6bea-4b0f-45ec-bbf2-021451823442', '53e03a28-0627-11ea-9511-ffaaee87e375', '12',
         'false', 'false', 'Tariff 1');
 
--- Leeds VRN1
+-- Bath VRN1
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code)
-VALUES ('ccbc6bea-4b0f-45ec-bbf2-021451823442', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', null,
+VALUES ('ccbc6bea-4b0f-45ec-bbf2-021451823442', '742b343f-6ce6-42d3-8324-df689ad4c515', null,
         'false', 'false', 'Tariff 2');
 
 -- -- Birmingham VRN2
@@ -32,10 +32,10 @@ INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, char
 VALUES ('13c52f66-fdc1-43e2-b6af-a67d04987777', '53e03a28-0627-11ea-9511-ffaaee87e375', '18',
         'false', 'false', 'Tariff 3');
 
--- Leeds VRN3
+-- Bath VRN3
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code)
-VALUES ('6d3c83de-2c89-443c-be17-662bdde3841b', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', '25',
+VALUES ('6d3c83de-2c89-443c-be17-662bdde3841b', '742b343f-6ce6-42d3-8324-df689ad4c515', '25',
         'false', 'false', 'Tariff 4');
 
 -- Undetermined VRN4
@@ -47,10 +47,10 @@ INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, char
                                                 is_retrofitted, tariff_code)
 VALUES ('de083fd0-6588-49d7-92e5-4f71e4d87e66', '53e03a28-0627-11ea-9511-ffaaee87e375', null,
         'false', 'false', 'Tariff 1');
--- Leeds VRN4
+-- Bath VRN4
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code)
-VALUES ('de083fd0-6588-49d7-92e5-4f71e4d87e66', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', null,
+VALUES ('de083fd0-6588-49d7-92e5-4f71e4d87e66', '742b343f-6ce6-42d3-8324-df689ad4c515', null,
         'false', 'false', 'Tariff 2');
 
 -- No charge VRN5
@@ -62,8 +62,23 @@ INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, char
                                                 is_retrofitted, tariff_code)
 VALUES ('1f3d09ea-4225-45b6-a734-4a705c226af6', '53e03a28-0627-11ea-9511-ffaaee87e375', '0',
         'false', 'false', 'Tariff 1');
--- Leeds VRN5
+-- Bath VRN5
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code)
-VALUES ('1f3d09ea-4225-45b6-a734-4a705c226af6', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', '0',
+VALUES ('1f3d09ea-4225-45b6-a734-4a705c226af6', '742b343f-6ce6-42d3-8324-df689ad4c515', '0',
         'false', 'false', 'Tariff 2');
+
+-- Exempt VRN6
+INSERT INTO caz_account.t_account_vehicle(account_vehicle_id, account_id, vrn, caz_vehicle_type)
+VALUES ('29848629-0548-40ed-8d0f-7179ba3bad79', '1f30838f-69ee-4486-95b4-7dfcd5c6c67a', 'VRN6',
+        'Heavy Goods Vehicle');
+-- Birmingham VRN6
+INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
+                                                is_retrofitted, tariff_code)
+VALUES ('29848629-0548-40ed-8d0f-7179ba3bad79', '53e03a28-0627-11ea-9511-ffaaee87e375', '10',
+        'true', 'false', 'Tariff 1');
+-- Bath VRN6
+INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
+                                                is_retrofitted, tariff_code)
+VALUES ('29848629-0548-40ed-8d0f-7179ba3bad79', '742b343f-6ce6-42d3-8324-df689ad4c515', '10',
+        'true', 'false', 'Tariff 2');

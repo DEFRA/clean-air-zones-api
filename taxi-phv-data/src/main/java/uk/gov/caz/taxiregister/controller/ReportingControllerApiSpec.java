@@ -8,10 +8,12 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
 import java.time.LocalDate;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Pattern;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,7 +25,8 @@ import uk.gov.caz.taxiregister.dto.validation.VrmValidator;
 import uk.gov.caz.taxiregister.dto.validation.constraint.NotFuture;
 
 @RequestMapping(
-    produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_XML_VALUE}
+    produces = {MediaType.APPLICATION_JSON_VALUE},
+    consumes = {MediaType.APPLICATION_JSON_VALUE}
 )
 @Validated
 public interface ReportingControllerApiSpec {
@@ -58,16 +61,16 @@ public interface ReportingControllerApiSpec {
           LocalDate date);
 
   /**
-   * Returns VRMs which had at least one active licence for a given licensing authority on a given
-   * date.
+   * Starts report to get active licences in specified reporting window. This method will return
+   * quickly and long running task will be calculating results in the background with final output
+   * to CSV file located and the machine/VM executing this task. Not suitable for Lambdas!.
    *
-   * @param licensingAuthorityId The identifier of the licensing authority.
-   * @param date The date against which the check is performed. Must be a date from the past or
-   *     today. Today is used if null.
-   * @return {@link ActiveLicencesAuditInfo} which contains a list of VRMs.
+   * @param startDate Reporting window start date.
+   * @param endDate Reporting window end date.
+   * @param csvFileName Name of the output CSV file.
    */
   @ApiOperation(
-      value = "${swagger.operations.reporting.vrms-with-active-licences.description}",
+      value = "${swagger.operations.reporting.active-licences-in-reporting-window.description}",
       response = ActiveLicencesAuditInfo.class
   )
   @ApiResponses({
@@ -81,11 +84,9 @@ public interface ReportingControllerApiSpec {
           value = "UUID formatted string to track the request through the enquiries stack",
           paramType = "header"),
   })
-  @GetMapping(ReportingController.ACTIVE_LICENCES_AUDIT_PATH)
-  ActiveLicencesAuditInfo getActiveLicencesForLicensingAuthorityOn(
-      @PathVariable int licensingAuthorityId,
-      @RequestParam(name = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @NotFuture
-          LocalDate date);
-
-
+  @GetMapping(ReportingController.ACTIVE_LICENCES_IN_REPORTING_WINDOW_PATH)
+  ResponseEntity<String> startActiveLicencesInReportingWindow(
+      @RequestParam(name = "startDate") @DateTimeFormat(iso = ISO.DATE) LocalDate startDate,
+      @RequestParam(name = "endDate") @DateTimeFormat(iso = ISO.DATE) LocalDate endDate,
+      @RequestParam(name = "csvFileName") @NotEmpty String csvFileName);
 }

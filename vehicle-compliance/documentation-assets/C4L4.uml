@@ -1,0 +1,890 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>uk.gov.caz.vcc.controller.CacheInvalidationsController</OriginalElement>
+  <nodes>
+    <node x="5786.679777568925" y="746.0">uk.gov.caz.vcc.repository.VehicleRemoteRepository</node>
+    <node x="3489.421804511285" y="512.0">uk.gov.caz.vcc.repository.HttpBasedModRepository</node>
+    <node x="2571.2884711779516" y="0.0">uk.gov.caz.vcc.domain.service.FuelTypeService</node>
+    <node x="1758.9662750626599" y="1118.0">uk.gov.caz.vcc.service.BulkCheckerService.BulkCheckerCsvFile</node>
+    <node x="1693.7162750626599" y="1222.0">uk.gov.caz.vcc.controller.BulkCheckerController</node>
+    <node x="2061.9067512531365" y="0.0">uk.gov.caz.vcc.service.MilitaryVehicleService.MilitaryVehicleCheckResult</node>
+    <node x="357.1860902255703" y="308.0">uk.gov.caz.vcc.repository.TariffDetailsAsyncRepository</node>
+    <node x="5565.679777568925" y="746.0">uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData.NtrAndDvlaDataBuilder</node>
+    <node x="24.0" y="1321.0">uk.gov.caz.vcc.repository.IdentificationErrorRepository</node>
+    <node x="813.9019893483737" y="154.0">uk.gov.caz.vcc.service.GeneralWhitelistService</node>
+    <node x="373.0" y="1321.0">uk.gov.caz.vcc.repository.ChargeValidityRepository</node>
+    <node x="885.9019893483737" y="0.0">uk.gov.caz.vcc.service.GeneralWhitelistService.GeneralWhiteListCheckResult</node>
+    <node x="4294.882158521305" y="746.0">uk.gov.caz.vcc.repository.LocalVehicleDetailsRepository</node>
+    <node x="4454.882158521305" y="512.0">uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher.VehicleDetailFetcherResponse</node>
+    <node x="3008.938471177951" y="154.0">uk.gov.caz.vcc.domain.service.compliance.EuroStatusNullComplianceService</node>
+    <node x="4010.8821585213054" y="746.0">uk.gov.caz.vcc.repository.RemoteVehicleDataRepository</node>
+    <node x="3831.8384711779513" y="154.0">uk.gov.caz.vcc.service.RetrofitService</node>
+    <node x="405.1860902255703" y="512.0">uk.gov.caz.vcc.service.CazTariffService</node>
+    <node x="779.5019893483741" y="308.0">uk.gov.caz.vcc.repository.NationalTaxiRegisterRepository</node>
+    <node x="1233.1400845864696" y="0.0">uk.gov.caz.vcc.repository.GeneralWhitelistRepository</node>
+    <node x="5040.671036967422" y="308.0">uk.gov.caz.vcc.repository.LicenseAndVehicleRepository</node>
+    <node x="1729.7162750626599" y="984.0">uk.gov.caz.vcc.service.BulkCheckerService</node>
+    <node x="3114.3384711779513" y="308.0">uk.gov.caz.vcc.service.VehicleEntrantsService.PaymentDetails</node>
+    <node x="3783.6400845864696" y="308.0">uk.gov.caz.vcc.service.RetrofitService.RetrofitQueryResponse</node>
+    <node x="1385.251989348374" y="154.0">uk.gov.caz.vcc.service.ExemptionService.Exempt</node>
+    <node x="0.0" y="0.0">uk.gov.caz.vcc.service.GeneralWhitelistService.GeneralWhiteListQueryResponse</node>
+    <node x="3378.8384711779513" y="0.0">uk.gov.caz.vcc.repository.ModDataProvider</node>
+    <node x="1514.2400845864695" y="154.0">uk.gov.caz.vcc.domain.service.TypeApprovalService</node>
+    <node x="2609.3384711779513" y="308.0">uk.gov.caz.vcc.domain.service.ComplianceService</node>
+    <node x="149.6860902255703" y="308.0">uk.gov.caz.vcc.service.CazTariffService.AsyncTariffResponse</node>
+    <node x="4014.8384711779513" y="0.0">uk.gov.caz.vcc.repository.RetrofitRepository</node>
+    <node x="3566.8384711779513" y="0.0">uk.gov.caz.vcc.domain.service.compliance.CazComplianceService</node>
+    <node x="3515.3384711779513" y="308.0">uk.gov.caz.vcc.repository.RetrofitModRepository</node>
+    <node x="4027.671428571429" y="512.0">uk.gov.caz.vcc.repository.VehicleDetailsRepository</node>
+    <node x="1931.2718045112845" y="154.0">uk.gov.caz.vcc.service.MilitaryVehicleService</node>
+    <node x="313.78726503759844" y="746.0">uk.gov.caz.vcc.controller.CleanAirZoneController</node>
+    <node x="1086.7500000000002" y="154.0">uk.gov.caz.vcc.domain.service.TaxClassService</node>
+    <node x="2301.3900845864696" y="154.0">uk.gov.caz.vcc.domain.service.compliance.LeedsComplianceService</node>
+    <node x="4735.882158521305" y="154.0">uk.gov.caz.vcc.repository.PaymentsRepository</node>
+    <node x="2864.5488251879724" y="512.0">uk.gov.caz.vcc.service.VehicleEntrantsService</node>
+    <node x="4747.882158521305" y="308.0">uk.gov.caz.vcc.service.PaymentsService</node>
+    <node x="5515.429777568925" y="880.0">uk.gov.caz.vcc.repository.LicenseAndVehicleRemoteRepository</node>
+    <node x="2814.3384711779513" y="308.0">uk.gov.caz.vcc.repository.CleanAirZoneEntrantRepository</node>
+    <node x="5008.179777568925" y="880.0">uk.gov.caz.vcc.repository.LicenseAndLocalVehicleRepository</node>
+    <node x="14.436090225570297" y="512.0">uk.gov.caz.vcc.service.CazTariffService.AsyncTariffResponse.AsyncTariffResponseBuilder</node>
+    <node x="1937.7162750626599" y="880.0">uk.gov.caz.vcc.service.ChargeCalculationService.CsvOutput</node>
+    <node x="5161.2031484962445" y="0.0">uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData.Data</node>
+    <node x="0.0" y="1425.0">uk.gov.caz.vcc.service.VehicleEntrantLogDataCleanupService</node>
+    <node x="1910.5734179198028" y="308.0">uk.gov.caz.vcc.domain.service.VehicleIdentificationService</node>
+    <node x="4456.39008458647" y="1118.0">uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher</node>
+    <node x="1690.7400845864695" y="0.0">uk.gov.caz.vcc.service.MilitaryVehicleService.MilitaryVehicleQueryResponse</node>
+    <node x="1853.3234179198028" y="746.0">uk.gov.caz.vcc.service.ChargeCalculationService</node>
+    <node x="2965.056751253136" y="746.0">uk.gov.caz.vcc.controller.VehicleEntrantsController</node>
+    <node x="3294.3384711779513" y="308.0">uk.gov.caz.vcc.domain.service.UkVrnTestingService</node>
+    <node x="2202.5734179198025" y="308.0">uk.gov.caz.vcc.domain.service.ChargeabilityService</node>
+    <node x="791.5019893483741" y="512.0">uk.gov.caz.vcc.service.NationalTaxiRegisterService</node>
+    <node x="699.5019893483741" y="880.0">uk.gov.caz.vcc.controller.CacheInvalidationsController</node>
+    <node x="1256.465491854639" y="880.0">uk.gov.caz.vcc.controller.VehicleController</node>
+    <node x="1228.465491854639" y="746.0">uk.gov.caz.vcc.service.VehicleService</node>
+    <node x="3794.8384711779513" y="0.0">uk.gov.caz.vcc.service.RetrofitService.RetrofitCheckResult</node>
+    <node x="12.0" y="1529.0">uk.gov.caz.vcc.amazonaws.CleanupOldAuditDataLambdaHandler</node>
+    <node x="5810.679777568925" y="512.0">uk.gov.caz.vcc.repository.VehicleRepository</node>
+    <node x="1941.7162750626599" y="984.0">uk.gov.caz.vcc.domain.service.bulkchecker.BulkCheckerUtility</node>
+    <node x="5124.429777568925" y="746.0">uk.gov.caz.vcc.repository.NationalTaxiRegisterAsyncRepository</node>
+    <node x="1357.251989348374" y="308.0">uk.gov.caz.vcc.service.ExemptionService</node>
+    <node x="2545.3900845864696" y="154.0">uk.gov.caz.vcc.domain.service.compliance.EuroStatusPresentComplianceService</node>
+    <node x="5147.8698151629105" y="154.0">uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData</node>
+    <node x="1105.251989348374" y="308.0">uk.gov.caz.vcc.repository.TariffDetailsRepository</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="uk.gov.caz.vcc.service.MilitaryVehicleService" target="uk.gov.caz.vcc.repository.ModDataProvider">
+      <point x="96.0" y="-27.0" />
+      <point x="2139.2718045112842" y="114.0" />
+      <point x="3420.8384711779513" y="114.0" />
+      <point x="-42.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.CazTariffService" target="uk.gov.caz.vcc.repository.TariffDetailsAsyncRepository">
+      <point x="0.0" y="-27.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.GeneralWhitelistService" target="uk.gov.caz.vcc.service.GeneralWhitelistService.GeneralWhiteListQueryResponse">
+      <point x="-99.42857142857144" y="-27.0" />
+      <point x="830.4734179198022" y="134.0" />
+      <point x="105.0" y="134.0" />
+      <point x="-35.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.GeneralWhitelistService" target="uk.gov.caz.vcc.domain.service.bulkchecker.BulkCheckerUtility">
+      <point x="-92.80000000000018" y="27.0" />
+      <point x="837.1019893483735" y="278.0" />
+      <point x="664.7360902255705" y="278.0" />
+      <point x="664.7360902255705" y="954.0" />
+      <point x="1960.9162750626597" y="954.0" />
+      <point x="-76.80000000000018" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.BulkCheckerService.BulkCheckerCsvFile" target="uk.gov.caz.vcc.service.BulkCheckerService">
+      <point x="-64.0" y="-27.0" />
+      <point x="1790.9662750626599" y="1098.0" />
+      <point x="1801.7162750626599" y="1098.0" />
+      <point x="-24.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndLocalVehicleRepository" target="uk.gov.caz.vcc.repository.LocalVehicleDetailsRepository">
+      <point x="-126.66666666666697" y="-27.0" />
+      <point x="5033.513110902258" y="860.0" />
+      <point x="4434.882158521305" y="860.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.bulkchecker.BulkCheckerUtility" target="uk.gov.caz.vcc.service.ChargeCalculationService.CsvOutput">
+      <point x="-38.40000000000009" y="-27.0" />
+      <point x="1999.3162750626598" y="964.0" />
+      <point x="1997.7162750626599" y="964.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.service.PaymentsService">
+      <point x="63.0" y="-27.0" />
+      <point x="3039.5488251879724" y="422.0" />
+      <point x="4831.882158521305" y="422.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher.VehicleDetailFetcherResponse">
+      <point x="100.0" y="-27.0" />
+      <point x="2073.3234179198025" y="716.0" />
+      <point x="4488.882158521305" y="716.0" />
+      <point x="-102.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ExemptionService" target="uk.gov.caz.vcc.service.MilitaryVehicleService">
+      <point x="58.66666666666663" y="-27.0" />
+      <point x="1503.9186560150406" y="258.0" />
+      <point x="1959.2718045112845" y="258.0" />
+      <point x="-84.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ExemptionService.Exempt" target="uk.gov.caz.vcc.service.ExemptionService">
+      <point x="12.0" y="27.0" />
+      <point x="0.0" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndLocalVehicleRepository" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData.NtrAndDvlaDataBuilder">
+      <point x="126.66666666666697" y="-27.0" />
+      <point x="5286.846444235592" y="860.0" />
+      <point x="5615.679777568925" y="860.0" />
+      <point x="-50.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.service.RetrofitService">
+      <point x="-21.0" y="-27.0" />
+      <point x="2955.5488251879724" y="422.0" />
+      <point x="2803.8384711779513" y="422.0" />
+      <point x="2803.8384711779513" y="288.0" />
+      <point x="3882.2384711779514" y="288.0" />
+      <point x="-33.59999999999991" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.HttpBasedModRepository" target="uk.gov.caz.vcc.repository.ModDataProvider">
+      <point x="-74.66666666666697" y="-27.0" />
+      <point x="3526.755137844618" y="412.0" />
+      <point x="3504.8384711779513" y="412.0" />
+      <point x="42.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.MilitaryVehicleService" target="uk.gov.caz.vcc.service.MilitaryVehicleService.MilitaryVehicleQueryResponse">
+      <point x="-96.0" y="-27.0" />
+      <point x="1947.2718045112845" y="134.0" />
+      <point x="1792.7400845864695" y="134.0" />
+      <point x="-34.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.HttpBasedModRepository" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository">
+      <point x="74.66666666666697" y="-27.0" />
+      <point x="3676.0884711779518" y="462.0" />
+      <point x="5090.171036967422" y="462.0" />
+      <point x="-82.5" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.BulkCheckerService" target="uk.gov.caz.vcc.service.BulkCheckerService.BulkCheckerCsvFile">
+      <point x="24.0" y="27.0" />
+      <point x="1849.7162750626599" y="1098.0" />
+      <point x="1854.9662750626599" y="1098.0" />
+      <point x="0.0" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.CazTariffService" target="uk.gov.caz.vcc.repository.TariffDetailsRepository">
+      <point x="35.19999999999982" y="-27.0" />
+      <point x="528.3860902255701" y="472.0" />
+      <point x="1134.251989348374" y="472.0" />
+      <point x="-87.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.ComplianceService" target="uk.gov.caz.vcc.domain.service.compliance.LeedsComplianceService">
+      <point x="-36.79999999999973" y="-27.0" />
+      <point x="2664.5384711779516" y="228.0" />
+      <point x="2413.3900845864696" y="228.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.CazTariffService" target="uk.gov.caz.vcc.service.CazTariffService.AsyncTariffResponse">
+      <point x="-70.39999999999964" y="-27.0" />
+      <point x="422.78609022557066" y="492.0" />
+      <point x="274.6860902255703" y="492.0" />
+      <point x="25.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.amazonaws.CleanupOldAuditDataLambdaHandler" target="uk.gov.caz.vcc.service.VehicleEntrantLogDataCleanupService">
+      <point x="-76.0" y="-27.0" />
+      <point x="88.0" y="1504.0" />
+      <point x="82.0" y="1504.0" />
+      <point x="-82.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.domain.service.ComplianceService">
+      <point x="33.333333333333485" y="-27.0" />
+      <point x="2006.6567512531362" y="656.0" />
+      <point x="2549.3384711779513" y="656.0" />
+      <point x="2549.3384711779513" y="492.0" />
+      <point x="2655.3384711779513" y="492.0" />
+      <point x="-46.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndLocalVehicleRepository" target="uk.gov.caz.vcc.repository.NationalTaxiRegisterAsyncRepository">
+      <point x="25.33333333333303" y="-27.0" />
+      <point x="5185.513110902258" y="860.0" />
+      <point x="5206.429777568925" y="860.0" />
+      <point x="-82.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.CazTariffService.AsyncTariffResponse">
+      <point x="-100.0" y="-27.0" />
+      <point x="1873.3234179198028" y="656.0" />
+      <point x="264.9360902255703" y="656.0" />
+      <point x="264.9360902255703" y="492.0" />
+      <point x="224.6860902255703" y="492.0" />
+      <point x="-25.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.VehicleController" target="uk.gov.caz.vcc.service.CazTariffService">
+      <point x="-61.333333333333485" y="-27.0" />
+      <point x="1287.1321585213054" y="850.0" />
+      <point x="559.2872650375984" y="850.0" />
+      <point x="559.2872650375984" y="716.0" />
+      <point x="528.3860902255701" y="716.0" />
+      <point x="35.19999999999982" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.CazTariffService.AsyncTariffResponse" target="uk.gov.caz.vcc.service.CazTariffService">
+      <point x="75.0" y="27.0" />
+      <point x="324.6860902255703" y="482.0" />
+      <point x="457.9860902255705" y="482.0" />
+      <point x="-35.19999999999982" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.BulkCheckerService" target="uk.gov.caz.vcc.service.CazTariffService">
+      <point x="-64.0" y="-27.0" />
+      <point x="1761.7162750626599" y="964.0" />
+      <point x="303.28726503759844" y="964.0" />
+      <point x="303.28726503759844" y="716.0" />
+      <point x="422.78609022557066" y="716.0" />
+      <point x="-70.39999999999964" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.GeneralWhitelistService.GeneralWhiteListQueryResponse">
+      <point x="-113.33333333333348" y="-27.0" />
+      <point x="1859.9900845864693" y="666.0" />
+      <point x="3.9360902255702968" y="666.0" />
+      <point x="3.9360902255702968" y="134.0" />
+      <point x="35.0" y="134.0" />
+      <point x="-105.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.MilitaryVehicleService" target="uk.gov.caz.vcc.service.MilitaryVehicleService.MilitaryVehicleCheckResult">
+      <point x="32.0" y="-27.0" />
+      <point x="2075.2718045112842" y="84.0" />
+      <point x="2189.9067512531365" y="84.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.domain.service.ChargeabilityService">
+      <point x="-63.0" y="-27.0" />
+      <point x="2913.5488251879724" y="452.0" />
+      <point x="2358.5734179198025" y="452.0" />
+      <point x="52.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.CacheInvalidationsController" target="uk.gov.caz.vcc.service.NationalTaxiRegisterService">
+      <point x="0.0" y="-27.0" />
+      <point x="-88.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.NationalTaxiRegisterService" target="uk.gov.caz.vcc.repository.NationalTaxiRegisterRepository">
+      <point x="0.0" y="-27.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ExemptionService" target="uk.gov.caz.vcc.domain.service.TaxClassService">
+      <point x="-58.66666666666674" y="-27.0" />
+      <point x="1386.5853226817073" y="268.0" />
+      <point x="1170.7500000000002" y="268.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleService" target="uk.gov.caz.vcc.service.GeneralWhitelistService">
+      <point x="-66.66666666666674" y="-27.0" />
+      <point x="1241.7988251879722" y="726.0" />
+      <point x="734.5019893483741" y="726.0" />
+      <point x="734.5019893483741" y="288.0" />
+      <point x="883.5019893483736" y="288.0" />
+      <point x="-46.40000000000009" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher.VehicleDetailFetcherResponse" target="uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher">
+      <point x="34.0" y="27.0" />
+      <point x="4624.882158521305" y="716.0" />
+      <point x="4596.382158521305" y="716.0" />
+      <point x="4596.382158521305" y="1068.0" />
+      <point x="4573.39008458647" y="1068.0" />
+      <point x="13.0" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.BulkCheckerService" target="uk.gov.caz.vcc.service.ChargeCalculationService.CsvOutput">
+      <point x="64.0" y="-27.0" />
+      <point x="1889.7162750626599" y="964.0" />
+      <point x="1957.7162750626599" y="964.0" />
+      <point x="-40.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRemoteRepository" target="uk.gov.caz.vcc.repository.VehicleRemoteRepository">
+      <point x="130.0" y="-27.0" />
+      <point x="5801.429777568925" y="860.0" />
+      <point x="5902.679777568925" y="860.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData.Data">
+      <point x="77.0" y="-27.0" />
+      <point x="3053.5488251879724" y="432.0" />
+      <point x="4938.382158521305" y="432.0" />
+      <point x="4938.382158521305" y="124.0" />
+      <point x="5171.2031484962445" y="124.0" />
+      <point x="-30.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleService" target="uk.gov.caz.vcc.service.NationalTaxiRegisterService">
+      <point x="-40.0" y="-27.0" />
+      <point x="1268.465491854639" y="716.0" />
+      <point x="923.5019893483741" y="716.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.VehicleEntrantsService">
+      <point x="46.666666666666515" y="-27.0" />
+      <point x="2019.9900845864693" y="666.0" />
+      <point x="2901.882158521306" y="666.0" />
+      <point x="-74.66666666666652" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData">
+      <point x="91.0" y="-27.0" />
+      <point x="3067.5488251879724" y="442.0" />
+      <point x="4954.846444235592" y="442.0" />
+      <point x="4954.846444235592" y="268.0" />
+      <point x="5159.298386591482" y="268.0" />
+      <point x="-68.57142857142844" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.RetrofitService.RetrofitQueryResponse">
+      <point x="60.0" y="-27.0" />
+      <point x="2033.3234179198028" y="676.0" />
+      <point x="3891.6400845864696" y="676.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.VehicleController" target="uk.gov.caz.vcc.service.VehicleService">
+      <point x="0.0" y="-27.0" />
+      <point x="40.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.RetrofitService" target="uk.gov.caz.vcc.repository.RetrofitRepository">
+      <point x="63.0" y="-27.0" />
+      <point x="3978.8384711779513" y="134.0" />
+      <point x="4110.838471177951" y="134.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData.Data" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData">
+      <point x="30.0" y="27.0" />
+      <point x="5231.2031484962445" y="124.0" />
+      <point x="5281.203148496244" y="124.0" />
+      <point x="53.33333333333303" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.RetrofitService.RetrofitCheckResult" target="uk.gov.caz.vcc.service.RetrofitService">
+      <point x="66.66666666666652" y="27.0" />
+      <point x="3961.505137844618" y="134.0" />
+      <point x="3936.8384711779513" y="134.0" />
+      <point x="21.0" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.MilitaryVehicleService">
+      <point x="-6.666666666666515" y="-27.0" />
+      <point x="1966.6567512531362" y="586.0" />
+      <point x="1900.0734179198028" y="586.0" />
+      <point x="1900.0734179198028" y="278.0" />
+      <point x="2071.2718045112842" y="278.0" />
+      <point x="28.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository">
+      <point x="105.0" y="-27.0" />
+      <point x="3081.5488251879724" y="452.0" />
+      <point x="5057.171036967422" y="452.0" />
+      <point x="-115.5" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRemoteRepository" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository">
+      <point x="-26.0" y="-27.0" />
+      <point x="5645.429777568925" y="820.0" />
+      <point x="5544.179777568925" y="820.0" />
+      <point x="5544.179777568925" y="472.0" />
+      <point x="5288.171036967422" y="472.0" />
+      <point x="115.5" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.repository.TariffDetailsRepository">
+      <point x="-105.0" y="-27.0" />
+      <point x="2871.5488251879724" y="482.0" />
+      <point x="1308.251989348374" y="482.0" />
+      <point x="87.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.CleanAirZoneController" target="uk.gov.caz.vcc.service.CazTariffService">
+      <point x="0.0" y="-27.0" />
+      <point x="425.78726503759844" y="726.0" />
+      <point x="457.9860902255705" y="726.0" />
+      <point x="-35.19999999999982" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.NationalTaxiRegisterService">
+      <point x="-73.33333333333348" y="-27.0" />
+      <point x="1899.9900845864693" y="636.0" />
+      <point x="1011.5019893483741" y="636.0" />
+      <point x="88.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository">
+      <point x="113.33333333333348" y="-27.0" />
+      <point x="2086.6567512531365" y="726.0" />
+      <point x="5080.846444235592" y="726.0" />
+      <point x="5080.846444235592" y="472.0" />
+      <point x="5123.171036967422" y="472.0" />
+      <point x="-49.5" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRemoteRepository" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData">
+      <point x="78.0" y="-27.0" />
+      <point x="5749.429777568925" y="860.0" />
+      <point x="5776.179777568925" y="860.0" />
+      <point x="5776.179777568925" y="268.0" />
+      <point x="5296.441243734339" y="268.0" />
+      <point x="68.57142857142844" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.GeneralWhitelistService.GeneralWhiteListCheckResult" target="uk.gov.caz.vcc.service.GeneralWhitelistService">
+      <point x="88.0" y="27.0" />
+      <point x="1105.9019893483737" y="124.0" />
+      <point x="996.1877036340879" y="124.0" />
+      <point x="66.28571428571422" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.HttpBasedModRepository" target="uk.gov.caz.vcc.repository.RetrofitModRepository">
+      <point x="0.0" y="-27.0" />
+      <point x="3601.421804511285" y="412.0" />
+      <point x="3623.3384711779513" y="412.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.compliance.EuroStatusPresentComplianceService" target="uk.gov.caz.vcc.domain.service.compliance.CazComplianceService">
+      <point x="106.66666666666652" y="-27.0" />
+      <point x="2812.056751253136" y="124.0" />
+      <point x="3618.8384711779513" y="124.0" />
+      <point x="-52.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.service.ExemptionService">
+      <point x="-91.0" y="-27.0" />
+      <point x="2885.5488251879724" y="472.0" />
+      <point x="1503.9186560150406" y="472.0" />
+      <point x="58.66666666666663" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository">
+      <point x="91.0" y="-27.0" />
+      <point x="4651.39008458647" y="1098.0" />
+      <point x="5462.929777568925" y="1098.0" />
+      <point x="5462.929777568925" y="492.0" />
+      <point x="5222.171036967422" y="492.0" />
+      <point x="49.5" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ExemptionService" target="uk.gov.caz.vcc.service.ExemptionService.Exempt">
+      <point x="-19.555555555555543" y="-27.0" />
+      <point x="1425.6964337928184" y="288.0" />
+      <point x="1421.251989348374" y="288.0" />
+      <point x="-12.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.GeneralWhitelistService.GeneralWhiteListQueryResponse" target="uk.gov.caz.vcc.service.GeneralWhitelistService">
+      <point x="105.0" y="27.0" />
+      <point x="245.0" y="114.0" />
+      <point x="896.7591322055168" y="114.0" />
+      <point x="-33.14285714285688" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndLocalVehicleRepository" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository">
+      <point x="-25.33333333333303" y="-27.0" />
+      <point x="5134.846444235592" y="860.0" />
+      <point x="5113.929777568925" y="860.0" />
+      <point x="5113.929777568925" y="492.0" />
+      <point x="5189.171036967422" y="492.0" />
+      <point x="16.5" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService.PaymentDetails" target="uk.gov.caz.vcc.service.VehicleEntrantsService">
+      <point x="53.33333333333326" y="27.0" />
+      <point x="3247.671804511285" y="402.0" />
+      <point x="3011.5488251879724" y="402.0" />
+      <point x="35.0" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData">
+      <point x="65.0" y="-27.0" />
+      <point x="4625.39008458647" y="1088.0" />
+      <point x="4965.846444235592" y="1088.0" />
+      <point x="4965.846444235592" y="278.0" />
+      <point x="5182.155529448625" y="278.0" />
+      <point x="-45.714285714285325" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.BulkCheckerService" target="uk.gov.caz.vcc.service.ChargeCalculationService">
+      <point x="0.0" y="-27.0" />
+      <point x="1825.7162750626599" y="860.0" />
+      <point x="1904.7519893483743" y="860.0" />
+      <point x="-68.57142857142844" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.ExemptionService">
+      <point x="-33.333333333333485" y="-27.0" />
+      <point x="1939.9900845864693" y="606.0" />
+      <point x="1617.652756892237" y="606.0" />
+      <point x="1617.652756892237" y="492.0" />
+      <point x="1445.251989348374" y="492.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleService" target="uk.gov.caz.vcc.repository.VehicleDetailsRepository">
+      <point x="66.66666666666669" y="-27.0" />
+      <point x="1375.1321585213057" y="696.0" />
+      <point x="4057.671428571429" y="696.0" />
+      <point x="-90.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.RemoteVehicleDataRepository" target="uk.gov.caz.vcc.repository.VehicleDetailsRepository">
+      <point x="0.0" y="-27.0" />
+      <point x="4142.882158521305" y="706.0" />
+      <point x="4177.671428571429" y="706.0" />
+      <point x="30.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.domain.service.UkVrnTestingService">
+      <point x="49.0" y="-27.0" />
+      <point x="3025.5488251879724" y="412.0" />
+      <point x="3394.3384711779513" y="412.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.CacheInvalidationsController" target="uk.gov.caz.vcc.service.CazTariffService">
+      <point x="-90.66666666666652" y="-27.0" />
+      <point x="744.8353226817076" y="860.0" />
+      <point x="548.2872650375984" y="860.0" />
+      <point x="548.2872650375984" y="726.0" />
+      <point x="493.1860902255703" y="726.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRemoteRepository" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData.NtrAndDvlaDataBuilder">
+      <point x="26.0" y="-27.0" />
+      <point x="5697.429777568925" y="860.0" />
+      <point x="5715.679777568925" y="860.0" />
+      <point x="50.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.repository.TariffDetailsRepository">
+      <point x="-46.666666666666515" y="-27.0" />
+      <point x="1926.6567512531362" y="616.0" />
+      <point x="1250.251989348374" y="616.0" />
+      <point x="29.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.RetrofitService.RetrofitQueryResponse" target="uk.gov.caz.vcc.service.RetrofitService">
+      <point x="0.0" y="-27.0" />
+      <point x="3891.6400845864696" y="288.0" />
+      <point x="3915.8384711779513" y="288.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.compliance.EuroStatusNullComplianceService" target="uk.gov.caz.vcc.domain.service.FuelTypeService">
+      <point x="-98.66666666666674" y="-27.0" />
+      <point x="3058.2718045112847" y="94.0" />
+      <point x="2688.888471177951" y="94.0" />
+      <point x="33.59999999999991" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData.Data">
+      <point x="0.0" y="-27.0" />
+      <point x="5227.8698151629105" y="134.0" />
+      <point x="5211.2031484962445" y="134.0" />
+      <point x="10.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.compliance.EuroStatusNullComplianceService" target="uk.gov.caz.vcc.domain.service.compliance.CazComplianceService">
+      <point x="98.66666666666674" y="-27.0" />
+      <point x="3255.605137844618" y="134.0" />
+      <point x="3722.8384711779513" y="134.0" />
+      <point x="52.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.RetrofitService">
+      <point x="73.33333333333348" y="-27.0" />
+      <point x="2046.6567512531362" y="686.0" />
+      <point x="4010.1400845864696" y="686.0" />
+      <point x="4010.1400845864696" y="288.0" />
+      <point x="3949.438471177951" y="288.0" />
+      <point x="33.59999999999991" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.PaymentsService" target="uk.gov.caz.vcc.repository.PaymentsRepository">
+      <point x="0.0" y="-27.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.domain.service.VehicleIdentificationService">
+      <point x="-77.0" y="-27.0" />
+      <point x="2899.5488251879724" y="462.0" />
+      <point x="2137.2400845864695" y="462.0" />
+      <point x="90.66666666666674" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.CazTariffService">
+      <point x="-86.66666666666652" y="-27.0" />
+      <point x="1886.6567512531362" y="646.0" />
+      <point x="563.5860902255699" y="646.0" />
+      <point x="70.39999999999964" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.VehicleController" target="uk.gov.caz.vcc.service.ChargeCalculationService">
+      <point x="61.333333333333485" y="-27.0" />
+      <point x="1409.7988251879724" y="850.0" />
+      <point x="1870.46627506266" y="850.0" />
+      <point x="-102.85714285714266" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher" target="uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher.VehicleDetailFetcherResponse">
+      <point x="39.0" y="-27.0" />
+      <point x="4599.39008458647" y="1078.0" />
+      <point x="4652.632158521305" y="1078.0" />
+      <point x="4652.632158521305" y="716.0" />
+      <point x="4692.882158521305" y="716.0" />
+      <point x="102.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.CazTariffService.AsyncTariffResponse.AsyncTariffResponseBuilder" target="uk.gov.caz.vcc.service.CazTariffService.AsyncTariffResponse">
+      <point x="0.0" y="-27.0" />
+      <point x="134.4360902255703" y="492.0" />
+      <point x="174.6860902255703" y="492.0" />
+      <point x="-75.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.repository.VehicleDetailsRepository">
+      <point x="86.66666666666652" y="-27.0" />
+      <point x="2059.9900845864695" y="706.0" />
+      <point x="4117.671428571429" y="706.0" />
+      <point x="-30.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.BulkCheckerController" target="uk.gov.caz.vcc.service.BulkCheckerService">
+      <point x="-54.0" y="-27.0" />
+      <point x="1748.4662750626599" y="1098.0" />
+      <point x="1753.7162750626599" y="1098.0" />
+      <point x="-72.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.repository.CleanAirZoneEntrantRepository">
+      <point x="-7.0" y="-27.0" />
+      <point x="2969.5488251879724" y="412.0" />
+      <point x="2954.3384711779513" y="412.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData">
+      <point x="-66.0" y="-27.0" />
+      <point x="5106.671036967422" y="288.0" />
+      <point x="5205.012672305767" y="288.0" />
+      <point x="-22.857142857143117" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.VehicleEntrantsController" target="uk.gov.caz.vcc.service.VehicleEntrantsService">
+      <point x="62.0" y="-27.0" />
+      <point x="3151.056751253136" y="666.0" />
+      <point x="3051.215491854639" y="666.0" />
+      <point x="74.66666666666652" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.CacheInvalidationsController" target="uk.gov.caz.vcc.service.VehicleService">
+      <point x="90.66666666666669" y="-27.0" />
+      <point x="926.1686560150406" y="860.0" />
+      <point x="1268.465491854639" y="860.0" />
+      <point x="-40.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndLocalVehicleRepository" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData">
+      <point x="76.0" y="-27.0" />
+      <point x="5236.179777568925" y="850.0" />
+      <point x="5555.179777568925" y="850.0" />
+      <point x="5555.179777568925" y="288.0" />
+      <point x="5250.726958020054" y="288.0" />
+      <point x="22.857142857143117" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleService" target="uk.gov.caz.vcc.domain.service.VehicleIdentificationService">
+      <point x="40.0" y="-27.0" />
+      <point x="1348.465491854639" y="686.0" />
+      <point x="1735.7400845864695" y="686.0" />
+      <point x="1735.7400845864695" y="492.0" />
+      <point x="1955.906751253136" y="492.0" />
+      <point x="-90.66666666666674" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.VehicleRemoteRepository" target="uk.gov.caz.vcc.repository.VehicleRepository">
+      <point x="58.0" y="-27.0" />
+      <point x="5960.679777568925" y="726.0" />
+      <point x="5948.679777568925" y="726.0" />
+      <point x="46.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ExemptionService" target="uk.gov.caz.vcc.domain.service.TypeApprovalService">
+      <point x="39.111111111111086" y="-27.0" />
+      <point x="1484.3631004594852" y="248.0" />
+      <point x="1614.2400845864695" y="248.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.ComplianceService" target="uk.gov.caz.vcc.service.RetrofitService">
+      <point x="73.60000000000014" y="-27.0" />
+      <point x="2774.938471177951" y="278.0" />
+      <point x="3848.6384711779515" y="278.0" />
+      <point x="-67.19999999999982" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.ComplianceService" target="uk.gov.caz.vcc.domain.service.compliance.EuroStatusNullComplianceService">
+      <point x="36.80000000000018" y="-27.0" />
+      <point x="2738.1384711779515" y="268.0" />
+      <point x="3156.938471177951" y="268.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData.NtrAndDvlaDataBuilder" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData">
+      <point x="0.0" y="-27.0" />
+      <point x="5665.679777568925" y="278.0" />
+      <point x="5273.584100877196" y="278.0" />
+      <point x="45.714285714285325" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleService" target="uk.gov.caz.vcc.service.ExemptionService">
+      <point x="-13.333333333333485" y="-27.0" />
+      <point x="1295.1321585213054" y="706.0" />
+      <point x="1066.501989348374" y="706.0" />
+      <point x="1066.501989348374" y="492.0" />
+      <point x="1386.5853226817076" y="492.0" />
+      <point x="-58.666666666666515" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.MilitaryVehicleService.MilitaryVehicleQueryResponse">
+      <point x="-20.0" y="-27.0" />
+      <point x="1953.3234179198028" y="596.0" />
+      <point x="1724.7400845864695" y="596.0" />
+      <point x="-102.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.ChargeCalculationService.CsvOutput">
+      <point x="0.0" y="27.0" />
+      <point x="1973.3234179198028" y="860.0" />
+      <point x="2027.7162750626599" y="860.0" />
+      <point x="30.0" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LocalVehicleDetailsRepository" target="uk.gov.caz.vcc.repository.VehicleDetailsRepository">
+      <point x="0.0" y="-27.0" />
+      <point x="4434.882158521305" y="706.0" />
+      <point x="4237.671428571429" y="706.0" />
+      <point x="90.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ExemptionService" target="uk.gov.caz.vcc.domain.service.FuelTypeService">
+      <point x="78.22222222222217" y="-27.0" />
+      <point x="1523.4742115705963" y="288.0" />
+      <point x="2229.5884711779513" y="288.0" />
+      <point x="2229.5884711779513" y="104.0" />
+      <point x="2588.0884711779513" y="104.0" />
+      <point x="-67.20000000000005" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRemoteRepository" target="uk.gov.caz.vcc.repository.NationalTaxiRegisterAsyncRepository">
+      <point x="-130.0" y="-27.0" />
+      <point x="5541.429777568925" y="840.0" />
+      <point x="5370.429777568925" y="840.0" />
+      <point x="82.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.ComplianceService" target="uk.gov.caz.vcc.service.GeneralWhitelistService">
+      <point x="-73.59999999999968" y="-27.0" />
+      <point x="2627.7384711779514" y="238.0" />
+      <point x="1022.7019893483739" y="238.0" />
+      <point x="92.80000000000007" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.domain.service.ComplianceService">
+      <point x="-35.0" y="-27.0" />
+      <point x="2941.5488251879724" y="432.0" />
+      <point x="2747.3384711779513" y="432.0" />
+      <point x="46.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.ComplianceService" target="uk.gov.caz.vcc.domain.service.compliance.EuroStatusPresentComplianceService">
+      <point x="2.2737367544323206E-13" y="-27.0" />
+      <point x="2701.3384711779518" y="288.0" />
+      <point x="2705.3900845864696" y="288.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.domain.service.ChargeabilityService">
+      <point x="20.0" y="-27.0" />
+      <point x="1993.3234179198028" y="646.0" />
+      <point x="2254.5734179198025" y="646.0" />
+      <point x="-52.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.MilitaryVehicleService.MilitaryVehicleCheckResult" target="uk.gov.caz.vcc.service.MilitaryVehicleService">
+      <point x="85.33333333333348" y="27.0" />
+      <point x="2275.2400845864695" y="94.0" />
+      <point x="2107.2718045112842" y="94.0" />
+      <point x="64.0" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.RetrofitService" target="uk.gov.caz.vcc.domain.service.bulkchecker.BulkCheckerUtility">
+      <point x="67.19999999999982" y="27.0" />
+      <point x="3983.038471177951" y="278.0" />
+      <point x="4737.382158521305" y="278.0" />
+      <point x="4737.382158521305" y="964.0" />
+      <point x="2114.51627506266" y="964.0" />
+      <point x="76.80000000000018" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository.NtrAndDvlaData" target="uk.gov.caz.vcc.repository.LicenseAndVehicleRepository">
+      <point x="0.0" y="27.0" />
+      <point x="5227.8698151629105" y="288.0" />
+      <point x="5238.671036967422" y="288.0" />
+      <point x="66.0" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService.CsvOutput" target="uk.gov.caz.vcc.service.ChargeCalculationService">
+      <point x="-30.0" y="-27.0" />
+      <point x="1967.7162750626599" y="860.0" />
+      <point x="1939.0377036340885" y="860.0" />
+      <point x="-34.28571428571422" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantLogDataCleanupService" target="uk.gov.caz.vcc.repository.IdentificationErrorRepository">
+      <point x="82.0" y="-27.0" />
+      <point x="246.0" y="1400.0" />
+      <point x="234.0" y="1400.0" />
+      <point x="70.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher">
+      <point x="68.57142857142844" y="27.0" />
+      <point x="2041.8948464912312" y="840.0" />
+      <point x="2144.21627506266" y="840.0" />
+      <point x="2144.21627506266" y="1088.0" />
+      <point x="4495.39008458647" y="1088.0" />
+      <point x="-65.0" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ExemptionService" target="uk.gov.caz.vcc.service.GeneralWhitelistService">
+      <point x="-78.22222222222217" y="-27.0" />
+      <point x="1367.029767126152" y="278.0" />
+      <point x="976.3019893483738" y="278.0" />
+      <point x="46.40000000000009" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.controller.BulkCheckerController" target="uk.gov.caz.vcc.service.BulkCheckerService.BulkCheckerCsvFile">
+      <point x="54.0" y="-27.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.service.MilitaryVehicleService">
+      <point x="-49.0" y="-27.0" />
+      <point x="2927.5488251879724" y="442.0" />
+      <point x="2421.0734179198025" y="442.0" />
+      <point x="2421.0734179198025" y="278.0" />
+      <point x="2127.2718045112842" y="278.0" />
+      <point x="84.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.domain.service.bulkchecker.BulkCheckerUtility">
+      <point x="34.28571428571422" y="27.0" />
+      <point x="2007.609132205517" y="850.0" />
+      <point x="2100.71627506266" y="850.0" />
+      <point x="2100.71627506266" y="964.0" />
+      <point x="2076.11627506266" y="964.0" />
+      <point x="38.40000000000009" y="-27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.compliance.EuroStatusPresentComplianceService" target="uk.gov.caz.vcc.domain.service.FuelTypeService">
+      <point x="0.0" y="-27.0" />
+      <point x="2705.3900845864696" y="104.0" />
+      <point x="2655.2884711779516" y="104.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.domain.service.VehicleIdentificationService">
+      <point x="6.666666666666515" y="-27.0" />
+      <point x="1979.9900845864693" y="636.0" />
+      <point x="2046.5734179198028" y="636.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.GeneralWhitelistService" target="uk.gov.caz.vcc.repository.GeneralWhitelistRepository">
+      <point x="99.42857142857144" y="-27.0" />
+      <point x="1029.3305607769453" y="134.0" />
+      <point x="1361.1400845864696" y="134.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.ChargeCalculationService" target="uk.gov.caz.vcc.service.GeneralWhitelistService">
+      <point x="-60.0" y="-27.0" />
+      <point x="1913.3234179198028" y="626.0" />
+      <point x="1078.001989348374" y="626.0" />
+      <point x="1078.001989348374" y="288.0" />
+      <point x="929.9019893483737" y="288.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.domain.service.bulkchecker.VehicleDetailFetcher" target="uk.gov.caz.vcc.domain.service.bulkchecker.BulkCheckerUtility">
+      <point x="-91.0" y="-27.0" />
+      <point x="4469.39008458647" y="1098.0" />
+      <point x="2037.7162750626599" y="1098.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleService" target="uk.gov.caz.vcc.service.MilitaryVehicleService">
+      <point x="13.333333333333258" y="-27.0" />
+      <point x="1321.7988251879722" y="676.0" />
+      <point x="1543.751989348374" y="676.0" />
+      <point x="1543.751989348374" y="268.0" />
+      <point x="2015.2718045112845" y="268.0" />
+      <point x="-28.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.GeneralWhitelistService" target="uk.gov.caz.vcc.service.GeneralWhitelistService.GeneralWhiteListCheckResult">
+      <point x="0.0" y="-27.0" />
+      <point x="-88.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.VehicleEntrantsService" target="uk.gov.caz.vcc.service.VehicleEntrantsService.PaymentDetails">
+      <point x="21.0" y="-27.0" />
+      <point x="2997.5488251879724" y="392.0" />
+      <point x="3194.3384711779513" y="392.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.RetrofitService" target="uk.gov.caz.vcc.service.RetrofitService.RetrofitCheckResult">
+      <point x="-63.0" y="-27.0" />
+      <point x="3852.8384711779513" y="134.0" />
+      <point x="3828.171804511285" y="134.0" />
+      <point x="-66.66666666666652" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.vcc.service.MilitaryVehicleService.MilitaryVehicleQueryResponse" target="uk.gov.caz.vcc.service.MilitaryVehicleService">
+      <point x="102.0" y="27.0" />
+      <point x="1928.7400845864695" y="114.0" />
+      <point x="2011.2718045112845" y="114.0" />
+      <point x="-32.0" y="-27.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.8952952029520295" x="1064.0" y="460.84698608964453" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Inner Classes</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

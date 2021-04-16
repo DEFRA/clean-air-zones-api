@@ -31,15 +31,17 @@ public class CsvContentGeneratorTestIT extends ExternalCallsIT {
     List<String[]> csvRowResults = csvGeneratorService.generateCsvRows(accountId);
 
     // then
-    assertThat(csvRowResults).hasSize(6);
+    assertThat(csvRowResults).hasSize(7);
     assertThat(String.join(",", csvRowResults.get(0))).isEqualTo(
-        "Number plate,Vehicle Type,Bath (Upcoming),Birmingham (Live),Leeds (Live),Leicester (Upcoming)");
-    assertThat(String.join(",", csvRowResults.get(1))).isEqualTo("VRN1,Van,,12,Undetermined,");
+        "Number plate,Vehicle Type,Bath (Upcoming),Birmingham (Live),Leicester (Upcoming),Test (Live)");
+    assertThat(String.join(",", csvRowResults.get(1))).isEqualTo("VRN1,Van,,12,,Undetermined");
     assertThat(String.join(",", csvRowResults.get(2))).isEqualTo("VRN2,Car,,18,,");
-    assertThat(String.join(",", csvRowResults.get(3))).isEqualTo("VRN3,Van,,,25,");
+    assertThat(String.join(",", csvRowResults.get(3))).isEqualTo("VRN3,Van,,,,25");
     assertThat(String.join(",", csvRowResults.get(4)))
-        .isEqualTo("VRN4,Undetermined,,Undetermined,Undetermined,");
+        .isEqualTo("VRN4,Undetermined,,Undetermined,,Undetermined");
     assertThat(String.join(",", csvRowResults.get(5)))
-        .isEqualTo("VRN5,Heavy Goods Vehicle,,No charge,No charge,");
+        .isEqualTo("VRN5,Heavy Goods Vehicle,,No charge,,No charge");
+    assertThat(String.join(",", csvRowResults.get(6)))
+        .isEqualTo("VRN6,Heavy Goods Vehicle,,Exempt,,Exempt");
   }
 }

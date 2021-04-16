@@ -1,5 +1,6 @@
 package uk.gov.caz.taxiregister.model;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -24,7 +25,7 @@ public class ConversionResults {
    * validation errors from each {@link ConversionResult} are flattened to one list. All
    * successfully converted licences are collected to a set in {@code licences} attribute.
    */
-  public static ConversionResults from(List<ConversionResult> conversionResults) {
+  public static ConversionResults from(Collection<ConversionResult> conversionResults) {
     List<ValidationError> validationErrors = conversionResults.stream()
         .filter(ConversionResult::isFailure)
         .map(ConversionResult::getValidationErrors)

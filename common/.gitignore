@@ -32,3 +32,8 @@ target/
 
 ### JS ###
 node_modules
+
+*/.pmdruleset.xml
+*/.checkstyle
+*/.pmd
+

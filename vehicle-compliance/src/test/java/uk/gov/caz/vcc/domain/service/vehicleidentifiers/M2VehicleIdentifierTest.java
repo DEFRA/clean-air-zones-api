@@ -4,9 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
-import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
+
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
 
 class M2VehicleIdentifierTest {
   
@@ -22,7 +23,7 @@ class M2VehicleIdentifierTest {
   @Test
   void minibusCorrectlyIdentified() {
     testVehicle.setRevenueWeight(5000);
-    testVehicle.setSeatingCapacity(10);
+    testVehicle.setSeatingCapacity(9);
     
     identifier.identifyVehicle(testVehicle);
     
@@ -38,9 +39,9 @@ class M2VehicleIdentifierTest {
   }
 
   @Test
-  void lessThanOrEqualTo9SeatsRaisesException() {
+  void lessThanOrEqualTo8SeatsRaisesException() {
     testVehicle.setRevenueWeight(5000);
-    testVehicle.setSeatingCapacity(9);
+    testVehicle.setSeatingCapacity(8);
 
     assertThrows(UnidentifiableVehicleException.class,
         () -> identifier.identifyVehicle(testVehicle));

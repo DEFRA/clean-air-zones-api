@@ -32,6 +32,17 @@ public class StatusOfRegisterCsvFromS3JobQueryResult {
   }
 
   /**
+   * Creates an instance of {@link StatusOfRegisterCsvFromS3JobQueryResult} where {@code status} is
+   * set to {@code registerJobStatusDto} and {@code errors} are mapped to an array of {@link
+   * RegisterJobError#getDetail()}.
+   */
+  public static StatusOfRegisterCsvFromS3JobQueryResult withStatusAndSpecificError(
+      RegisterJobStatusDto registerJobStatusDto, String specificError) {
+    String[] errorsArray = {specificError};
+    return new StatusOfRegisterCsvFromS3JobQueryResult(registerJobStatusDto, errorsArray);
+  }
+
+  /**
    * Status code of register job identified by name.
    */
   @ApiModelProperty(

@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0050.1-audit-1.0
+      author: daniel.thornton
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0050-1.0-update_audit_table_schema_to_capture_modifier.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

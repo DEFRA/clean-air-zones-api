@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.caz.tariff.dto.CleanAirZones;
+import uk.gov.caz.definitions.dto.CleanAirZonesDto;
 import uk.gov.caz.tariff.dto.Tariff;
 import uk.gov.caz.tariff.service.CleanAirZonesRepository;
 import uk.gov.caz.tariff.service.TariffRepository;
@@ -32,7 +32,7 @@ public class CleanAirZonesController implements CleanAirZonesControllerApiSpec {
   }
 
   @Override
-  public ResponseEntity<CleanAirZones> cleanAirZones() {
+  public ResponseEntity<CleanAirZonesDto> cleanAirZones() {
     return ResponseEntity
         .status(HttpStatus.OK)
         .body(cleanAirZonesRepository.findAll());

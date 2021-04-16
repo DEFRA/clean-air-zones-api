@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UserType;
 import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.exception.IdentityProviderUnavailableException;
 
 /**
@@ -25,6 +26,22 @@ public class UserTypeResponseToUserConverter {
    *     attributes list.
    */
   public static User convert(User user, UserType response) {
+    return user.toBuilder()
+        .name(getAttributeFromResponse(response, "name"))
+        .email(getAttributeFromResponse(response, "email"))
+        .build();
+  }
+
+  /**
+   * Method converting {@code UserType} to a {@code UserEntity}.
+   *
+   * @param user object containing user details from DB
+   * @param response response from a third party service.
+   * @return UserEntity model
+   * @throws IdentityProviderUnavailableException when email attribute is not found in
+   *     attributes list.
+   */
+  public static UserEntity convert(UserEntity user, UserType response) {
     return user.toBuilder()
         .name(getAttributeFromResponse(response, "name"))
         .email(getAttributeFromResponse(response, "email"))

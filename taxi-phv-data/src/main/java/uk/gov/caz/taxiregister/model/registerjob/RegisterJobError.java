@@ -2,6 +2,7 @@ package uk.gov.caz.taxiregister.model.registerjob;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import lombok.ToString;
 import lombok.Value;
 import uk.gov.caz.taxiregister.model.ValidationError;
 
@@ -9,6 +10,7 @@ import uk.gov.caz.taxiregister.model.ValidationError;
 @JsonInclude(Include.NON_EMPTY)
 public class RegisterJobError {
 
+  @ToString.Exclude
   String vrm;
   String title;
   String detail;

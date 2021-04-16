@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0044.1.0-update-view-for-accounts-vehicle-entrants-percent
+      author: informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0044-1.0-update-view-for-accounts-vehicle-entrants-percent.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true 

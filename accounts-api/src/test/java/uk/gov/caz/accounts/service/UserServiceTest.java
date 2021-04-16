@@ -46,6 +46,8 @@ class UserServiceTest {
   private static final UUID ANY_ACCOUNT_ID = UUID.randomUUID();
   private static final UUID ANY_ACCOUNT_USER_ID = UUID.randomUUID();
   private static final UUID ANY_IDENTITY_PROVIDER_ID = UUID.randomUUID();
+  private static final UUID ANY_ADMIN_USER_ID = UUID.randomUUID();
+  private static final String ANY_USER_NAME = "AnyName";
 
   @Mock
   private IdentityProvider identityProvider;
@@ -103,7 +105,7 @@ class UserServiceTest {
       //then
       assertThrows(NotUniqueEmailException.class,
           () -> userService.createAdminUser(ANY_EMAIL, ANY_PASSWORD, ANY_ACCOUNT_ID));
-      verify(accountUserRepository, never()).insert(any());
+      verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -119,7 +121,7 @@ class UserServiceTest {
 
       // then
       assertThat(throwable).isInstanceOf(IdentityProviderUnavailableException.class);
-      verify(accountUserRepository, never()).insert(any());
+      verify(userRepository, never()).save(any());
     }
 
     @Test
@@ -135,7 +137,6 @@ class UserServiceTest {
       UserEntity userWithId = userWithIdentityProviderId.toBuilder().id(UUID.randomUUID()).build();
 
       when(identityProvider.checkIfUserExists(ANY_EMAIL)).thenReturn(false);
-//      doNothing().when(identityProvider.createAdminUser(identityProviderId, ANY_EMAIL, ANY_PASSWORD));
       when(userRepository.save(any())).thenReturn(userWithId);
 
       //when
@@ -166,12 +167,36 @@ class UserServiceTest {
   }
 
   @Nested
+  class CreateStandardUserForExistingEmail {
+
+    @Test
+    public void shouldCreateNewUserInTheDatabase() {
+      // given
+      UserEntity user = createStandardUserEntity();
+      mockUserCreation(user);
+      String email = user.getEmail();
+
+      // when
+      userService.createStandardUserForExistingEmail(email, ANY_USER_NAME, ANY_ADMIN_USER_ID,
+          ANY_ACCOUNT_ID);
+
+      // then
+      verify(userRepository).save(any());
+    }
+
+    private void mockUserCreation(UserEntity user) {
+      when(identityProvider.getUserAsUserEntity(any())).thenReturn(user);
+      when(userRepository.save(any())).thenReturn(user);
+    }
+  }
+
+  @Nested
   class CreateStandardUser {
 
     @Test
     public void shouldThrowIllegalArgumentExceptionIfUserIsOwner() {
       // given
-      User user = createStandardUser().toBuilder().isOwner(true).build();
+      UserEntity user = createStandardUserEntity().toBuilder().isOwner(true).build();
 
       // when
       Throwable throwable = catchThrowable(() -> userService.createStandardUser(user));
@@ -179,13 +204,14 @@ class UserServiceTest {
       // then
       assertThat(throwable).isInstanceOf(IllegalArgumentException.class)
           .hasMessage("User cannot be an owner");
-      verify(accountUserRepository, never()).insert(any());
+      verify(userRepository, never()).save(any());
     }
 
     @Test
     public void shouldThrowIllegalArgumentExceptionIfUserHasInternalIdentifier() {
       // given
-      User user = createStandardUser().toBuilder().isOwner(false).id(UUID.randomUUID()).build();
+      UserEntity user = createStandardUserEntity().toBuilder().isOwner(false).id(UUID.randomUUID())
+          .build();
 
       // when
       Throwable throwable = catchThrowable(() -> userService.createStandardUser(user));
@@ -193,45 +219,45 @@ class UserServiceTest {
       // then
       assertThat(throwable).isInstanceOf(IllegalArgumentException.class)
           .hasMessage("User id must be null");
-      verify(accountUserRepository, never()).insert(any());
+      verify(userRepository, never()).save(any());
     }
 
     @Test
     public void shouldThrowExceptionIfEmailIsNotUnique() {
       //given
-      User user = createStandardUser();
+      UserEntity user = createStandardUserEntity();
 
       mockNotUniqueEmailConditions();
 
       //then
       assertThrows(NotUniqueEmailException.class,
           () -> userService.createStandardUser(user));
-      verify(accountUserRepository, never()).insert(any());
+      verify(userRepository, never()).save(any());
     }
 
     @Test
     public void shouldCreateUserInIdentityProviderIfEmailIsUnique() {
       //given
-      User userWithIdentityProviderId = createStandardUser();
-      User userWithId = userWithIdentityProviderId.toBuilder()
+      UserEntity userWithIdentityProviderId = createStandardUserEntity();
+      UserEntity userWithId = userWithIdentityProviderId.toBuilder()
           .id(UUID.randomUUID())
           .build();
 
       when(identityProvider.checkIfUserExists(ANY_EMAIL)).thenReturn(false);
       when(identityProvider.createStandardUser(userWithId)).thenReturn(userWithId);
-      when(accountUserRepository.insert(userWithIdentityProviderId)).thenReturn(userWithId);
-      User result = userService.createStandardUser(userWithIdentityProviderId);
+      when(userRepository.save(userWithIdentityProviderId)).thenReturn(userWithId);
+      UserEntity result = userService.createStandardUser(userWithIdentityProviderId);
 
       //then
       assertThat(result).isEqualTo(userWithId);
       verify(identityProvider).createStandardUser(eq(userWithId));
-      verify(accountUserRepository).insert(userWithIdentityProviderId);
+      verify(userRepository).save(userWithIdentityProviderId);
     }
 
     @Test
     public void shouldThrowIdentityProviderUnavailableExceptionWhenIdentityProviderThrowsException() {
       // given
-      User user = createStandardUser();
+      UserEntity user = createStandardUserEntity();
       doThrow(IdentityProviderUnavailableException.class).when(identityProvider)
           .checkIfUserExists(any());
 
@@ -421,46 +447,45 @@ class UserServiceTest {
 
     @Test
     public void shouldReturnEmptyListIfNoUserFound() {
-      when(accountUserRepository.findAllUsersByAccountId(any()))
+      when(userRepository.findAllByAccountId(any()))
           .thenReturn(Collections.emptyList());
 
-      List<User> users = userService.getAllUsersForAccountId(ANY_ACCOUNT_ID);
+      List<UserEntity> users = userService.getAllUsersForAccountId(ANY_ACCOUNT_ID);
 
       assertThat(users).isEmpty();
     }
 
     @Test
     public void shouldReturnOptionalUserWhenUserIsFoundInTheDatabase() {
-      User user = buildUserFromDB();
-      List<User> accountUsers = Arrays.asList(user);
-      User userFromIdentityProvider = buildUserWithIdentityProviderUser(user);
+      UserEntity user = buildUserEntity();
+      List<UserEntity> accountUsers = Arrays.asList(user);
+      UserEntity userFromIdentityProvider = buildUserWithIdentityProviderUser(user);
 
       when(identityProvider.getUserDetailsByIdentityProviderId(user))
           .thenReturn(userFromIdentityProvider);
-      when(accountUserRepository.findAllUsersByAccountId(any())).thenReturn(accountUsers);
+      when(userRepository.findAllByAccountId(any())).thenReturn(accountUsers);
 
-      List<User> users = userService.getAllUsersForAccountId(ANY_ACCOUNT_ID);
+      List<UserEntity> users = userService.getAllUsersForAccountId(ANY_ACCOUNT_ID);
 
       assertThat(users).isNotEmpty();
       verify(identityProvider).getUserDetailsByIdentityProviderId(user);
-      verify(accountUserRepository).findAllUsersByAccountId(ANY_ACCOUNT_ID);
+      verify(userRepository).findAllByAccountId(ANY_ACCOUNT_ID);
     }
 
     @Test
     public void shouldNotFetchDataFromIdentityProviderWhenUserIsRemoved() {
-      User user = getRemovedUser();
-      List<User> accountUsers = Arrays.asList(user);
+      UserEntity user = getRemovedUser();
 
-      when(accountUserRepository.findAllUsersByAccountId(ANY_ACCOUNT_ID)).thenReturn(accountUsers);
+      when(userRepository.findAllByAccountId(ANY_ACCOUNT_ID)).thenReturn(Arrays.asList(user));
 
-      List<User> result = userService.getAllUsersForAccountId(ANY_ACCOUNT_ID);
+      List<UserEntity> result = userService.getAllUsersForAccountId(ANY_ACCOUNT_ID);
 
-      verify(identityProvider, never()).getUserDetailsByIdentityProviderId(any());
+      verify(identityProvider, never()).getUserDetailsByIdentityProviderId(any(UserEntity.class));
       assertThat(result).isNotEmpty();
     }
 
-    private User getRemovedUser() {
-      return User.builder()
+    private UserEntity getRemovedUser() {
+      return UserEntity.builder()
           .id(UUID.randomUUID())
           .accountId(ANY_ACCOUNT_ID)
           .identityProviderUserId(null)
@@ -476,23 +501,24 @@ class UserServiceTest {
       when(userRepository.findByIdAndAccountId(any(), any()))
           .thenReturn(Optional.empty());
 
-      Optional<User> user = userService.getUserForAccountId(ANY_ACCOUNT_ID, ANY_ACCOUNT_USER_ID);
+      Optional<UserEntity> user = userService
+          .getUserForAccountId(ANY_ACCOUNT_ID, ANY_ACCOUNT_USER_ID);
 
       assertThat(user).isEmpty();
     }
 
     @Test
     public void shouldReturnOptionalUserWhenUserIsFoundInTheDatabase() {
-      UserEntity userEntity = buildUserEntity();
-      User user = buildUserFromUserEntity(userEntity);
-      User userFromIdentityProvider = buildUserWithIdentityProviderUser(user);
+      UserEntity user = buildUserEntity();
+      UserEntity userFromIdentityProvider = buildUserWithIdentityProviderUser(user);
 
       when(userRepository.findByIdAndAccountId(any(), any())).thenReturn(
-          Optional.of(userEntity));
+          Optional.of(user));
       when(identityProvider.getUserDetailsByIdentityProviderId(user))
           .thenReturn(userFromIdentityProvider);
 
-      Optional<User> result = userService.getUserForAccountId(ANY_ACCOUNT_ID, ANY_ACCOUNT_USER_ID);
+      Optional<UserEntity> result = userService
+          .getUserForAccountId(ANY_ACCOUNT_ID, ANY_ACCOUNT_USER_ID);
 
       assertThat(result).isNotEmpty();
       assertThat(result.get()).isEqualTo(userFromIdentityProvider);
@@ -575,25 +601,6 @@ class UserServiceTest {
     when(accountUserRepository.findByUserId(uuid)).thenReturn(Optional.of(user));
   }
 
-  @NotNull
-  private User stubValidUser() {
-    User user = createStandardUser();
-    User userWithIdentityProviderId = user.toBuilder()
-        .identityProviderUserId(UUID.randomUUID())
-        .build();
-
-    when(identityProvider.checkIfUserExists(ANY_EMAIL)).thenReturn(false);
-    when(identityProvider.createStandardUser(user)).thenReturn(userWithIdentityProviderId);
-    return user;
-  }
-
-  private User buildUserFromDB() {
-    return User.builder()
-        .id(UUID.randomUUID())
-        .identityProviderUserId(UUID.randomUUID())
-        .build();
-  }
-
   private UserEntity buildUserEntity() {
     return UserEntity.builder()
         .id(UUID.randomUUID())
@@ -605,20 +612,17 @@ class UserServiceTest {
         .build();
   }
 
-  private User buildUserFromUserEntity(UserEntity userEntity) {
-    List<String> permissions = userEntity.getAccountPermissions().stream()
-        .map(accountPermission -> accountPermission.getName().toString())
-        .collect(Collectors.toList());
-    return User.builder()
-        .id(userEntity.getId())
-        .identityProviderUserId(userEntity.getIdentityProviderUserId())
-        .accountId(userEntity.getAccountId())
-        .accountPermissions(permissions)
+  private UserEntity buildUserWithIdentityProviderUser(UserEntity user) {
+    return user.toBuilder()
+        .email(ANY_EMAIL)
+        .name("ANY_NAME")
         .build();
   }
 
-  private User buildUserWithIdentityProviderUser(User user) {
-    return user.toBuilder()
+  private UserEntity createStandardUserEntity() {
+    return UserEntity.builder()
+        .accountId(UUID.randomUUID())
+        .identityProviderUserId(UUID.randomUUID())
         .email(ANY_EMAIL)
         .name("ANY_NAME")
         .build();

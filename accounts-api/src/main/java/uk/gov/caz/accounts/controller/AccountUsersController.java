@@ -15,7 +15,7 @@ import uk.gov.caz.accounts.dto.UpdateUserRequestDto;
 import uk.gov.caz.accounts.dto.UserResponse;
 import uk.gov.caz.accounts.model.Account;
 import uk.gov.caz.accounts.model.Permission;
-import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.service.AccountFetcherService;
 import uk.gov.caz.accounts.service.UserPermissionsUpdaterService;
 import uk.gov.caz.accounts.service.UserRemovalService;
@@ -90,7 +90,7 @@ public class AccountUsersController implements AccountsUsersControllerApiSpec {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  private List<AccountUserResponse> toAccountUserResponses(List<User> users) {
+  private List<AccountUserResponse> toAccountUserResponses(List<UserEntity> users) {
     return users.stream()
         .map(AccountUserResponse::from)
         .collect(Collectors.toList());

@@ -14,6 +14,7 @@ import static uk.gov.caz.taxiregister.reporting.LicensingAuthoritiesThatForgotTo
 import static uk.gov.caz.taxiregister.reporting.LicensingAuthoritiesThatForgotToUploadReportTestIT.Updated._8_DAYS_AGO;
 
 import com.google.common.collect.ImmutableMap;
+import java.sql.PreparedStatement;
 import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -160,17 +160,13 @@ public class LicensingAuthoritiesThatForgotToUploadReportTestIT {
               + "(REGISTER_JOB_ID, LICENCE_AUTHORITY_ID, INSERT_TIMESTMP) "
               + "VALUES (1, ?, ?)";
 
-      jdbcTemplate.update(
-          insertSql,
-          createSqlArray(laNamesToIds(licensingAuthorities)),
-          updated.getLocalDateTime());
-    }
-
-    @SneakyThrows
-    private java.sql.Array createSqlArray(List<Integer> list) {
-      java.sql.Array intArray = jdbcTemplate.getDataSource().getConnection()
-          .createArrayOf("integer", list.toArray());
-      return intArray;
+      jdbcTemplate.update(connection -> {
+        PreparedStatement preparedStatement = connection.prepareStatement(insertSql);
+        preparedStatement.setArray(1,
+            connection.createArrayOf("integer", laNamesToIds(licensingAuthorities).toArray()));
+        preparedStatement.setObject(2, updated.getLocalDateTime());
+        return preparedStatement;
+      });
     }
   }
 

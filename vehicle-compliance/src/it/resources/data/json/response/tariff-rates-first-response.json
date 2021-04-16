@@ -1,7 +1,7 @@
 {
   "cleanAirZoneId": "0d7ab5c4-5fff-4935-8c4e-56267c0c9493",
   "name": "Birmingham",
-  "tariffClass": "A",
+  "tariffClass": "B",
   "chargeIdentifier": "BCC01",
   "rates": {
     "bus": 5.5,
@@ -11,8 +11,7 @@
     "taxi": 2,
     "phv": 80.1,
     "hgv": 5.69,
-    "largeVan": 100,
-    "smallVan": 80,
+    "van": 100,
     "motorcycle": 80.01,
     "moped": 49.49
   }

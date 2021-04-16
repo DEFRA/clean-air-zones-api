@@ -14,9 +14,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
-import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
 import uk.gov.caz.vcc.domain.service.vehicleidentifiers.NullVehicleIdentifier;
 import uk.gov.caz.vcc.util.UnidentifiableVehicleExceptionHandler;
 
@@ -129,37 +129,107 @@ public class VehicleIdentificationServiceTest {
   }
 
   @Test
-  void nullRevenueWeightIsCaught() {
+  void nullRevenueWeightM2AttemptsToIdentifyUsingNullIdentifier()  {
     unidentifiableVehicle.setTypeApproval("M2");
-
-    // For inspecting the caught error.
-    ArgumentCaptor<UnidentifiableVehicleException> exceptionArgument = ArgumentCaptor
-        .forClass(UnidentifiableVehicleException.class);
+    unidentifiableVehicle.setTaxClass("RP HGV");
 
     vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
 
-    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(),
-        Mockito.eq(unidentifiableVehicle));
-    assertEquals("Cannot identify vehicle with null: revenueWeight",
-        exceptionArgument.getValue().getMessage());
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
+  }
+
+
+  @Test
+  void zeroSeatingCapacityM2AttemptsToIdentifyUsingNullIdentifier() {
+    unidentifiableVehicle.setTypeApproval("M2");
+    unidentifiableVehicle.setRevenueWeight(3051);
+    unidentifiableVehicle.setTaxClass("RP HGV");
+    unidentifiableVehicle.setSeatingCapacity(0);
+
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
   }
 
   @Test
-  void nullSeatingCapacityIsCaught() {
+  void tooLargeRevenueWeightM2AttemptsToIdentifyUsingNullIdentifier() {
     unidentifiableVehicle.setTypeApproval("M2");
-    unidentifiableVehicle.setRevenueWeight(3051);
+    unidentifiableVehicle.setRevenueWeight(10000);
+    unidentifiableVehicle.setTaxClass("RP HGV");
+    unidentifiableVehicle.setSeatingCapacity(0);
 
-    // For inspecting the caught error.
-    ArgumentCaptor<UnidentifiableVehicleException> exceptionArgument = ArgumentCaptor
-        .forClass(UnidentifiableVehicleException.class);
 
     vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
 
-    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(),
-        Mockito.eq(unidentifiableVehicle));
-    assertEquals("Cannot identify vehicle with null: seatingCapacity",
-        exceptionArgument.getValue().getMessage());
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
   }
+
+  @Test
+  void nullRevenueWeightM3AttemptsToIdentifyUsingNullIdentifier()  {
+    unidentifiableVehicle.setTypeApproval("M3");
+    unidentifiableVehicle.setTaxClass("RP HGV");
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
+  }
+
+  @Test
+  void tooLargeRevenueWeightN1AttemptsToIdentifyUsingNullIdentifier() {
+    unidentifiableVehicle.setTypeApproval("N1");
+    unidentifiableVehicle.setRevenueWeight(10000);
+    unidentifiableVehicle.setTaxClass("RP HGV");
+    unidentifiableVehicle.setSeatingCapacity(0);
+
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
+  }
+
+  @Test
+  void nullRevenueWeightN1AttemptsToIdentifyUsingNullIdentifier()  {
+    unidentifiableVehicle.setTypeApproval("N1");
+    unidentifiableVehicle.setTaxClass("RP HGV");
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
+  }
+
+  @Test
+  void nullRevenueWeightN2AttemptsToIdentifyUsingNullIdentifier()  {
+    unidentifiableVehicle.setTypeApproval("N2");
+    unidentifiableVehicle.setTaxClass("RP HGV");
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
+  }
+
+  @Test
+  void tooSmallRevenueWeightN2AttemptsToIdentifyUsingNullIdentifier() {
+    unidentifiableVehicle.setTypeApproval("N2");
+    unidentifiableVehicle.setRevenueWeight(3500);
+    unidentifiableVehicle.setTaxClass("RP HGV");
+    unidentifiableVehicle.setSeatingCapacity(0);
+
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
+  }
+
+
 
   @Test
   void nullTaxClassIsCaught() {
@@ -192,20 +262,16 @@ public class VehicleIdentificationServiceTest {
   }
 
   @Test
-  void zeroRevenueWeightIsCaught() {
+  void zeroRevenueWeightIsCaughtNullIdentifierIsCalled() {
     unidentifiableVehicle.setTypeApproval("M2");
     unidentifiableVehicle.setRevenueWeight(0);
 
-    // For inspecting the caught error.
-    ArgumentCaptor<UnidentifiableVehicleException> exceptionArgument = ArgumentCaptor
-        .forClass(UnidentifiableVehicleException.class);
+    unidentifiableVehicle.setTaxClass("RP HGV");
 
     vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
 
-    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(),
-        Mockito.eq(unidentifiableVehicle));
-    assertEquals("Cannot identify vehicle with null: revenueWeight",
-        exceptionArgument.getValue().getMessage());
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
   }
 
   @Test
@@ -214,17 +280,12 @@ public class VehicleIdentificationServiceTest {
     unidentifiableVehicle.setRevenueWeight(42);
     unidentifiableVehicle.setMassInService(42);
     unidentifiableVehicle.setSeatingCapacity(0);
-
-    // For inspecting the caught error.
-    ArgumentCaptor<UnidentifiableVehicleException> exceptionArgument = ArgumentCaptor
-        .forClass(UnidentifiableVehicleException.class);
+    unidentifiableVehicle.setTaxClass("RP HGV");
 
     vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
 
-    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(),
-        Mockito.eq(unidentifiableVehicle));
-    assertEquals("Cannot identify vehicle with null: seatingCapacity",
-        exceptionArgument.getValue().getMessage());
+    // Checks implicitly, as Mockito cannot mock calls to new MyClass();
+    assertEquals(VehicleType.HGV, unidentifiableVehicle.getVehicleType());
   }
 
   @Test
@@ -254,10 +315,77 @@ public class VehicleIdentificationServiceTest {
 
     vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
 
-    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(),
-        Mockito.eq(unidentifiableVehicle));
-    assertEquals("Cannot identify vehicle with null: bodyType",
-        exceptionArgument.getValue().getMessage());
+    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(), Mockito.eq(unidentifiableVehicle));
+    assertEquals("Cannot identify vehicle with null: bodyType", exceptionArgument.getValue().getMessage());
   }
+
+  @Test
+  void emptySeatingCapacityAndEmptyTaxClassIsCaught() {
+    unidentifiableVehicle.setTypeApproval("M2");
+    unidentifiableVehicle.setRevenueWeight(42);
+    unidentifiableVehicle.setMassInService(42);
+
+    // For inspecting the caught error.
+    ArgumentCaptor<UnidentifiableVehicleException> exceptionArgument = ArgumentCaptor
+        .forClass(UnidentifiableVehicleException.class);
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(), Mockito.eq(unidentifiableVehicle));
+    assertEquals("Cannot identify vehicle with null: taxClass", exceptionArgument.getValue().getMessage());
+
+  }
+
+  @Test
+  void emptySeatingCapacityAndEmptyBodyTypeIsCaught() {
+    unidentifiableVehicle.setTypeApproval("M2");
+    unidentifiableVehicle.setRevenueWeight(42);
+    unidentifiableVehicle.setMassInService(42);
+    unidentifiableVehicle.setTaxClass("CROWN VEHICLE");
+    unidentifiableVehicle.setBodyType("");
+
+    // For inspecting the caught error.
+    ArgumentCaptor<UnidentifiableVehicleException> exceptionArgument = ArgumentCaptor
+        .forClass(UnidentifiableVehicleException.class);
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(), Mockito.eq(unidentifiableVehicle));
+    assertEquals("Cannot identify vehicle with null: bodyType", exceptionArgument.getValue().getMessage());
+
+  }
+
+  @Test
+  void emptyRevenueWeightAndEmptyTaxClassIsCaught() {
+    unidentifiableVehicle.setTypeApproval("M2");
+
+    // For inspecting the caught error.
+    ArgumentCaptor<UnidentifiableVehicleException> exceptionArgument = ArgumentCaptor
+        .forClass(UnidentifiableVehicleException.class);
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(), Mockito.eq(unidentifiableVehicle));
+    assertEquals("Cannot identify vehicle with null: taxClass", exceptionArgument.getValue().getMessage());
+
+  }
+
+  @Test
+  void emptyRevenueWeightAndEmptyBodyTypeIsCaught() {
+    unidentifiableVehicle.setTypeApproval("M2");
+    unidentifiableVehicle.setTaxClass("CROWN VEHICLE");
+    unidentifiableVehicle.setBodyType("");
+
+    // For inspecting the caught error.
+    ArgumentCaptor<UnidentifiableVehicleException> exceptionArgument = ArgumentCaptor
+        .forClass(UnidentifiableVehicleException.class);
+
+    vehicleIdentificationService.setVehicleType(unidentifiableVehicle);
+
+    verify(exceptionHandler, times(1)).handleError(exceptionArgument.capture(), Mockito.eq(unidentifiableVehicle));
+    assertEquals("Cannot identify vehicle with null: bodyType", exceptionArgument.getValue().getMessage());
+
+  }
+
 
 }

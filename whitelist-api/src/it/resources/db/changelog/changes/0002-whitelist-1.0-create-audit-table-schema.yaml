@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0002.1-whitelist-1.0
+      author: jaroslaw.piotrowski
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0002-whitelist-1.0-create_audit_table_schema.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+  - changeSet:
+      id: 0002.2-whitelist-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - sql:
+            comment: Create Audit Trigger on T_WHITELIST_VEHICLES and T_WHITELIST_JOB_REGISTER
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE TRIGGER t_whitelist_vehicles_audit_trigger
+              AFTER INSERT OR UPDATE OR DELETE ON CAZ_WHITELIST_VEHICLES.T_WHITELIST_VEHICLES
+              FOR EACH ROW EXECUTE PROCEDURE CAZ_WHITELIST_VEHICLES_AUDIT.if_modified_func();
+
+              CREATE TRIGGER t_whitelist_job_register_audit_trigger
+              AFTER INSERT OR UPDATE OR DELETE ON CAZ_WHITELIST_VEHICLES.T_WHITELIST_JOB_REGISTER
+              FOR EACH ROW EXECUTE PROCEDURE CAZ_WHITELIST_VEHICLES_AUDIT.if_modified_func();
+            stripComments: true

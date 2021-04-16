@@ -165,7 +165,7 @@ public class AccountVehicleControllerTestIT {
           .andExpect(jsonPath("$.accountId").value(EXISTING_ACCOUNT_ID));
 
       verifyAccountVehiclesWithVrnCount(NON_EXISTING_VRN, 1);
-      verifyVehicleChargeabilityWithVrnCount(12);
+      verifyVehicleChargeabilityWithVrnCount(14);
     }
 
     @Test
@@ -277,7 +277,6 @@ public class AccountVehicleControllerTestIT {
           .andExpect(jsonPath("$.cachedCharges[1].tariffCode").value("Tariff 2"));
     }
   }
-
   @Nested
   class CsvExport {
 
@@ -306,9 +305,9 @@ public class AccountVehicleControllerTestIT {
           .activeChargeStartDate("2018-10-28")
           .build();
 
-      CleanAirZoneDto leeds = CleanAirZoneDto.builder()
-          .cleanAirZoneId(UUID.fromString("39e54ed8-3ed2-441d-be3f-38fc9b70c8d3"))
-          .name("Leeds")
+      CleanAirZoneDto test = CleanAirZoneDto.builder()
+          .cleanAirZoneId(UUID.fromString("742b343f-6ce6-42d3-8324-df689ad4c515"))
+          .name("Test")
           .activeChargeStartDate("2018-10-29")
           .build();
 
@@ -326,12 +325,13 @@ public class AccountVehicleControllerTestIT {
 
       when(vccsRepository.findCleanAirZonesSync()).thenReturn(Response.success(
           CleanAirZonesDto.builder().cleanAirZones(
-              asList(birmingham, leeds, bath, leicester)
+              asList(birmingham, test, bath, leicester)
           ).build()));
     }
 
     private void createBucketInS3() {
-      s3Client.createBucket(builder -> builder.bucket(BUCKET_NAME).acl(BucketCannedACL.PUBLIC_READ));
+      s3Client
+          .createBucket(builder -> builder.bucket(BUCKET_NAME).acl(BucketCannedACL.PUBLIC_READ));
     }
 
     private void deleteBucketAndFilesFromS3() {

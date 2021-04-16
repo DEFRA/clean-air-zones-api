@@ -31,6 +31,7 @@ public class CsvContentGenerator {
   private static final String UPCOMING = "(Upcoming)";
   private static final String UNDETERMINED = "Undetermined";
   private static final String NO_CHARGE = "No charge";
+  private static final String EXEMPT = "Exempt";
   private static final String COMMA = ",";
   private final VccsRepository vccsRepository;
   private final AccountVehicleRepository accountVehicleRepository;
@@ -143,6 +144,9 @@ public class CsvContentGenerator {
   private String getCharge(VehicleChargeability vc) {
     if (vc.getCharge() == null) {
       return UNDETERMINED;
+    }
+    if (vc.isExempt()) {
+      return EXEMPT;
     }
     if (isChargeZero(vc)) {
       return NO_CHARGE;

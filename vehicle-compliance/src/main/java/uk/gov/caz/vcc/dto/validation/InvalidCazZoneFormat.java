@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 /**
- * Exception that indicates problems during parsing CAZ ID (usually UUID)
+ * Exception that indicates problems during parsing CAZ ID (usually UUID).
  */
 @ResponseStatus(BAD_REQUEST)
 public class InvalidCazZoneFormat extends RuntimeException {

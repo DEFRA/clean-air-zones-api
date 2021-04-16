@@ -52,4 +52,14 @@ public class CleanAirZoneEntrantAssert extends
     Assertions.assertThat(actual.getCleanAirZoneId()).isEqualTo(expectedCleanAirZoneId);
     return this;
   }
+
+  public CleanAirZoneEntrantAssert hasEntrantPaymentId(UUID entrantPaymentId) {
+    Assertions.assertThat(actual.getEntrantPaymentId()).isEqualTo(entrantPaymentId);
+    return this;
+  }
+
+  public CleanAirZoneEntrantAssert hasAnyEntrantPaymentId() {
+    Assertions.assertThat(actual.getEntrantPaymentId()).isNotNull();
+    return this;
+  }
 }

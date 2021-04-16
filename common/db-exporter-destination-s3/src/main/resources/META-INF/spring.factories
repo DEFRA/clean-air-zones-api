@@ -1,0 +1,1 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=uk.gov.caz.db.exporter.destination.s3.AwsS3DestinationConfiguration

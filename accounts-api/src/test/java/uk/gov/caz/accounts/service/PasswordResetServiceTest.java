@@ -37,6 +37,7 @@ import uk.gov.caz.accounts.model.AccountUserCode;
 import uk.gov.caz.accounts.model.CodeStatus;
 import uk.gov.caz.accounts.model.CodeType;
 import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.AccountUserCodeRepository;
 import uk.gov.caz.accounts.service.emailnotifications.PasswordResetEmailSender;
 import uk.gov.caz.accounts.service.emailnotifications.UserInvitationEmailSender;
@@ -91,7 +92,7 @@ class PasswordResetServiceTest {
     }
 
     private void mockMissingUser() {
-      when(userService.getUserByEmail(ANY_EMAIL)).thenReturn(Optional.empty());
+      when(userService.getUserEntityByEmail(ANY_EMAIL)).thenReturn(Optional.empty());
     }
   }
 
@@ -141,7 +142,7 @@ class PasswordResetServiceTest {
 
     @Test
     public void shouldNotSendEmailWhenUserHas5OrMoreActiveTokensFromLastHour() {
-      when(userService.getUserByEmail(any())).thenReturn(mockedUser());
+      when(userService.getUserEntityByEmail(any())).thenReturn(mockedUserEntity());
       mockEmailsLimitExceeded();
 
       passwordResetService.generateAndSaveResetToken(ANY_EMAIL, ANY_URL);
@@ -151,7 +152,7 @@ class PasswordResetServiceTest {
 
     @Test
     public void shouldNotSendEmailWhenUserIsDuringEmailChangeProcess() {
-      when(userService.getUserByEmail(any())).thenReturn(mockedUser());
+      when(userService.getUserEntityByEmail(any())).thenReturn(mockedUserEntity());
       mockActiveEmailChangeToken();
 
       passwordResetService.generateAndSaveResetToken(ANY_EMAIL, ANY_URL);
@@ -184,7 +185,7 @@ class PasswordResetServiceTest {
     }
 
     private void mockExistingUser() {
-      when(userService.getUserByEmail(any())).thenReturn(mockedUser());
+      when(userService.getUserEntityByEmail(any())).thenReturn(mockedUserEntity());
       when(tokenToHashConverter.convert(any())).thenReturn("CONVERTED-CODE");
       when(tokensExpiryDatesProvider.getResetTokenExpiryDateFromNow())
           .thenReturn(currentTime().plusDays(1));
@@ -229,6 +230,18 @@ class PasswordResetServiceTest {
       return Optional.of(user);
     }
 
+    private Optional<UserEntity> mockedUserEntity() {
+      UserEntity user = UserEntity.builder()
+          .id(UUID.randomUUID())
+          .accountId(UUID.randomUUID())
+          .email(ANY_EMAIL)
+          .identityProviderUserId(UUID.randomUUID())
+          .name("Jan Kowalski")
+          .build();
+
+      return Optional.of(user);
+    }
+
     private AccountUserCode sampleAccountUserCode(CodeStatus codeStatus) {
       return AccountUserCode.builder()
           .id(RandomUtils.nextInt())
@@ -258,7 +271,7 @@ class PasswordResetServiceTest {
       @Test
       public void shouldThrowNullPointerExceptionIfUserIsNull() {
         // given
-        User user = null;
+        UserEntity user = null;
 
         // when
         Throwable throwable = catchThrowable(() ->
@@ -274,7 +287,7 @@ class PasswordResetServiceTest {
       public void shouldThrowNullPointerExceptionIfVerificationLinkIsNull() {
         // given
         URI verificationLink = null;
-        User user = User.builder()
+        UserEntity user = UserEntity.builder()
             .isOwner(false)
             .build();
 
@@ -291,7 +304,7 @@ class PasswordResetServiceTest {
       @Test
       public void shouldThrowIllegalArgumentExceptionIfUserIsOwner() {
         // given
-        User user = User.builder().owner().build();
+        UserEntity user = UserEntity.builder().isOwner(true).build();
 
         // when
         Throwable throwable = catchThrowable(() ->
@@ -306,7 +319,7 @@ class PasswordResetServiceTest {
       @Test
       public void shouldThrowNullPointerExceptionIfAdministeredByIsNull() {
         // given
-        User user = User.builder().isOwner(false).administeredBy(null).build();
+        UserEntity user = UserEntity.builder().isOwner(false).isAdministratedBy(null).build();
 
         // when
         Throwable throwable = catchThrowable(() ->
@@ -321,7 +334,8 @@ class PasswordResetServiceTest {
       @Test
       public void shouldThrowIllegalArgumentExceptionIfUserIsEmailVerified() {
         // given
-        User user = User.builder().administeredBy(UUID.randomUUID()).emailVerified(true).build();
+        UserEntity user = UserEntity.builder().isAdministratedBy(UUID.randomUUID())
+            .emailVerified(true).build();
 
         // when
         Throwable throwable = catchThrowable(() ->
@@ -337,9 +351,9 @@ class PasswordResetServiceTest {
       @ValueSource(strings = {"", "  "})
       public void shouldThrowIllegalArgumentExceptionIfUserHasBlankEmail(String email) {
         // given
-        User user = User.builder()
+        UserEntity user = UserEntity.builder()
             .emailVerified(false)
-            .administeredBy(UUID.randomUUID())
+            .isAdministratedBy(UUID.randomUUID())
             .email(email)
             .build();
 
@@ -360,10 +374,10 @@ class PasswordResetServiceTest {
       String convertedCode = "some-code";
       mockExpirationDateProvider();
       mockTokenHashConverter(convertedCode);
-      User user = User.builder()
+      UserEntity user = UserEntity.builder()
           .id(UUID.randomUUID())
           .emailVerified(false)
-          .administeredBy(UUID.randomUUID())
+          .isAdministratedBy(UUID.randomUUID())
           .email("a@b.com")
           .build();
 

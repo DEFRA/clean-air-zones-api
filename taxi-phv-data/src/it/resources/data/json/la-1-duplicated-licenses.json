@@ -1,0 +1,22 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "DS98UDG",
+      "start": "2019-03-11",
+      "end": "2019-07-24",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "iragG",
+      "wheelchairAccessibleVehicle": null
+    },
+    {
+      "vrm": "DS98UDG",
+      "start": "2019-03-11",
+      "end": "2019-07-24",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "iragG",
+      "wheelchairAccessibleVehicle": null
+    }
+  ]
+}

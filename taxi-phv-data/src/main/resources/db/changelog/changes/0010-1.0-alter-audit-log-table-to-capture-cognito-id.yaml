@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0009-1.0
+      author: informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0010-1.0-alter-audit-log-table-to-capture-cognito-id.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

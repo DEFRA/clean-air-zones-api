@@ -74,10 +74,14 @@ public class ChargeCalculationRefreshJobSupervisor {
    */
   private void processAnotherBatchIfApplicable(int invocationNumber, UUID correlationId) {
     if (invocationNumber >= maxInvocationCount) {
-      log.warn("Reached the maximum number of invocations, stopping the calculation, marking");
+      log.warn("Reached the maximum number of invocations: {}, stopping the calculation, marking",
+          maxInvocationCount);
     } else {
       log.info("There are still vehicles for which charge calculations must be done. "
-          + "Invoking Charge Calculation refresh lambda again");
+              + "Invoking Charge Calculation lambda again. "
+              + "Invocations number: {} and the maximum number of invocations: {}",
+          invocationNumber,
+          maxInvocationCount);
       asyncChargeCalculationRefreshStarter.fireAndForget(
           correlationId,
           invocationNumber + 1

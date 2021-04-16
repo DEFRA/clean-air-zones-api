@@ -55,6 +55,8 @@ public class TestObjects {
   public static final String TYPICAL_CORRELATION_ID = "CorrelationId";
   public static String VALID_API_KEY = TYPICAL_REGISTER_JOB_UPLOADER_ID.toString();
 
+  public static final String TYPICAL_UPLOADER_EMAIL = "dummy@email.hereee";
+
   public static final UUID TYPICAL_UPLOADER_ID = UUID.fromString("11111111-2222-3333-4444-555555555555");
   public static final List<UUID> TYPICAL_UPLOADER_IDS = Lists
       .newArrayList(UUID.fromString("11111111-2222-3333-4444-555555555555"),
@@ -107,7 +109,7 @@ public class TestObjects {
           .description("taxi")
           .licensingAuthorityName("la-1")
           .licensePlateNumber("dJfRR")
-          .wheelchairAccessibleVehicle(true)
+          .wheelchairAccessibleVehicle("true")
           .build();
 
       private static final List<VehicleDto> TO_BE_REGISTERED = ImmutableList.of(

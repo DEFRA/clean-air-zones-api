@@ -4,6 +4,8 @@
 	compile \
 	run \
 	run-development \
+	run-active-licences-in-reporting-window-task \
+	run-active-licenses-in-reporting-window-task-java \
 	package \
 	generate-javadoc \
 	clean \
@@ -32,6 +34,12 @@ run:
 
 run-development:
 	SPRING_PROFILES_ACTIVE=development ./mvnw spring-boot:run
+
+run-active-licences-in-reporting-window-task:
+	SPRING_PROFILES_ACTIVE=development TASKS_ACTIVELICENCESINREPORTINGWINDOW_ENABLED=true SPRING_MAIN_WEBAPPLICATIONTYPE=none ./mvnw spring-boot:run -Dspring-boot.run.arguments=$(startDate),$(endDate),$(csvFile)
+
+run-active-licences-in-reporting-window-task-java:
+	java -jar target/national-taxi-register-1.1-SNAPSHOT-spring-boot-executable.jar $(startDate) $(endDate) $(csvFile) --spring.profiles.active=development --tasks.active-licences-in-reporting-window.enabled=true --spring.main.web-application-type=none
 
 package:
 	./mvnw package -U
@@ -104,7 +112,7 @@ sam-local-run:
 	SPRING_PROFILES_ACTIVE='sam-local' sam local invoke JaquCazFunction -t sam.yaml -e $$EVENT --docker-network postgres_docker_default
 
 localstack-up:
-	SERVICES='s3,sqs,sns' docker-compose -f docker/docker-compose-localstack.yml -p localstack_docker up -d
+	SERVICES='s3,sqs,sns,ses' docker-compose -f docker/docker-compose-localstack.yml -p localstack_docker up -d
 
 localstack-down:
 	docker-compose -f docker/docker-compose-localstack.yml -p localstack_docker down
@@ -117,7 +125,7 @@ localstack-run:
 	SPRING_PROFILES_ACTIVE='localstack,development' AWS_PROFILE='localstack' AWS_REGION='eu-west-2' ./mvnw spring-boot:run
 
 local-integration-up:
-	SERVICES='s3,sqs,sns' docker-compose -f docker/docker-compose-integration.yml -p postgres_docker up -d
+	SERVICES='s3,sqs,sns,ses' docker-compose -f docker/docker-compose-integration.yml -p postgres_docker up -d
 
 local-integration-down:
 	docker-compose -f docker/docker-compose-integration.yml -p postgres_docker down

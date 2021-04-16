@@ -1,10 +1,8 @@
 ### Integration tests configuration
 spring:
   datasource:
-    url: jdbc:postgresql://${postgres.url:localhost:9999}/caz-national-taxi-phv
-#    url: jdbc:postgresql://${postgres.url:localhost:5432}/caz-national-taxi-phv
-    hikari:
-      maximum-pool-size: 10
+    url: jdbc:postgresql://${postgres.url:localhost:9999}/taxi_phv
+#    url: jdbc:postgresql://${postgres.url:localhost:5432}/taxi_phv
 
 redis:
   enabled: true
@@ -13,12 +11,11 @@ redis:
 #  port: ${redis.custom.port:6379}
 
 application:
-  validation:
-    max-errors-count: 10
   job-clean-up-request:
     queue-url: ${job.clean.up.request.queue.url:http://localhost:4576/queue/job-clean-up-request}
     max-records-count: 100
     message-visibility-delay-in-seconds: 10
+  test-fixtures-location: /data/json/test-fixtures/licences.json
   
 services:
   connection-timeout-seconds: 29
@@ -30,5 +27,8 @@ services:
 aws:
   s3:
     endpoint: http://${aws.s3.url:localhost:4572}
+    payload-retention-bucket: apibucket
   sqs:
     endpoint: http://${aws.sqs.url:localhost:4576}
+  ses:
+    endpoint: http://${aws.ses.url:localhost:4579}

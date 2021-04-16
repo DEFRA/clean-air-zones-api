@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0017-1.0
+      author: patryk.lenza
+      changes:
+        - sql:
+            comment: Update main info and boundary urls for Birmingham and Leeds
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+                UPDATE public.T_CAZ_LINK_DETAIL
+                SET MAIN_INFO_URL = 'https://www.brumbreathes.co.uk/'
+                WHERE CHARGE_DEFINITION_ID = 1;
+
+                UPDATE public.T_CAZ_LINK_DETAIL
+                SET BOUNDARY_URL = 'https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/2'
+                WHERE CHARGE_DEFINITION_ID = 1;
+
+                UPDATE public.T_CAZ_LINK_DETAIL
+                SET MAIN_INFO_URL = 'https://www.leeds.gov.uk/business/environmental-health-for-business/air-quality'
+                WHERE CHARGE_DEFINITION_ID = 2;
+
+                UPDATE public.T_CAZ_LINK_DETAIL
+                SET BOUNDARY_URL = 'https://leedscc.maps.arcgis.com/apps/webappviewer/index.html?id=fd8765f4fa614c64808e32a15ed5ee71'
+                WHERE CHARGE_DEFINITION_ID = 2;
+            stripComments: true

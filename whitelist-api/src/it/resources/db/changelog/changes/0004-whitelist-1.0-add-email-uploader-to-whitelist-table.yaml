@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0004.1-whitelist-1.0-add-email-uploader-to-whitelist-table
+      author: jaroslaw.niedorozow
+      failOnError: false
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            columnExist:
+              schemaName: CAZ_WHITELIST_VEHICLES
+              tableName: T_WHITELIST_VEHICLES
+              columnName: UPLOADER_EMAIL
+      changes:
+        - addColumn:
+            comment: Add uploader email to table that holds data.
+            schemaName: CAZ_WHITELIST_VEHICLES
+            tableName: T_WHITELIST_VEHICLES
+            columns:
+              - column:
+                  name: UPLOADER_EMAIL
+                  type: varchar(50)
+                  constraints:
+                    nullable: true

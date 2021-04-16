@@ -6,15 +6,19 @@ import static java.util.Collections.emptyList;
 
 import java.util.List;
 import java.util.Optional;
+
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import uk.gov.caz.definitions.domain.RemoteVehicleDataResponse;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.dto.VehicleDto;
 import uk.gov.caz.vcc.domain.CalculationResult;
-import uk.gov.caz.vcc.domain.Vehicle;
 import uk.gov.caz.vcc.domain.service.VehicleIdentificationService;
 import uk.gov.caz.vcc.dto.TaxiPhvLicenseInformationResponse;
-import uk.gov.caz.vcc.dto.VehicleDto;
 import uk.gov.caz.vcc.repository.VehicleDetailsRepository;
 
 /**
@@ -22,6 +26,7 @@ import uk.gov.caz.vcc.repository.VehicleDetailsRepository;
  *
  * @author informed
  */
+@AllArgsConstructor
 @Slf4j
 @Service
 public class VehicleService {
@@ -36,35 +41,9 @@ public class VehicleService {
   private final NationalTaxiRegisterService nationalTaxiRegisterService;
   private final VehicleDetailsRepository vehicleDetailsRepository;
   private final VehicleIdentificationService vehicleIdentificationService;
-  private final RetrofitService retrofitService;
-  private final MilitaryVehicleService militaryVehicleService;
   private final ExemptionService exemptionService;
-
-  /**
-   * Public constructor for the VehicleService.
-   *
-   * @param nationalTaxiRegisterService service to retrieve taxi details.
-   * @param vehicleDetailsRepository repository implementation for fetching remotely stored
-   *     vehicle details.
-   * @param vehicleIdentificationService service to identify a vehicle, given other data
-   * @param retrofitService service for querying whether a vehicle has been retrofitted.
-   * @param militaryVehicleService service for querying whether a vehicle is classified as
-   *     military.
-   * @param exemptionService service to determine exemption status for a given vehicle.
-   */
-  public VehicleService(NationalTaxiRegisterService nationalTaxiRegisterService,
-      VehicleDetailsRepository vehicleDetailsRepository,
-      VehicleIdentificationService vehicleIdentificationService,
-      RetrofitService retrofitService,
-      MilitaryVehicleService militaryVehicleService,
-      ExemptionService exemptionService) {
-    this.nationalTaxiRegisterService = nationalTaxiRegisterService;
-    this.vehicleDetailsRepository = vehicleDetailsRepository;
-    this.vehicleIdentificationService = vehicleIdentificationService;
-    this.retrofitService = retrofitService;
-    this.militaryVehicleService = militaryVehicleService;
-    this.exemptionService = exemptionService;
-  }
+  private final GeneralWhitelistService generalWhitelistService;
+  private final MilitaryVehicleService militaryVehicleService;
 
   /**
    * Public method to grab vehicle details, check for exemption and cast to a DTO.
@@ -81,7 +60,7 @@ public class VehicleService {
   /**
    * Method to expose cache eviction for vehicle details.
    */
-  @CacheEvict(value = { "vehicles" }, allEntries = true)
+  @CacheEvict(value = {"vehicles"}, allEntries = true)
   public void cacheEvictVehicles() {
     log.info("Evicted vehicle details cache");
   }
@@ -95,29 +74,44 @@ public class VehicleService {
 
   /**
    * Method for retrieving vehicle details for consumption by the compliance checker online service.
-   * In the event that a vehicle has been retrofitted or is deemed a military vehicle this will
-   * yield an early return as querying remote sources is not necessary.
+   * In the event that a vehicle has been retrofitted or is on the general purpose whitelist this
+   * will yield an early return as querying remote sources is not necessary.
    *
    * @param vrn the VRN of the vehicle to fetch details for.
    * @return an object detailing the particulars of a vehicle.
    */
   private Optional<VehicleDto> findVehicleDetails(String vrn) {
-
-    // Yield immediate return if a vehicle is retrofitted
-    if (retrofitService.isRetrofitted(vrn)) {
-      return Optional.of(VehicleDto.builder().isExempt(true).build());
-    }
-
-    // Yield immediate return if a vehicle is military
-    if (militaryVehicleService.isMilitaryVehicle(vrn)) {
-      return Optional.of(VehicleDto.builder().isExempt(true).build());
-    }
-
     Optional<Vehicle> vehicle = vehicleDetailsRepository.findByRegistrationNumber(vrn);
 
+    // Yield immediate return if a vehicle is retrofitted or military or on general purpose
+    // whitelist.
+    if (militaryVehicleService.isMilitaryVehicle(vrn)
+        || generalWhitelistService.exemptOnGeneralWhitelist(vrn)) {
+      String returnedVrn = vehicle
+          .map(RemoteVehicleDataResponse::getRegistrationNumber)
+          .orElse(vrn);
+      if (!vehicle.isPresent()) {
+        return Optional.of(
+            VehicleDto.builder()
+                .registrationNumber(returnedVrn)
+                .isExempt(true)
+                .build()
+                );
+      } else {
+        return vehicle
+            .map(this::enhanceWithVehicleType)
+            .map(e -> VehicleDto.fromVehicle(e, true));  
+      }
+    }
+
+    if (!vehicle.isPresent()) {
+      return Optional.empty();
+    }
+    
     // Yield without performing redundant checks for taxi status or vehicle type if exempt.
-    if (vehicle.isPresent() && isVehicleExempt(vehicle.get())) {
+    if (isVehicleExempt(vehicle.get())) {
       return vehicle
+          .map(this::enhanceWithVehicleType)
           .map(e -> VehicleDto.fromVehicle(e, true));
     } else {
       return vehicle
@@ -126,19 +120,19 @@ public class VehicleService {
           .map(e -> VehicleDto.fromVehicle(e, false));
     }
   }
-  
+
   /**
    * A method for determining if a vehicle is exempt.
-   * 
+   *
    * @param vehicle Vehicle whose exemption is to be determined.
    * @return true if exempt, else false
    */
   private boolean isVehicleExempt(Vehicle vehicle) {
     return exemptionService.updateCalculationResult(
-      vehicle, new CalculationResult())
-      .getExempt();
+        vehicle, new CalculationResult())
+        .isExempt();
   }
-  
+
   /**
    * A method for enhancing a vehicle definition with a CAZ vehicle type classification.
    *
@@ -163,10 +157,21 @@ public class VehicleService {
     List<String> licensingAuthoritiesNames = Optional
         .ofNullable(taxiPhvStatus.getLicensingAuthoritiesNames())
         .orElse(emptyList());
-    vehicle.setIsTaxiOrPhv(taxiPhvStatus.isActive());
+    vehicle.setIsTaxiOrPhv(taxiPhvStatus.isActiveAndNotExpired());
     vehicle.setIsWav(taxiPhvStatus.getWheelchairAccessible());
     vehicle.setLicensingAuthoritiesNames(licensingAuthoritiesNames);
     return vehicle;
   }
 
+  /**
+   * Method to get DVLA data and wrap it.
+   *
+   * @param vrn Registration number of vehicle searched.
+   * @return Vehicle DTO if it was found.
+   */
+  public Optional<Vehicle> dvlaDataForVehicle(String vrn) {
+    String strippedVrn = StringUtils.trimAllWhitespace(vrn);
+    validateVrnFormat(vrn, strippedVrn);
+    return vehicleDetailsRepository.findByRegistrationNumber(vrn);
+  }
 }

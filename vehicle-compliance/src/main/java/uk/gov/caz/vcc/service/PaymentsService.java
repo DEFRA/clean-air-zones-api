@@ -1,35 +1,26 @@
 package uk.gov.caz.vcc.service;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import uk.gov.caz.vcc.dto.PaymentStatus;
-import uk.gov.caz.vcc.dto.PaymentStatusRequestDto;
-import uk.gov.caz.vcc.dto.PaymentStatusResponseDto;
-import uk.gov.caz.vcc.repository.PaymentsRepository;
+import java.util.List;
+import uk.gov.caz.vcc.dto.EntrantPaymentDtoV1;
+import uk.gov.caz.vcc.dto.EntrantPaymentDtoV2;
+import uk.gov.caz.vcc.dto.EntrantPaymentRequestDto;
 
-/**
- * Service that is responsible for integration with payments service.
- */
-@Slf4j
-@Service
-@AllArgsConstructor
-public class PaymentsService {
-
-  private final PaymentsRepository paymentsRepository;
+public interface PaymentsService {
 
   /**
-   * Get payment status from payments service.
+   * Get payment status from payments service. Supports 'old' API.
    *
-   * @param request {@link PaymentStatusRequestDto}.
-   * @return {@link PaymentStatus}.
+   * @param request {@link EntrantPaymentRequestDto}.
+   * @return {@link EntrantPaymentDtoV1}.
    */
-  public PaymentStatus registerVehicleEntryAndGetPaymentStatus(PaymentStatusRequestDto request) {
-    PaymentStatus paymentStatus = paymentsRepository
-        .registerVehicleEntryAndGetPaymentStatus(request)
-        .map(PaymentStatusResponseDto::getStatus)
-        .orElse(PaymentStatus.NOT_PAID);
-    log.info("Payments status '{}' for '{}' VRN", paymentStatus, request.getVrn());
-    return paymentStatus;
-  }
+  EntrantPaymentDtoV1 registerVehicleEntryAndGetPaymentStatus(EntrantPaymentRequestDto request);
+
+  /**
+   * Get payment status from payments service. Supports API that returns EntrantPaymentDtoV2.
+   *
+   * @param requests a list of {@link EntrantPaymentRequestDto}.
+   * @return {@link EntrantPaymentDtoV1}.
+   */
+  List<EntrantPaymentDtoV2> registerVehicleEntriesAndGetPaymentStatus(
+      List<EntrantPaymentRequestDto> requests);
 }

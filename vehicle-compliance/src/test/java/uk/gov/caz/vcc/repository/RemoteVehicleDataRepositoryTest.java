@@ -23,7 +23,7 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.caz.vcc.domain.exceptions.ExternalServiceCallException;
 import uk.gov.caz.vcc.domain.RemoteVehicleAuthenticationResponse;
-import uk.gov.caz.vcc.domain.Vehicle;
+import uk.gov.caz.definitions.domain.Vehicle;
 import uk.gov.caz.vcc.domain.authentication.VehicleApiCredentialRotationManager;
 import uk.gov.caz.vcc.dto.RemoteDataNewApiKeyResponse;
 import uk.gov.caz.vcc.util.VehicleApiAuthenticationUtility;
@@ -134,20 +134,17 @@ public class RemoteVehicleDataRepositoryTest {
     assertThat(vehicleOpt).isNotPresent();
   }
 
-
   @Test
   public void testCanCatch503Error() {
-    when(remoteVehicleAuthenticationRestTemplate.postForObject(
-            anyString(), any(),
-            eq(RemoteVehicleAuthenticationResponse.class)))
-        .thenThrow(
-            new HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE));
+    when(remoteVehicleDataRestTemplate.postForObject(
+        ArgumentMatchers.matches(REMOTE_API_DATA_URL),
+        any(),
+        eq(Vehicle.class)))
+        .thenThrow(new HttpServerErrorException(HttpStatus.SERVICE_UNAVAILABLE));
 
-    Optional<Vehicle> vehicle =
-        remoteVehicleDataRepository.findByRegistrationNumber("CAS310");
-    assertThat(vehicle).isNotPresent();
+    assertThrows(ExternalServiceCallException.class,
+        () -> remoteVehicleDataRepository.findByRegistrationNumber("CAS310"));
   }
-
 
   @Test
   public void shouldThrowExternalServiceCallExceptionIfHttpClientErrorExceptionWasThrown() {
@@ -187,13 +184,25 @@ public class RemoteVehicleDataRepositoryTest {
   }
 
   @Test
+  public void shouldThrowExceptionIfUnknownExceptionWasThrown() {
+    when(remoteVehicleDataRestTemplate.postForObject(
+        ArgumentMatchers.matches(REMOTE_API_DATA_URL),
+        any(),
+        eq(Vehicle.class)))
+        .thenThrow(new IllegalArgumentException());
+
+    assertThrows(IllegalArgumentException.class,
+        () -> remoteVehicleDataRepository.findByRegistrationNumber("CAS310"));
+  }
+
+  @Test
   public void testApiKeyNullPointer() {
 
     RemoteDataNewApiKeyResponse remoteDataNewApiKeyResponse = null;
 
     when(remoteVehicleAuthenticationRestTemplate.postForObject(
-            anyString(), any(),
-            eq(RemoteDataNewApiKeyResponse.class)))
+        anyString(), any(),
+        eq(RemoteDataNewApiKeyResponse.class)))
         .thenReturn(
             remoteDataNewApiKeyResponse);
     assertThrows(NullPointerException.class,

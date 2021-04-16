@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
 import uk.gov.caz.vcc.annotation.IntegrationTest;
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
-import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
 import uk.gov.caz.vcc.domain.service.vehicleidentifiers.TVehicleIdentifier;
 
 @IntegrationTest

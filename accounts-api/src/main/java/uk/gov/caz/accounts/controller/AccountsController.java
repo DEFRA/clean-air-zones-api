@@ -8,7 +8,6 @@ import com.google.common.collect.ImmutableMap;
 import java.net.URI;
 import java.util.Collections;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -18,12 +17,12 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.caz.accounts.controller.exception.EmailNotUniqueException;
 import uk.gov.caz.accounts.dto.AccountCreationRequestDto;
 import uk.gov.caz.accounts.dto.AccountCreationResponseDto;
 import uk.gov.caz.accounts.dto.AccountResponseDto;
 import uk.gov.caz.accounts.dto.AccountUpdateRequestDto;
 import uk.gov.caz.accounts.dto.AccountVerificationRequestDto;
+import uk.gov.caz.accounts.dto.CloseAccountRequestDto;
 import uk.gov.caz.accounts.dto.CreateAndInviteUserRequestDto;
 import uk.gov.caz.accounts.dto.UserCreationResponseDto;
 import uk.gov.caz.accounts.dto.UserForAccountCreationRequestDto;
@@ -32,14 +31,14 @@ import uk.gov.caz.accounts.dto.UserVerificationEmailResendRequest;
 import uk.gov.caz.accounts.dto.UserVerificationEmailResendResponse;
 import uk.gov.caz.accounts.model.Account;
 import uk.gov.caz.accounts.model.Permission;
-import uk.gov.caz.accounts.model.User;
 import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.service.AccountAdminUserCreatorService;
+import uk.gov.caz.accounts.service.AccountCloseService;
 import uk.gov.caz.accounts.service.AccountCreatorService;
 import uk.gov.caz.accounts.service.AccountFetcherService;
 import uk.gov.caz.accounts.service.AccountStandardUserCreatorService;
+import uk.gov.caz.accounts.service.AccountStandardUserValidatorService;
 import uk.gov.caz.accounts.service.AccountUpdateService;
-import uk.gov.caz.accounts.service.UserService;
 import uk.gov.caz.accounts.service.VerificationEmailConfirmationService;
 import uk.gov.caz.accounts.service.VerificationEmailResendService;
 
@@ -59,12 +58,13 @@ public class AccountsController implements AccountsControllerApiSpec {
       "/{accountId}/users/{accountUserId}/verifications";
 
   private final AccountCreatorService accountCreatorService;
+  private final AccountCloseService accountCloseService;
   private final AccountUpdateService accountUpdateService;
   private final AccountAdminUserCreatorService accountAdminUserCreatorService;
   private final AccountStandardUserCreatorService accountStandardUserCreatorService;
+  private final AccountStandardUserValidatorService accountStandardUserValidatorService;
   private final VerificationEmailConfirmationService verificationEmailConfirmationService;
   private final VerificationEmailResendService verificationEmailResendService;
-  private final UserService userService;
   private final AccountFetcherService accountFetcherService;
 
   @Override
@@ -149,10 +149,8 @@ public class AccountsController implements AccountsControllerApiSpec {
   @Override
   public ResponseEntity<Void> validateUser(UUID accountId,
       UserValidationRequest userValidationRequest) {
-    Optional<User> user = userService.getUserByEmail(userValidationRequest.validate().getEmail());
-    if (user.isPresent()) {
-      throw new EmailNotUniqueException("Provided email is not unique");
-    }
+    accountStandardUserValidatorService
+        .validateUserEmail(userValidationRequest.validate().getEmail());
 
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
@@ -169,5 +167,15 @@ public class AccountsController implements AccountsControllerApiSpec {
         .stream()
         .map(Permission::valueOf)
         .collect(Collectors.toSet());
+  }
+
+  @Override
+  public ResponseEntity<Void> closeAccount(UUID accountId,
+      CloseAccountRequestDto request) {
+    request.validate();
+
+    accountCloseService.closeAccount(accountId, request.getReason());
+
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

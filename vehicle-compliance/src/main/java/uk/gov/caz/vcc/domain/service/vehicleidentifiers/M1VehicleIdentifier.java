@@ -1,18 +1,26 @@
 package uk.gov.caz.vcc.domain.service.vehicleidentifiers;
 
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
 
 /**
  * VehicleIdentifer class for vehicles with M1 typeApproval.
  * 
- * @author informed
  */
 public class M1VehicleIdentifier extends VehicleIdentifier {
 
+  /**
+   * Method to identify M1 type approval vehicles.
+   */
   @Override
   public void identifyVehicle(Vehicle vehicle) {
-    vehicle.setVehicleType(VehicleType.PRIVATE_CAR);
+    if (vehicle.getBodyType() != null && vehicle.getBodyType()
+        .replaceAll("\\s+", "").equals("motorhome/caravan")) {
+      MotorhomeVehicleIdentifier identifier = new MotorhomeVehicleIdentifier();
+      identifier.identifyVehicle(vehicle);
+    } else {
+      vehicle.setVehicleType(VehicleType.PRIVATE_CAR);
+    }
   }
 
 }

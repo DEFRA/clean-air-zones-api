@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0068-1.0-add-bath-to-reporting-schema
+      author: Informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0068-1.0-add-bath-to-reporting-schema.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

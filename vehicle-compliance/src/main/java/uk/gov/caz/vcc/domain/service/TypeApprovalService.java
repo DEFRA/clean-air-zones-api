@@ -16,14 +16,12 @@ public class TypeApprovalService {
   private final List<String> exemptTypeApprovals;
 
   public TypeApprovalService(
-    @Value("${application.exempt-type-approvals:T1,T2,T3,T4,T5}")
-    String[] exemptTypeApprovals) {
-      this.exemptTypeApprovals = Arrays.asList(exemptTypeApprovals);
+      @Value("${application.exempt-type-approvals:T1,T2,T3,T4,T5}") String[] exemptTypeApprovals) {
+    this.exemptTypeApprovals = Arrays.asList(exemptTypeApprovals);
   }
-  
+
   /**
-   * Helper method to check if a vehicle's type approval is deemed exempt from
-   * charging.
+   * Helper method to check if a vehicle's type approval is deemed exempt from charging.
    * 
    * @param typeApproval the type approval string literal of the vehicle.
    * @return boolean indicator for whether the type approval is deemed exempt.
@@ -32,7 +30,7 @@ public class TypeApprovalService {
     if (typeApproval == null || typeApproval.isEmpty()) {
       return false;
     }
-    
+
     return this.exemptTypeApprovals.stream().anyMatch(typeApproval::equalsIgnoreCase);
   }
 }

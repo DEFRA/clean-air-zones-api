@@ -1,9 +1,11 @@
 package uk.gov.caz.accounts.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -25,6 +27,7 @@ import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.AccountUserCodeRepository;
 import uk.gov.caz.accounts.repository.IdentityProvider;
 import uk.gov.caz.accounts.repository.UserRepository;
+import uk.gov.caz.accounts.repository.exception.IdentityProviderUnavailableException;
 
 @ExtendWith(MockitoExtension.class)
 class UserRemovalServiceTest {
@@ -121,6 +124,24 @@ class UserRemovalServiceTest {
     assertThat(userRemovalStatus).isEqualTo(USER_DOESNT_EXIST);
     verify(identityProvider, never()).deleteUser(ANY_EMAIL);
     verify(user, never()).setIdentityProviderUserId(null);
+  }
+
+  @Test
+  void shouldNotInterruptWhenUserWasNotFoundInIdentityProvider() {
+    // given
+    UserEntity user = prepareAdminUserMock();
+    when(accountUserCodeRepository.findByAccountUserIdAndStatusAndCodeTypeIn(any(), any(), any()))
+        .thenReturn(Collections.emptyList());
+    when(userRepository.findById(user.getId())).thenReturn(Optional.of(user));
+    doThrow(new IdentityProviderUnavailableException()).when(identityProvider)
+        .getEmailByIdentityProviderId(any());
+
+    // when
+    Throwable throwable = catchThrowable(() -> userRemovalService
+        .removeAnyUser(ANY_ACCOUNT_ID, user.getId()));
+
+    // then
+    assertThat(throwable).isNull();
   }
 
   private UserEntity prepareUserMock() {

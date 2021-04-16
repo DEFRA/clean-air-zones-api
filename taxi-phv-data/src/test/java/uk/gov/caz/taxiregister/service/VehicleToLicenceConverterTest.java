@@ -1,16 +1,14 @@
 package uk.gov.caz.taxiregister.service;
 
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.BDDAssertions.then;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.caz.taxiregister.dto.VehicleDto;
 import uk.gov.caz.taxiregister.model.ConversionResult;
@@ -84,11 +82,25 @@ class VehicleToLicenceConverterTest {
       then(conversionResult.getValidationErrors()).isNotEmpty();
       then(conversionResult.getLicence()).isNull();
     }
+
+    @Test
+    public void invalidWheelchairAccessibleErrorDoesNotImmediatelyStopValidationProcess() {
+      // given
+      VehicleDto licence = createLicenceWithInvalidDateAndWheelchairAccessibleFlag();
+
+      // when
+      ConversionResult conversionResult = converter.toLicence(licence);
+
+      // then
+      then(conversionResult.isSuccess()).isFalse();
+      then(conversionResult.isFailure()).isTrue();
+      then(conversionResult.getValidationErrors()).hasSize(2);
+      then(conversionResult.getLicence()).isNull();
+    }
   }
 
   @Nested
   class WhenConvertingListOfLicences {
-    private static final int UNLIMITED_ERROR_COUNT = Integer.MAX_VALUE;
 
     @Test
     public void shouldReturnSuccessWhenDDMMYYYYDateSupplied() {
@@ -96,7 +108,7 @@ class VehicleToLicenceConverterTest {
       List<VehicleDto> licences = Collections.singletonList(createValidLicenceWithDDMMYYYYDate());
 
       // when
-      ConversionResults conversionResults = converter.convert(licences, UNLIMITED_ERROR_COUNT);
+      ConversionResults conversionResults = converter.convert(licences);
 
       // then
       then(conversionResults.hasValidationErrors()).isFalse();
@@ -106,10 +118,11 @@ class VehicleToLicenceConverterTest {
     @Test
     public void shouldReturnConvertedLicencesWithWheelchairAccessibleVehicle() {
       // given
-      List<VehicleDto> licences = Collections.singletonList(createValidLicenceWithWheelchairAccessible());
+      List<VehicleDto> licences = Collections
+          .singletonList(createValidLicenceWithWheelchairAccessible());
 
       // when
-      ConversionResults conversionResults = converter.convert(licences, UNLIMITED_ERROR_COUNT);
+      ConversionResults conversionResults = converter.convert(licences);
 
       // then
       then(conversionResults.hasValidationErrors()).isFalse();
@@ -117,13 +130,27 @@ class VehicleToLicenceConverterTest {
     }
 
     @Test
-    public void shouldReturnConvertedLicencesWithoutWheelchairAccessibleVehicle() {
+    public void shouldReturnConvertedLicencesWhenWheelchairAccessibleVehicleIsNull() {
       // given
       List<VehicleDto> licences = Collections.singletonList(
-          createValidLicenceWithoutWheelchairAccessible());
+          createValidLicenceWithoutWheelchairAccessible(null));
 
       // when
-      ConversionResults conversionResults = converter.convert(licences, UNLIMITED_ERROR_COUNT);
+      ConversionResults conversionResults = converter.convert(licences);
+
+      // then
+      then(conversionResults.hasValidationErrors()).isFalse();
+      then(conversionResults.getLicences()).hasSize(1);
+    }
+
+    @Test
+    public void shouldReturnConvertedLicencesWhenWheelchairAccessibleVehicleIsEmpty() {
+      // given
+      List<VehicleDto> licences = Collections.singletonList(
+          createValidLicenceWithoutWheelchairAccessible(""));
+
+      // when
+      ConversionResults conversionResults = converter.convert(licences);
 
       // then
       then(conversionResults.hasValidationErrors()).isFalse();
@@ -140,7 +167,7 @@ class VehicleToLicenceConverterTest {
       );
 
       // when
-      ConversionResults conversionResults = converter.convert(licences, UNLIMITED_ERROR_COUNT);
+      ConversionResults conversionResults = converter.convert(licences);
 
       // then
       then(conversionResults.hasValidationErrors()).isTrue();
@@ -158,8 +185,7 @@ class VehicleToLicenceConverterTest {
       );
 
       // when
-      ConversionResults conversionResults = converter.convert(licences,
-          UNLIMITED_ERROR_COUNT);
+      ConversionResults conversionResults = converter.convert(licences);
 
       // then
       then(conversionResults.hasValidationErrors()).isTrue();
@@ -168,71 +194,89 @@ class VehicleToLicenceConverterTest {
     }
 
     @Test
-    public void shouldConvertUpToPassedErrorThreshold() {
+    public void shouldConvertTenErrors() {
       // given
-      int maxErrorCount = 3;
       List<VehicleDto> licences = Arrays.asList(
-          createValidLicenceWithoutWheelchairAccessible(),
+          createInvalidLicenceWithTwoAttributes(),
+          createInvalidLicenceWithTwoAttributes(),
           createInvalidLicenceWithThreeAttributes(),
-          createInvalidLicenceWithTwoAttributes(),
-          createValidLicenceWithWheelchairAccessible()
-      );
-
-      // when
-      ConversionResults conversionResults = converter.convert(licences, maxErrorCount);
-
-      // then
-      then(conversionResults.getValidationErrors()).hasSize(maxErrorCount);
-      then(conversionResults.getLicences()).hasSize(1);
-    }
-
-    @Test
-    public void shouldConvertAndTruncateErrorsToPassedErrorThreshold() {
-      // given
-      int maxErrorCount = 4;
-      // contains 5 validation errors in total
-      List<VehicleDto> licences = Arrays.asList(
-          createInvalidLicenceWithTwoAttributes(),
           createInvalidLicenceWithThreeAttributes()
       );
 
       // when
-      ConversionResults conversionResults = converter.convert(licences, maxErrorCount);
+      ConversionResults conversionResults = converter.convert(licences);
 
       // then
-      then(conversionResults.getValidationErrors()).hasSize(maxErrorCount);
+      then(conversionResults.getValidationErrors()).hasSize(10);
       then(conversionResults.getLicences()).isEmpty();
+    }
+  }
+
+  @Nested
+  class WhenConvertingLicencesWithDuplicatedUniqueAttributes {
+
+    @Test
+    public void shouldNoticeDuplicateEvenIfDescriptionFieldIsDifferent() {
+      //given
+      VehicleDto vehicle1 = createVehicleWithDescription("desc 1");
+      VehicleDto vehicle2 = createVehicleWithDescription("desc 2");
+
+      //when
+      ConversionResults conversionResults = converter
+          .convert(Lists.newArrayList(vehicle1, vehicle2));
+
+      //then
+      then(conversionResults.hasValidationErrors()).isTrue();
+      then(conversionResults.getValidationErrors()).hasSize(1);
     }
 
     @Test
-    public void shouldReturnEmptyListsIfErrorCountIsZero() {
-      // given
-      int maxErrorCount = 0;
-      List<VehicleDto> licences = Arrays.asList(
-          createInvalidLicenceWithTwoAttributes(),
-          createInvalidLicenceWithThreeAttributes()
-      );
+    public void shouldNoticeDuplicateEvenIfWheelchairAccessibleFieldIsDifferent() {
+      //given
+      VehicleDto vehicle1 = createVehicleWithWheelchairAccessibleField(true);
+      VehicleDto vehicle2 = createVehicleWithWheelchairAccessibleField(false);
 
-      // when
-      ConversionResults conversionResults = converter.convert(licences, maxErrorCount);
+      //when
+      ConversionResults conversionResults = converter
+          .convert(Lists.newArrayList(vehicle1, vehicle2));
 
-      // then
-      then(conversionResults.getValidationErrors()).isEmpty();
-      then(conversionResults.getLicences()).isEmpty();
+      //then
+      then(conversionResults.hasValidationErrors()).isTrue();
+      then(conversionResults.getValidationErrors()).hasSize(1);
     }
+  }
 
-    @ParameterizedTest
-    @ValueSource(ints = {-1 -2, -15, -100})
-    public void shouldThrowIllegalArgumentExceptionIfErrorCountIsNegative(int maxErrorCount) {
-      // given
-      List<VehicleDto> licences = Collections.singletonList(createInvalidLicenceWithTwoAttributes());
+  @Test
+  public void shouldReturnNonUniqueErrorForDuplicatedVehicle() {
+    // given
+    List<VehicleDto> licences = Arrays.asList(
+        createValidLicenceWithDDMMYYYYDate(),
+        createValidLicenceWithDDMMYYYYDate()
+    );
 
-      // when
-      Throwable throwable = catchThrowable(() -> converter.convert(licences, maxErrorCount));
+    // when
+    ConversionResults conversionResults = converter.convert(licences);
 
-      // then
-      then(throwable).isInstanceOf(IllegalArgumentException.class);
-    }
+    // then
+    then(conversionResults.getValidationErrors()).isNotEmpty();
+  }
+
+  private VehicleDto createVehicleWithWheelchairAccessibleField(boolean wheelchairAccessible) {
+    return createValidLicenceWithDDMMYYYYDate().toBuilder()
+        .wheelchairAccessibleVehicle(Boolean.toString(wheelchairAccessible)).build();
+  }
+
+  private static VehicleDto createVehicleWithDescription(String description) {
+    return VehicleDto.builder()
+        .vrm("AAA999A")
+        .start("01/01/2019")
+        .end("01/01/2019")
+        .description(description)
+        .licensingAuthorityName("la-name-1")
+        .licensePlateNumber("plate-1")
+        .wheelchairAccessibleVehicle("true")
+        .registerJobTrigger(RegisterJobTrigger.CSV_FROM_S3)
+        .build();
   }
 
   private VehicleDto createValidLicenceWithDDMMYYYYDate() {
@@ -243,11 +287,11 @@ class VehicleToLicenceConverterTest {
         .description("taxi")
         .licensingAuthorityName("la-name-1")
         .licensePlateNumber("plate-1")
-        .wheelchairAccessibleVehicle(true)
+        .wheelchairAccessibleVehicle("true")
         .registerJobTrigger(RegisterJobTrigger.CSV_FROM_S3)
         .build();
   }
-  
+
   private VehicleDto createValidLicenceWithWheelchairAccessible() {
     return VehicleDto.builder()
         .vrm("AAA999A")
@@ -256,7 +300,7 @@ class VehicleToLicenceConverterTest {
         .description("taxi")
         .licensingAuthorityName("la-name-1")
         .licensePlateNumber("plate-1")
-        .wheelchairAccessibleVehicle(true)
+        .wheelchairAccessibleVehicle("true")
         .build();
   }
 
@@ -271,6 +315,18 @@ class VehicleToLicenceConverterTest {
         .build();
   }
 
+  private VehicleDto createValidLicenceWithoutWheelchairAccessible(String nullOrEmpty) {
+    return VehicleDto.builder()
+        .vrm("BW91HUN")
+        .start("2019-03-09")
+        .end("2019-05-06")
+        .description("taxi")
+        .licensingAuthorityName("la-1")
+        .licensePlateNumber("yGSJC")
+        .wheelchairAccessibleVehicle(nullOrEmpty)
+        .build();
+  }
+
   private VehicleDto createInvalidLicence() {
     return VehicleDto.builder()
         .vrm("9AAAA99")
@@ -279,7 +335,19 @@ class VehicleToLicenceConverterTest {
         .description("taxi")
         .licensingAuthorityName("la-name-1")
         .licensePlateNumber("plate-1")
-        .wheelchairAccessibleVehicle(true)
+        .wheelchairAccessibleVehicle("true")
+        .build();
+  }
+
+  private VehicleDto createLicenceWithInvalidDateAndWheelchairAccessibleFlag() {
+    return VehicleDto.builder()
+        .vrm("9AAAA99")
+        .start("2019-01-01")
+        .end("2019-02-01")
+        .description("taxi")
+        .licensingAuthorityName("la-name-1")
+        .licensePlateNumber("plate-1")
+        .wheelchairAccessibleVehicle("invalid")
         .build();
   }
 
@@ -294,7 +362,7 @@ class VehicleToLicenceConverterTest {
         .description("taxi")
         .licensingAuthorityName("la-name-1")
         .licensePlateNumber("plate-1")
-        .wheelchairAccessibleVehicle(true)
+        .wheelchairAccessibleVehicle("true")
         .build();
   }
 
@@ -308,7 +376,7 @@ class VehicleToLicenceConverterTest {
         .description("phv")
         .licensingAuthorityName("la-name-1")
         .licensePlateNumber("plate-1")
-        .wheelchairAccessibleVehicle(true)
+        .wheelchairAccessibleVehicle("true")
         .build();
   }
 }

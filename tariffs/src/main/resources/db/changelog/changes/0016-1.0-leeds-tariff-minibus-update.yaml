@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0016.1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update minibus tariff for Leeds
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+                UPDATE public.t_tariff_definition
+                SET minibus_entrant_fee = 0.00
+                WHERE charge_definition_id = 2;
+            stripComments: true

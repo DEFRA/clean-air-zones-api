@@ -111,8 +111,21 @@ public class RetrieveAccountVehiclesWithOffsetPaginationIT {
         .andResponseContainsAnyUndeterminedVehiclesFlagEqualToFalse();
   }
 
+  @Test
+  public void retrieveChargeableAndDeterminedVehiclesAssociatedWithAccountInCaz() {
+    givenVehicleRetrieval()
+        .forAccountId("1dfe3e6d-363e-4b21-acca-0968ba764d46")
+        .forOnlyChargeable(Boolean.TRUE)
+        .forOnlyDetermined(Boolean.TRUE)
+        .forCazId("4a09097a-2175-4146-b7df-90dd9e58ac5c")
+        .whenRequestToRetrieveVehiclesIsMadeWithQueryStringsAndCaz("0", "10")
+        .then()
+        .offsetResponseIsReturnedWithHttpOkStatusCode()
+        .andResponseContainsOnlyChargesForSpecifiedCaz();
+  }
+
   @ParameterizedTest
-  @CsvSource({"2,", ",", ",3", "1, 10", "-1,10", "0,-1", "test,number","0,0"})
+  @CsvSource({"2,", ",", ",3", "1, 10", "-1,10", "0,-1", "test,number", "0,0"})
   public void return400IfInvalidQueryStringsSupplied(
       String pageNumber, String pageSize) {
     givenVehicleRetrieval()

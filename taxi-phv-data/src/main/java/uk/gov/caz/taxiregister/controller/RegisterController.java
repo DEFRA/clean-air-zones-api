@@ -28,8 +28,10 @@ import uk.gov.caz.taxiregister.model.registerjob.RegisterJob;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobName;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor;
+import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.RegisterJobInvoker;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.StartParams;
 import uk.gov.caz.taxiregister.service.SourceAwareRegisterService;
+import uk.gov.caz.taxiregister.service.XssPreventionService;
 
 @RestController
 @Slf4j
@@ -44,16 +46,19 @@ public class RegisterController implements RegisterControllerApiSpec {
   private final RegisterJobSupervisor registerJobSupervisor;
   private final SourceAwareRegisterService registerService;
   private final int maxLicencesCount;
+  private final XssPreventionService xssPreventionService;
 
   /**
    * Creates an instance of {@link RegisterController}.
    */
   public RegisterController(RegisterJobSupervisor registerJobSupervisor,
       SourceAwareRegisterService registerService,
-      @Value("${api.max-licences-count}") int maxLicencesCount) {
+      @Value("${api.max-licences-count}") int maxLicencesCount,
+      XssPreventionService xssPreventionService) {
     this.registerJobSupervisor = registerJobSupervisor;
     this.registerService = registerService;
     this.maxLicencesCount = maxLicencesCount;
+    this.xssPreventionService = xssPreventionService;
     log.info("Set {} as the maximum number of vehicles handled by REST API", maxLicencesCount);
   }
 
@@ -66,15 +71,17 @@ public class RegisterController implements RegisterControllerApiSpec {
     UUID uploaderId = extractUploaderId(apiKey);
     checkPreconditions(vehicles);
 
+    RegisterJobInvoker registerJobCallable = registerJobId -> registerService
+        .register(vehicles.getVehicleDetails(),
+            uploaderId, registerJobId, correlationId);
+
     RegisterJobName registerJobName = registerJobSupervisor.start(
         StartParams.builder()
             .correlationId(correlationId)
             .uploaderId(uploaderId)
             .registerJobNameSuffix(REGISTER_JOB_NAME_SUFFIX)
             .registerJobTrigger(RegisterJobTrigger.API_CALL)
-            .registerJobInvoker(
-                registerJobId -> registerService.register(vehicles.getVehicleDetails(),
-                    uploaderId, registerJobId, correlationId))
+            .registerJobInvoker(registerJobCallable)
             .build());
 
     log.info("Register method took {}ms", timer.stop().elapsed(TimeUnit.MILLISECONDS));
@@ -117,6 +124,7 @@ public class RegisterController implements RegisterControllerApiSpec {
   }
 
   private void checkPreconditions(Vehicles vehicles) {
+    xssPreventionService.checkVehicles(vehicles);
     checkNotNullPrecondition(vehicles.getVehicleDetails());
     checkMaxLicencesCountPrecondition(vehicles);
   }

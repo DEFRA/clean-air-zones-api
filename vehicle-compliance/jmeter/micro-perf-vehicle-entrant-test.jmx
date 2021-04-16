@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.1.1 r1855137">
+<jmeterTestPlan version="1.2" properties="5.0" jmeter="5.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -45,7 +45,7 @@
           </elementProp>
           <elementProp name="host" elementType="Argument">
             <stringProp name="Argument.name">host</stringProp>
-            <stringProp name="Argument.value">${__P(hostname,ndzi384gxe.execute-api.eu-west-2.amazonaws.com)}</stringProp>
+            <stringProp name="Argument.value">${__P(hostname,dev-api.cleanairzonevehiclecheck.co.uk)}</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
         </collectionProp>
@@ -68,13 +68,14 @@
       <CookieManager guiclass="CookiePanel" testclass="CookieManager" testname="HTTP Cookie Manager" enabled="true">
         <collectionProp name="CookieManager.cookies"/>
         <boolProp name="CookieManager.clearEachIteration">true</boolProp>
+        <boolProp name="CookieManager.controlledByThreadGroup">false</boolProp>
       </CookieManager>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Thread Group - vehicle entrant api" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">2</stringProp>
+          <stringProp name="LoopController.loops">5</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
@@ -83,6 +84,7 @@
         <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration"></stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
       </ThreadGroup>
       <hashTree>
         <TransactionController guiclass="TransactionControllerGui" testclass="TransactionController" testname="Controller Vehicle Entrants API" enabled="true">
@@ -92,6 +94,7 @@
         <hashTree>
           <AuthManager guiclass="AuthPanel" testclass="AuthManager" testname="HTTP Authorization Manager" enabled="true">
             <collectionProp name="AuthManager.auth_list"/>
+            <boolProp name="AuthManager.controlledByThreadGroup">false</boolProp>
           </AuthManager>
           <hashTree/>
           <OnceOnlyController guiclass="OnceOnlyControllerGui" testclass="OnceOnlyController" testname="Once Only Controller" enabled="true"/>
@@ -201,30 +204,17 @@
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
                     <stringProp name="Argument.value">{&#xd;
-  &quot;vrms&quot;: &#xd;
-    [&#xd;
-      &quot;CAS310&quot;,&#xd;
-      &quot;CAS311&quot;,&#xd;
-      &quot;CAS312&quot;,&#xd;
-      &quot;CAS313&quot;,&#xd;
-      &quot;CAS314&quot;,&#xd;
-      &quot;CAS315&quot;,&#xd;
-      &quot;CAS316&quot;,&#xd;
-      &quot;CAS317&quot;,&#xd;
-      &quot;CAS318&quot;,&#xd;
-      &quot;KP16VDD&quot;&#xd;
-    ]&#xd;
-}&#xd;
-</stringProp>
+    &quot;vrms&quot;: []&#xd;
+}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">ndzi384gxe.execute-api.eu-west-2.amazonaws.com</stringProp>
+              <stringProp name="HTTPSampler.domain">${host}</stringProp>
               <stringProp name="HTTPSampler.port">443</stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/dev/v1/cache-invalidations/vehicles</stringProp>
+              <stringProp name="HTTPSampler.path">/v1/cache-invalidations/vehicles</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -239,7 +229,7 @@
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="X-Correlation-ID" elementType="Header">
                     <stringProp name="Header.name">X-Correlation-ID</stringProp>
-                    <stringProp name="Header.value">e3215d20-33a1-4b64-b79b-836fb28151e2</stringProp>
+                    <stringProp name="Header.value">${api-key}</stringProp>
                   </elementProp>
                   <elementProp name="Content-Type" elementType="Header">
                     <stringProp name="Header.name">Content-Type</stringProp>
@@ -283,48 +273,28 @@
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
                     <stringProp name="Argument.value">{&#xd;
  &quot;vehicleEntrants&quot;: [&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;CAS310&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155300Z&quot;&#xd;
-   },&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;CAS311&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155400Z&quot;&#xd;
-   },&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;CAS312&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155500Z&quot;&#xd;
-   },&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;CAS313&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155600Z&quot;&#xd;
-   },&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;CAS314&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155700Z&quot;&#xd;
-   },&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;CAS315&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155800Z&quot;&#xd;
-   },&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;CAS316&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155900Z&quot;&#xd;
-   },&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;CAS317&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155100Z&quot;&#xd;
-   },&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;CAS318&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155200Z&quot;&#xd;
-   },&#xd;
-   {&#xd;
-     &quot;vrn&quot;: &quot;KP16VDD&quot;,&#xd;
-   	&quot;timestamp&quot;: &quot;2019-11-09T155300Z&quot;&#xd;
-   }&#xd;
+{&quot;vrn&quot;:&quot;CAS501&quot;,&quot;timestamp&quot;: &quot;2020-10-01T15:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;CAS505&quot;,&quot;timestamp&quot;: &quot;2020-10-01T15:54:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;CAS506&quot;,&quot;timestamp&quot;: &quot;2020-10-01T15:55:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;CAS507&quot;,&quot;timestamp&quot;: &quot;2020-10-01T15:56:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;CAS508&quot;,&quot;timestamp&quot;: &quot;2020-10-01T15:57:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;CAS509&quot;,&quot;timestamp&quot;: &quot;2020-10-01T15:58:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;CAS510&quot;,&quot;timestamp&quot;: &quot;2020-10-01T15:59:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;CAS511&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;CAS512&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;PAY060&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;PAY061&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;PAY062&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;PMS326&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;CAS405&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;POT272&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;POT273&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;POT415&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;POT416&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;IS05FHG&quot;,&quot;timestamp&quot;: &quot;2020-10-01T23:53:01Z&quot;},&#xd;
+{&quot;vrn&quot;:&quot;IS04BNF&quot;,&quot;timestamp&quot;: &quot;2020-11-01T00:12:01Z&quot;}&#xd;
  ]&#xd;
-} </stringProp>
+}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
@@ -333,7 +303,7 @@
               <stringProp name="HTTPSampler.port">443</stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/v1/vehicle-entrants</stringProp>
+              <stringProp name="HTTPSampler.path">/v2/vehicle-entrants</stringProp>
               <stringProp name="HTTPSampler.method">POST</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -378,6 +348,10 @@
                     <stringProp name="Header.name">Accept</stringProp>
                     <stringProp name="Header.value">*/*</stringProp>
                   </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">timestamp</stringProp>
+                    <stringProp name="Header.value">2020-10-01T15:53:01Z</stringProp>
+                  </elementProp>
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
@@ -411,10 +385,14 @@
           </DurationAssertion>
           <hashTree/>
           <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Constant Timer" enabled="true">
-            <stringProp name="ConstantTimer.delay">5000</stringProp>
+            <stringProp name="ConstantTimer.delay">2000</stringProp>
           </ConstantTimer>
           <hashTree/>
         </hashTree>
+        <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Constant Timer" enabled="true">
+          <stringProp name="ConstantTimer.delay">2000</stringProp>
+        </ConstantTimer>
+        <hashTree/>
       </hashTree>
       <ProxyControl guiclass="ProxyControlGui" testclass="ProxyControl" testname="HTTP(S) Test Script Recorder" enabled="true">
         <stringProp name="ProxyControlGui.port">8888</stringProp>
@@ -461,6 +439,7 @@
         <stringProp name="ProxyControlGui.proxy_prefix_http_sampler_name">new</stringProp>
         <intProp name="ProxyControlGui.proxy_http_sampler_naming_mode">0</intProp>
         <stringProp name="ProxyControlGui.proxy_pause_http_sampler"></stringProp>
+        <stringProp name="ProxyControlGui.default_encoding">UTF-8</stringProp>
       </ProxyControl>
       <hashTree/>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">

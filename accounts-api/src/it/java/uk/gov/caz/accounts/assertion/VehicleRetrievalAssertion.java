@@ -23,6 +23,7 @@ import uk.gov.caz.correlationid.Constants;
 import uk.gov.caz.definitions.dto.accounts.ChargeableVehiclesResponseDto;
 import uk.gov.caz.definitions.dto.accounts.VehiclesResponseDto;
 import uk.gov.caz.definitions.dto.accounts.VehiclesResponseDto.VehicleWithCharges;
+import uk.gov.caz.definitions.dto.accounts.VehiclesResponseDto.VehicleWithCharges.VehicleCharge;
 
 public class VehicleRetrievalAssertion {
 
@@ -32,7 +33,9 @@ public class VehicleRetrievalAssertion {
   private String travelDirection;
   private String pageSize;
   private String chargeableCazId;
+  private String cazId;
   private Boolean onlyChargeable;
+  private Boolean onlyDetermined;
 
   private ValidatableResponse vehicleResponse;
   private VehiclesResponseDto offsetVehicleResponseDto;
@@ -52,6 +55,16 @@ public class VehicleRetrievalAssertion {
 
   public VehicleRetrievalAssertion forOnlyChargeable(Boolean onlyChargeable) {
     this.onlyChargeable = onlyChargeable;
+    return this;
+  }
+
+  public VehicleRetrievalAssertion forOnlyDetermined(Boolean onlyDetermined) {
+    this.onlyDetermined = onlyDetermined;
+    return this;
+  }
+
+  public VehicleRetrievalAssertion forCazId(String cazId) {
+    this.cazId = cazId;
     return this;
   }
 
@@ -93,6 +106,26 @@ public class VehicleRetrievalAssertion {
         .then();
     return this;
   }
+
+  public VehicleRetrievalAssertion whenRequestToRetrieveVehiclesIsMadeWithQueryStringsAndCaz(
+      String pageNumber, String pageSize) {
+    RestAssured.basePath = AccountVehiclesController.ACCOUNT_VEHICLES_PATH;
+    this.vehicleResponse = RestAssured
+        .given()
+        .accept(MediaType.APPLICATION_JSON.toString())
+        .pathParam("accountId", this.accountId)
+        .queryParam("pageNumber", pageNumber)
+        .queryParam("pageSize", pageSize)
+        .queryParam("onlyChargeable", this.onlyChargeable)
+        .queryParam("onlyDetermined", this.onlyDetermined)
+        .queryParam("cazId", this.cazId)
+        .header(Constants.X_CORRELATION_ID_HEADER, CORRELATION_ID)
+        .when()
+        .get()
+        .then();
+    return this;
+  }
+
 
   public VehicleRetrievalAssertion whenRequestToRetrieveVehiclesIsMadeWithOtherQueryStrings() {
     RestAssured.basePath = AccountVehiclesController.ACCOUNT_VEHICLES_PATH;
@@ -260,6 +293,7 @@ public class VehicleRetrievalAssertion {
     }
     return this;
   }
+
   public VehicleRetrievalAssertion responseContainsQueryParamError() {
     checkResponseContainsError("query");
     return this;
@@ -363,5 +397,15 @@ public class VehicleRetrievalAssertion {
       e.printStackTrace();
       return null;
     }
+  }
+
+  public VehicleRetrievalAssertion andResponseContainsOnlyChargesForSpecifiedCaz() {
+    List<VehicleCharge> cachedCharges = offsetVehicleResponseDto.getVehicles().get(0)
+        .getCachedCharges();
+
+    assertThat(cachedCharges.size()).isOne();
+    assertThat(cachedCharges.get(0).getCazId()).isEqualTo(UUID.fromString(this.cazId));
+
+    return this;
   }
 }

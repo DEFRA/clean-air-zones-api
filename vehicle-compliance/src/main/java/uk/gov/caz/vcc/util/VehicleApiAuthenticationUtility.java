@@ -23,6 +23,10 @@ import uk.gov.caz.vcc.dto.RemoteDataNewApiKeyResponse;
 import uk.gov.caz.vcc.dto.RemoteVehicleAuthenticationRequest;
 import uk.gov.caz.vcc.dto.RemoteVehicleDataNewPasswordRequest;
 
+/**
+ * Utility class for retrieving an API authentication token from the remote
+ * vehicle data endpoint.
+ */
 @Slf4j
 @Component
 public class VehicleApiAuthenticationUtility {
@@ -45,7 +49,7 @@ public class VehicleApiAuthenticationUtility {
   private final VehicleApiCredentialRotationManager vehicleApiCredentialRotationManager;
 
   /**
-   * Utility class for retrieving an API authentication token from the remote
+   * Utility for retrieving an API authentication token from the remote
    * vehicle data endpoint.
    */
   public VehicleApiAuthenticationUtility(
@@ -65,7 +69,7 @@ public class VehicleApiAuthenticationUtility {
   @Cacheable(value = "authToken", cacheManager = "authTokenCacheManager")
   public String getAuthenticationToken() {
     if (!useRemoteApi) {
-      log.info("Remote dvla call turn off, authentication omitted");
+      log.info("Remote API call disabled, authentication omitted");
       return StringUtils.EMPTY;
     }
 
@@ -96,6 +100,10 @@ public class VehicleApiAuthenticationUtility {
       if ((statusCode.equals(HttpStatus.UNAUTHORIZED)
           || statusCode.equals(HttpStatus.FORBIDDEN))
           && !credentialRotationAttempted) {
+
+        log.warn("Request for remote API authentication token returned a "
+            + statusCode.toString()
+            + " status code. Fetching password from secrets and retrying");
         // Fetch new password in event of credential rotation and
         // refresh local variable (noting this may be a hot lambda).
         this.dvlaApiPassword = vehicleApiCredentialRotationManager
@@ -114,7 +122,7 @@ public class VehicleApiAuthenticationUtility {
   }
   
   /**
-   * Evicts oAuth tokens cached in redis. 
+   * Evicts oAuth tokens cached in Redis. 
    * Used only in scenarios of credential rotation taking place.
    */
   @CacheEvict(value = "authToken", allEntries = true, cacheManager = "authTokenCacheManager")
@@ -140,7 +148,7 @@ public class VehicleApiAuthenticationUtility {
         new HttpEntity<>(requestBody, headers);
     log.info("Password successfully updated");
     
-    String response = remoteVehicleAuthenticationRestTemplate.postForObject(
+    final String response = remoteVehicleAuthenticationRestTemplate.postForObject(
         dvlaAuthenticationEndpoint + "password", request, String.class);
     
     // Evict old cached auth token
@@ -168,18 +176,17 @@ public class VehicleApiAuthenticationUtility {
       headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
       headers.add("x-api-key", oldApiKey);
       headers.add(HttpHeaders.AUTHORIZATION, jwtToken);
-  
-      log.info("Attempting rotation with API key: {}", oldApiKey);
-      
+        
       HttpEntity<?> request = new HttpEntity<>(headers);
   
       RemoteDataNewApiKeyResponse response =
           remoteVehicleAuthenticationRestTemplate.postForObject(
               dvlaAuthenticationEndpoint + "new-api-key", request,
               RemoteDataNewApiKeyResponse.class);
+      
       log.info("API key successfully updated");
-      log.info("New value: {}", response.getNewApiKey());
-      Preconditions.checkNotNull(response, "Receive null response");
+      
+      Preconditions.checkNotNull(response, "Received a null response");
   
       // Force update of cached auth token
       this.getAuthenticationToken();
@@ -207,8 +214,6 @@ public class VehicleApiAuthenticationUtility {
         
         // Update auth token prior to next attempt
         String newJwtToken = this.getAuthenticationToken();
-        
-        log.info("Latest JWT token: {}", newJwtToken);
         
         // Recurse with new API key value
         return this.renewApiKey(newJwtToken, refreshedApiKey);

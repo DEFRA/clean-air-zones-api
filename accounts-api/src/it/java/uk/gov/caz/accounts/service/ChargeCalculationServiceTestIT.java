@@ -35,7 +35,7 @@ public class ChargeCalculationServiceTestIT extends ExternalCallsIT {
   private static final UUID FLEET1_ID = UUID.fromString("1f30838f-69ee-4486-95b4-7dfcd5c6c67c");
   private static final UUID BIRMINGHAM_CAZ_ID = UUID
       .fromString("53e03a28-0627-11ea-9511-ffaaee87e375");
-  private static final UUID LEEDS_CAZ_ID = UUID.fromString("39e54ed8-3ed2-441d-be3f-38fc9b70c8d3");
+  private static final UUID BATH_CAZ_ID = UUID.fromString("742b343f-6ce6-42d3-8324-df689ad4c515");
   private static final String VRN_2 = "VRN2";
   private static final String VRN_3 = "VRN3";
   private static final String VRN_4 = "VRN4";
@@ -74,7 +74,7 @@ public class ChargeCalculationServiceTestIT extends ExternalCallsIT {
   public void testChargeabilityCachePopulation() {
     mockVccsCleanAirZonesCall();
     mockVccsBulkComplianceCall(ImmutableSet.of(VRN_2, VRN_3, VRN_4, VRN_5), BIRMINGHAM_CAZ_ID,
-        LEEDS_CAZ_ID,
+        BATH_CAZ_ID,
         "vehicle-compliance-response.json", 200);
     CachePopulationResult result = chargeCalculationService
         .populateCache(FLEET1_ID, PROCESS_ALL_VEHICLES);
@@ -106,7 +106,7 @@ public class ChargeCalculationServiceTestIT extends ExternalCallsIT {
   @Test
   public void testChargeabilityCachePopulationForSingleVehicle() {
     mockVccsCleanAirZonesCall();
-    mockVccsBulkComplianceCall(Collections.singleton(VRN_2), BIRMINGHAM_CAZ_ID, LEEDS_CAZ_ID,
+    mockVccsBulkComplianceCall(Collections.singleton(VRN_2), BIRMINGHAM_CAZ_ID, BATH_CAZ_ID,
         "vehicle-compliance-response.json", 200);
     chargeCalculationService.populateCacheForSingleVehicle(FLEET1_VEHICLE_2_ID, VRN_2);
 
@@ -127,23 +127,23 @@ public class ChargeCalculationServiceTestIT extends ExternalCallsIT {
       List<VehicleChargeability> allCachedCharges) {
     assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_1_ID, 12.0f, BIRMINGHAM_CAZ_ID,
         allCachedCharges);
-    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_1_ID, 15.0f, LEEDS_CAZ_ID,
+    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_1_ID, 15.0f, BATH_CAZ_ID,
         allCachedCharges);
     assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_2_ID, 8.0f, BIRMINGHAM_CAZ_ID,
         allCachedCharges);
-    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_2_ID, 2.0f, LEEDS_CAZ_ID,
+    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_2_ID, 2.0f, BATH_CAZ_ID,
         allCachedCharges);
     assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_3_ID, 8.0f, BIRMINGHAM_CAZ_ID,
         allCachedCharges);
-    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_3_ID, 2.0f, LEEDS_CAZ_ID,
+    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_3_ID, 2.0f, BATH_CAZ_ID,
         allCachedCharges);
     assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_4_ID, 8.0f, BIRMINGHAM_CAZ_ID,
         allCachedCharges);
-    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_4_ID, 2.0f, LEEDS_CAZ_ID,
+    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_4_ID, 2.0f, BATH_CAZ_ID,
         allCachedCharges);
     assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_5_ID, 8.0f, BIRMINGHAM_CAZ_ID,
         allCachedCharges);
-    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_5_ID, 2.0f, LEEDS_CAZ_ID,
+    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_5_ID, 2.0f, BATH_CAZ_ID,
         allCachedCharges);
   }
 
@@ -151,7 +151,7 @@ public class ChargeCalculationServiceTestIT extends ExternalCallsIT {
       List<VehicleChargeability> allCachedCharges) {
     assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_2_ID, 8.0f, BIRMINGHAM_CAZ_ID,
         allCachedCharges);
-    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_2_ID, 2.0f, LEEDS_CAZ_ID,
+    assertThatFleet1VehicleHasChargeInCaz(FLEET1_VEHICLE_2_ID, 2.0f, BATH_CAZ_ID,
         allCachedCharges);
   }
 

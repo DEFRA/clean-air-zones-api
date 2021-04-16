@@ -24,7 +24,6 @@ import uk.gov.caz.taxiregister.model.TaxiPhvVehicleLicence;
 import uk.gov.caz.taxiregister.repository.LicensingAuthorityPostgresRepository;
 import uk.gov.caz.taxiregister.repository.TaxiPhvLicencePostgresRepository;
 import uk.gov.caz.taxiregister.service.RegisterService.RegisterContext;
-import uk.gov.caz.taxiregister.service.RegisterService.UniqueLicenceAttributes;
 import uk.gov.caz.testutils.TestObjects;
 import uk.gov.caz.testutils.TestObjects.Licences;
 

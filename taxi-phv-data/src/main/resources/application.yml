@@ -1,17 +1,39 @@
 application:
   title: National Taxi/PHV Register
-  validation:
-    max-errors-count: 5
   job-clean-up-request:
     queue-url: ${job.clean.up.request.queue.url:http://localhost:4576/queue/job-clean-up-request}
     max-records-count: ${job.clean.up.request.max.records.count:10000}
     message-visibility-delay-in-seconds: ${job.clean.up.request.message.visibility.delay.in.seconds:10}
-    
+  mail:
+    allowed-errors-before-sending-email: 5
+  test-fixtures-location: /db/test-fixtures-licences.json
+
+tasks:
+  active-licences-in-reporting-window:
+    enabled: false # Only for documentation purposes. Keep as false at all times. Check Tasks section in README file.
+
 redis:
   endpoint: localhost
   port: 7000
   ttl: 24
   enabled: false
+
+logging:
+  level:
+    uk:
+      gov:
+        caz:
+          correlationid: INFO
+
+aws:
+  ses:
+    senderEmail: dummy@email.here
+    region: ${ses.region:eu-west-1}
+    use-role-credentials: false
+    accessKeyId: ${ses.access.key.id:dummy}
+    secretAccessKey: ${ses.secret.access.key:dummy}
+  s3:
+    payload-retention-bucket: apibucket
 
 services:
   connection-timeout-seconds: 29
@@ -38,8 +60,12 @@ swagger:
     version: 0.1
 
   operations:
+    batch-lookup:
+      description: Looks up vehicles' information about their active licences and wheelchair accessibility by VRMs
     lookup:
       description: Looks up vehicle's information about its active licences and wheelchair accessibility by VRM
+    lookup-history:
+      description: Looks up vehicle's information about its historical data for given VRM inside provided date range
     register:
       description: Register details of licensed taxis and Private Hire Vehicles (PHVs)
     reporting:
@@ -47,12 +73,34 @@ swagger:
         description: For a given licensing authority (represented by its database identifier) returns a list of VRMs which had at least one active licence in the given licensing authority on the given date. When the given licensing authority id does not exist in the database, an empty list is returned with 200 status code.
       active-license-authority-names:
         description: For a given VRM performs a check whether it had any active licences on a given paste date and if so returns names of their licensing authorities. If the licensing authority is absent in the database at the time of querying, UNKNOWN is used as its name
+      active-licences-in-reporting-window:
+        description: Returns events related to licences that were active during specified reporting window
+    test-fixture-load:
+      description: Imports a predefined data into the database. Available only in DEV, SIT and ST environments.
+    db:
+      migration:
+        description: Evolve DB schema
 
   model.descriptions:
     licence-info:
       active: Boolean to indicate whether a given vehicle has any active operating licence
-      wheelchair-accessible: Boolean to indicate whether a given vehicle is wheelchair accessible by any active operating licence. Can be null.
+      wheelchair-accessible: Boolean to indicate whether a given vehicle is wheelchair accessible by any active operating licence. Can be null or empty.
       licensing-authorities-names: List of Strings that contains names of Licensing Authorities.
+      licensed-status-expires: The furthest date when one of the active licences expires.
+      added-timestamp: Specifies when the licence has been added.
+    licence-info-history:
+      page: Page that has been retrieved
+      pageCount: Total number of pages available (with current page size)
+      perPage: The current page size
+      totalChangesCount: The total number of changes associated with this vehicle
+      changes: A list of changes associated with this vehicle
+      modifyDate: ISO 8601 formatted date string indicating the modification date
+      action: Status of current VRM for a specific date range
+      licensingAuthorityName: LA name
+      plateNumber: A vehicle registration plate
+      licenceStartDate: ISO 8601 formatted date string indicating the date from which a license is valid
+      licenceEndDate: ISO 8601 formatted date string indicating the date until which a license is valid
+      wheelchairAccessible: Boolean to indicate whether a given vehicle is wheelchair accessible
     vehicles:
       vehicle-details: Array containing vehicle detail objects
     vehicle:
@@ -68,8 +116,6 @@ api:
   max-licences-count: 20000
 
 registerjob:
-  db:
-    max-errors-count: 100
   lambda:
     name: RegisterCsvFromS3Function
 
@@ -80,11 +126,15 @@ spring:
     drop-first: false
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/caz-national-taxi-phv
+    url: jdbc:postgresql://localhost:5432/taxi_phv
     username: postgres
     password: postgres
     hikari:
       maximum-pool-size: 1
+      connection-timeout: 5000 # in ms
+      max-lifetime: 0 # always keep the connection in the pool unless it has been closed
+  main:
+    banner-mode: "off"
 
 springfox:
   documentation:

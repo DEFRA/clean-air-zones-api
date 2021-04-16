@@ -1,0 +1,14 @@
+{
+  "licencesInformation": {
+    "VAR1_TEMPLATE": {
+      "active": true,
+      "licensedStatusExpires": "2090-10-10",
+      "description": "taxi",
+      "wheelchairAccessible": true,
+      "licensingAuthoritiesNames": [
+        "la-1",
+        "la-2"
+      ]
+    }
+  }
+}

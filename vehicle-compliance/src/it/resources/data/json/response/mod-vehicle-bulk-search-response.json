@@ -1,0 +1,22 @@
+{
+  "vehicles": {
+    "CAS300": {
+      "vrn": "CAS300",
+      "whitelistDiscountCode": "WDC001",
+      "greenVehicle": true,
+      "whiteVehicle": false
+    },
+    "CAS312": {
+      "vrn": "CAS312",
+      "whitelistDiscountCode": "WDC001",
+      "greenVehicle": true,
+      "whiteVehicle": false
+    },
+    "CAS318": {
+      "vrn": "CAS318",
+      "whitelistDiscountCode": "WDC001",
+      "greenVehicle": true,
+      "whiteVehicle": false
+    }
+  }
+}

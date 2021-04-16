@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0012.1-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - addColumn:
+            columns:
+              - column:
+                  name: public_transport_options_url
+                  type: text
+            schemaName: public
+            tableName: T_CAZ_LINK_DETAIL
+  - changeSet:
+      id: 0012.2-1.0
+      author: jaroslaw.piotrowski
+      changes:
+        - sql:
+            comment: Update public transport options url
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+                UPDATE public.T_CAZ_LINK_DETAIL
+                SET PUBLIC_TRANSPORT_OPTIONS_URL = 'https://www.brumbreathes.co.uk/info/15/drive-work-clean-air-zone-1/9/drive-work-clean-air-zone/4'
+                WHERE CHARGE_DEFINITION_ID = 1;
+
+                UPDATE public.T_CAZ_LINK_DETAIL
+                SET PUBLIC_TRANSPORT_OPTIONS_URL = 'https://cleanairleeds.co.uk/what-can-i-do/residents'
+                WHERE CHARGE_DEFINITION_ID = 2;
+            stripComments: true

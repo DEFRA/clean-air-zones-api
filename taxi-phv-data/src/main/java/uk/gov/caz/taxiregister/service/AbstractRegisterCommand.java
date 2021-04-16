@@ -27,7 +27,6 @@ public abstract class AbstractRegisterCommand {
 
   private final int registerJobId;
   private final String correlationId;
-  private final int maxValidationErrorCount;
 
   private final RegisterService registerService;
   private final RegisterFromCsvExceptionResolver exceptionResolver;
@@ -44,7 +43,6 @@ public abstract class AbstractRegisterCommand {
     this.exceptionResolver = registerServicesContext.getExceptionResolver();
     this.registerJobSupervisor = registerServicesContext.getRegisterJobSupervisor();
     this.licenceConverter = registerServicesContext.getLicenceConverter();
-    this.maxValidationErrorCount = registerServicesContext.getMaxValidationErrorCount();
     this.securitySentinel = registerServicesContext.getSecuritySentinel();
     this.registerJobId = registerJobId;
     this.correlationId = correlationId;
@@ -86,8 +84,22 @@ public abstract class AbstractRegisterCommand {
 
   /**
    * Method hook before mark job failed.
+   *
+   * @param jobStatus status of the finished job
+   * @param validationErrors list of validation errors, if any
    */
-  abstract void onBeforeMarkJobFailed();
+  abstract void onBeforeMarkJobFailed(
+      RegisterJobStatus jobStatus,
+      List<ValidationError> validationErrors);
+
+
+  /**
+   * Method hook after mark job finished.
+   *
+   * @param conversionResults {@link uk.gov.caz.taxiregister.model.ConversionResult} that stores
+   *     result of converting DTOs to models.
+   */
+  abstract void afterMarkJobFinished(ConversionResults conversionResults);
 
   /**
    * Method that executes logic common for all providers eg. S3 or REST API.
@@ -102,12 +114,7 @@ public abstract class AbstractRegisterCommand {
 
       beforeExecute();
 
-      // assertion: conversionMaxErrorCount >= 0
-      int conversionMaxErrorCount = maxValidationErrorCount - parseValidationErrorCount();
-
-      ConversionResults conversionResults = licenceConverter.convert(
-          getLicencesToRegister(), conversionMaxErrorCount
-      );
+      ConversionResults conversionResults = licenceConverter.convert(getLicencesToRegister());
 
       RegisterResult potentialErroneousResult = checkForAnyErrors(conversionResults);
       if (potentialErroneousResult != null) {
@@ -125,7 +132,7 @@ public abstract class AbstractRegisterCommand {
           getUploaderId()
       );
 
-      postProcessRegistrationResult(result);
+      postProcessRegistrationResult(result, conversionResults);
 
       return result;
     } catch (Exception e) {
@@ -146,7 +153,7 @@ public abstract class AbstractRegisterCommand {
    */
   private void markJobFailed(
       RegisterJobStatus jobStatus, List<ValidationError> validationErrors) {
-    onBeforeMarkJobFailed();
+    onBeforeMarkJobFailed(jobStatus, validationErrors);
     if (shouldMarkJobFailed()) {
       registerJobSupervisor.markFailureWithValidationErrors(
           getRegisterJobId(),
@@ -285,15 +292,6 @@ public abstract class AbstractRegisterCommand {
   }
 
   /**
-   * Gets the number of CSV parse validation errors.
-   *
-   * @return The number of CSV parse validation errors.
-   */
-  private int parseValidationErrorCount() {
-    return getLicencesParseValidationErrors().size();
-  }
-
-  /**
    * Merges two lists passed as parameters.
    *
    * @param a The first list which is to be merged.
@@ -308,10 +306,14 @@ public abstract class AbstractRegisterCommand {
    * Once the registration has been completed marks the registration job as a success or failure.
    *
    * @param result The result of the registration.
+   * @param conversionResults {@link uk.gov.caz.taxiregister.model.ConversionResult} that stores
+   *     result of converting DTOs to models.
    */
-  private void postProcessRegistrationResult(RegisterResult result) {
+  private void postProcessRegistrationResult(RegisterResult result,
+      ConversionResults conversionResults) {
     if (result.isSuccess()) {
       markJobFinished(result.getAffectedLicensingAuthorities());
+      afterMarkJobFinished(conversionResults);
     } else {
       markJobFailed(RegisterJobStatus.FINISHED_FAILURE_VALIDATION_ERRORS,
           result.getValidationErrors());
@@ -351,7 +353,7 @@ public abstract class AbstractRegisterCommand {
    *
    * @return The correlation id of the given job.
    */
-  private String getCorrelationId() {
+  protected String getCorrelationId() {
     return correlationId;
   }
 }

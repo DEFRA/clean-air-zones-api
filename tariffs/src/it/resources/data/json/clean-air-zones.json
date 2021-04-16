@@ -3,12 +3,16 @@
     {
       "cleanAirZoneId": "5cd7441d-766f-48ff-b8ad-1809586fea37",
       "name": "Birmingham",
-      "boundaryUrl": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3"
+      "boundaryUrl": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3",
+      "exemptionUrl": "https://exemption.birmingham.gov.uk",
+      "activeChargeStartDate": "2019-08-20"
     },
     {
-      "cleanAirZoneId": "39e54ed8-3ed2-441d-be3f-38fc9b70c8d3",
-      "name": "Leeds",
-      "boundaryUrl": "https://www.arcgis.com/home/webmap/viewer.html?webmap=de0120ae980b473982a3149ab072fdfc&extent=-1.733%2c53.7378%2c-1.333%2c53.8621"
+      "cleanAirZoneId": "5dd5c926-ed33-4a0a-b911-46324433e866",
+      "name": "Bath",
+      "boundaryUrl": "http://www.bathnes.gov.uk/zonemaps",
+      "exemptionUrl": "http://www.bathnes.gov.uk/CAZexemptions",
+      "activeChargeStartDate": "2018-10-28"
     }
   ]
 }

@@ -16,8 +16,9 @@ public class TaxClassService {
   private List<String> exemptTaxClasses;
 
   public TaxClassService(
-    @Value("${application.exempt-tax-classes:electric motorcycle,electric,disabled passenger vehicle,historic vehicle,gas}")
-    String[] exemptedTaxClasses) {
+      @Value("${application.exempt-tax-classes:"
+          + "electric motorcycle,electric,disabled passenger vehicle,historic vehicle,disabled}")
+        String[] exemptedTaxClasses) {
     this.exemptTaxClasses = Arrays.asList(exemptedTaxClasses);
   }
   

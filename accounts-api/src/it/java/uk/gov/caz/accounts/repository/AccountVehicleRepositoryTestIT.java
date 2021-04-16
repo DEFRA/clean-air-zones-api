@@ -13,6 +13,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.jdbc.Sql;
@@ -142,6 +143,23 @@ public class AccountVehicleRepositoryTestIT {
     assertThat(accountVehicles.get(0).getVrn()).isEqualTo("VRN1");
     assertThat(accountVehicles.get(1).getVrn()).isEqualTo("VRN2");
     assertThat(accountVehicles.get(2).getVrn()).isEqualTo("VRN3");
+  }
+
+  @Test
+  @Sql(scripts = {"classpath:data/sql/create-vehicles-and-chargeability-cache-data.sql"},
+      executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
+  @Sql(scripts = "classpath:data/sql/delete-chargeability-cache-data.sql",
+      executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+  public void shouldGetDeterminedVehicles() {
+    // given
+    UUID accountId = UUID.fromString("1f30838f-69ee-4486-95b4-7dfcd5c6c67c");
+
+    // when
+    Page<AccountVehicle> accountVehicles = accountVehicleRepository
+        .findAllDeterminedWithChargeabilityFor(accountId, Pageable.unpaged());
+
+    // then
+    assertThat(accountVehicles).hasSize(3);
   }
 
   private Set<String> getVrnsForGivenAccount(UUID accountId) {

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
+import uk.gov.caz.common.util.Strings;
 
 /**
  * Class responsible for extracting the value of 'X-Correlation-ID' http header and putting it to
@@ -20,14 +21,11 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 @Slf4j
 public class MdcCorrelationIdInjector extends HandlerInterceptorAdapter {
 
-  private static final MissingCorrelationIdHeaderException MISSING_CORRELATION_ID_HEADER_EXCEPTION =
-      new MissingCorrelationIdHeaderException();
-
   private final MdcAdapter mdc;
 
   /**
-   * Gets the value of 'X-Correlation-ID' http header and puts it to {@link MDC}. If the header
-   * is missing, {@link MissingCorrelationIdHeaderException} is thrown.
+   * Gets the value of 'X-Correlation-ID' http header and puts it to {@link MDC}. If the header is
+   * missing, {@link MissingCorrelationIdHeaderException} is thrown.
    *
    * @throws MissingCorrelationIdHeaderException if 'X-Correlation-ID' http header is absent in
    *     the request.
@@ -37,7 +35,11 @@ public class MdcCorrelationIdInjector extends HandlerInterceptorAdapter {
       Object handler) {
     String correlationId = Optional
         .ofNullable(request.getHeader(X_CORRELATION_ID_HEADER))
-        .orElseThrow(() -> MISSING_CORRELATION_ID_HEADER_EXCEPTION);
+        .orElseThrow(MissingCorrelationIdHeaderException::new);
+
+    if (!Strings.isValidUuid(correlationId)) {
+      throw new CorrelationIdFormatException();
+    }
 
     log.info("Correlation id for this request is {}", correlationId);
     mdc.put(X_CORRELATION_ID_HEADER, correlationId);
@@ -63,11 +65,23 @@ public class MdcCorrelationIdInjector extends HandlerInterceptorAdapter {
     return MDC.get(X_CORRELATION_ID_HEADER);
   }
 
-  @ResponseStatus(value = BAD_REQUEST, reason = "Missing request header 'X-Correlation-ID'")
+  @ResponseStatus(value = BAD_REQUEST, reason = MissingCorrelationIdHeaderException.REASON)
   public static class MissingCorrelationIdHeaderException extends RuntimeException {
 
+    private static final String REASON = "Missing request header 'X-Correlation-ID'";
+
     MissingCorrelationIdHeaderException() {
-      super("Missing request header 'X-Correlation-ID'");
+      super(REASON);
+    }
+  }
+
+  @ResponseStatus(value = BAD_REQUEST, reason = CorrelationIdFormatException.REASON)
+  public static class CorrelationIdFormatException extends RuntimeException {
+
+    private static final String REASON = "Wrong format of request header 'X-Correlation-ID'";
+
+    CorrelationIdFormatException() {
+      super(REASON);
     }
   }
 }

@@ -1,8 +1,8 @@
 package uk.gov.caz.vcc.domain.service.vehicleidentifiers;
 
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
-import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
 
 /**
  * VehicleIdentifer class for vehicles with N2 typeApproval.
@@ -11,6 +11,9 @@ import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
  */
 public class N2VehicleIdentifier extends VehicleIdentifier {
 
+  /**
+   * Method to identify vehicle with N2 type approval.
+   */
   @Override
   public void identifyVehicle(Vehicle vehicle) {
 

@@ -17,6 +17,11 @@ import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 
+/**
+ * Configuration class for integrating a clustered Redis instance
+ * deployed into Elasticache.
+ *
+ */
 @Slf4j
 @Configuration
 @EnableCaching

@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0048-1.0
+      author: proctorj
+      failOnError: false
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0048-1.0-update-audit-table-to-capture-modifier-id.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

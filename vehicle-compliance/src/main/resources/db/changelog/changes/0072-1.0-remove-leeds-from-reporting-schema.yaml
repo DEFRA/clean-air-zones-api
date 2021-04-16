@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0072.1.0-remove-leeds-from-reporting-schema
+      author: informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0072-1.0-remove-leeds-from-reporting-schema.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

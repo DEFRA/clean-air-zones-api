@@ -58,8 +58,8 @@ public interface RegisterCsvFromS3ControllerApiSpec {
           paramType = "header")
   })
   @PostMapping(
-      consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_XML_VALUE},
-      produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_XML_VALUE})
+      consumes = {MediaType.APPLICATION_JSON_VALUE},
+      produces = {MediaType.APPLICATION_JSON_VALUE})
   @ResponseStatus(value = HttpStatus.CREATED)
   ResponseEntity<RegisterCsvFromS3JobHandle> startRegisterJob(
       @RequestHeader(CORRELATION_ID_HEADER) String correlationId,
@@ -98,7 +98,8 @@ public interface RegisterCsvFromS3ControllerApiSpec {
   })
   @GetMapping(
       path = "/{registerJobName}",
-      produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_XML_VALUE})
+      produces = {MediaType.APPLICATION_JSON_VALUE},
+      consumes = {MediaType.APPLICATION_JSON_VALUE})
   @ResponseStatus(value = HttpStatus.OK)
   ResponseEntity<StatusOfRegisterCsvFromS3JobQueryResult> queryForStatusOfRegisterJob(
       @PathVariable(name = "registerJobName") String registerJobName);

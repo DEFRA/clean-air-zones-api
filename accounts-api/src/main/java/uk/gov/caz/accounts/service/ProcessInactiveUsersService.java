@@ -7,13 +7,17 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import uk.gov.caz.accounts.model.Account;
+import uk.gov.caz.accounts.model.AccountClosureReason;
 import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.AccountRepository;
 import uk.gov.caz.accounts.repository.IdentityProvider;
 import uk.gov.caz.accounts.repository.UserRepository;
+import uk.gov.caz.accounts.repository.exception.IdentityProviderUnavailableException;
 import uk.gov.caz.accounts.service.emailnotifications.EmailContext;
 import uk.gov.caz.accounts.service.emailnotifications.InactiveFor165DaysEmailSender;
 import uk.gov.caz.accounts.service.emailnotifications.InactiveFor175DaysEmailSender;
@@ -25,6 +29,7 @@ import uk.gov.caz.accounts.service.emailnotifications.InactiveFor180DaysEmailSen
  */
 @Component
 @AllArgsConstructor
+@Slf4j
 public class ProcessInactiveUsersService {
 
   private static final int INACTIVE_DAY_165 = 165;
@@ -42,6 +47,7 @@ public class ProcessInactiveUsersService {
   /**
    * Method fetches all accounts and checks if any of them require email notification.
    */
+  @Transactional
   public void execute() {
     List<Account> allAccounts = accountRepository.findAllByInactivationTimestampIsNull();
     allAccounts.stream().forEach(this::checkNotificationForAccount);
@@ -79,6 +85,8 @@ public class ProcessInactiveUsersService {
       getOwnersEmailsForAccount(account).stream()
           .forEach((email) -> inactiveFor180DaysEmailSender.send(email, EmailContext.of(account)));
       inactivateAccountService.inactivateAccount(account.getId());
+      accountRepository.updateClosureReason(
+              account.getId(), AccountClosureReason.ACCOUNT_INACTIVITY);
     }
   }
 
@@ -94,9 +102,27 @@ public class ProcessInactiveUsersService {
 
     return accountOwners
         .stream()
-        .map((owner) -> identityProvider
-            .getEmailByIdentityProviderId(owner.getIdentityProviderUserId()))
+        .map((owner) -> getExistingUserEmail(owner))
+        .filter((email) -> email != null)
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Method used solely for the situation on the DEV environment when local DB state can differ from
+   * the IdentityProvider state. When a user is present in the local DB and it cannot be found in
+   * the IdentityProvider, instead of raising an exception we skip the non-existing email.
+   */
+  private String getExistingUserEmail(UserEntity user) {
+    String email = null;
+
+    try {
+      email = identityProvider
+          .getEmailByIdentityProviderId(user.getIdentityProviderUserId());
+    } catch (IdentityProviderUnavailableException exception) {
+      log.error("Locally stored user was not found in the IdentityProvider");
+    }
+
+    return email;
   }
 
   /**

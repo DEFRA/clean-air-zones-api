@@ -9,6 +9,7 @@ import static uk.gov.caz.correlationid.Constants.X_CORRELATION_ID_HEADER;
 import static uk.gov.caz.taxiregister.controller.Constants.CORRELATION_ID_HEADER;
 import static uk.gov.caz.taxiregister.controller.LookupController.PATH;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -34,6 +35,8 @@ class LookupControllerTest {
 
   private static final String ANY_VRM = "8839GF";
   private static final String ANY_CORRELATION_ID = UUID.randomUUID().toString();
+  private static final String TAXI_DESCRIPTION = "taxi";
+  private static final String PHV_DESCRIPTION = "PHV";
 
   @MockBean
   private LookupService lookupService;
@@ -46,7 +49,8 @@ class LookupControllerTest {
     given(lookupService.getLicenceInfoBy(ANY_VRM)).willReturn(Optional.empty());
 
     mockMvc.perform(get(PATH, ANY_VRM)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
         .header(CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
         .andExpect(status().isNotFound())
         .andExpect(header().string(CORRELATION_ID_HEADER, ANY_CORRELATION_ID));
@@ -57,7 +61,8 @@ class LookupControllerTest {
     given(lookupService.getLicenceInfoBy(ANY_VRM)).willReturn(Optional.empty());
 
     mockMvc.perform(get(PATH, ANY_VRM)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE))
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.message").value("Missing request header 'X-Correlation-ID'"));
   }
@@ -66,14 +71,31 @@ class LookupControllerTest {
   @ValueSource(strings = {
       MediaType.APPLICATION_FORM_URLENCODED_VALUE,
       MediaType.APPLICATION_ATOM_XML_VALUE,
+      MediaType.APPLICATION_XML_VALUE,
       MediaType.APPLICATION_OCTET_STREAM_VALUE
   })
   public void shouldReturn406NotAcceptableStatusCodeForUnsupportedMediaType(String mediaType)
       throws Exception {
     mockMvc.perform(get(PATH, ANY_VRM)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
         .accept(mediaType)
         .header(X_CORRELATION_ID_HEADER, UUID.randomUUID().toString()))
         .andExpect(status().isNotAcceptable());
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {
+      MediaType.APPLICATION_FORM_URLENCODED_VALUE,
+      MediaType.APPLICATION_ATOM_XML_VALUE,
+      MediaType.APPLICATION_XML_VALUE,
+      MediaType.APPLICATION_OCTET_STREAM_VALUE
+  })
+  public void shouldReturn415UnsupportedMediaType(String mediaType)
+      throws Exception {
+    mockMvc.perform(get(PATH, ANY_VRM)
+        .accept(mediaType)
+        .header(X_CORRELATION_ID_HEADER, UUID.randomUUID().toString()))
+        .andExpect(status().isUnsupportedMediaType());
   }
 
   @ParameterizedTest
@@ -83,35 +105,78 @@ class LookupControllerTest {
     given(lookupService.getLicenceInfoBy(ANY_VRM)).willReturn(Optional.of(result));
 
     mockMvc.perform(get(PATH, ANY_VRM)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
         .header(CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
         .andExpect(status().isOk())
         .andExpect(header().string(CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
         .andExpect(jsonPath("$.active").value(result.hasAnyOperatingLicenceActive()))
-        .andExpect(jsonPath("$.wheelchairAccessible").value(result.getWheelchairAccessible()));
+        .andExpect(jsonPath("$.description").value(result.getDescription()))
+        .andExpect(jsonPath("$.wheelchairAccessible").value(result.getWheelchairAccessible()))
+        .andExpect(jsonPath("$.addedTimestamp").isNotEmpty());
   }
 
   static Stream<VehicleLicenceLookupInfo> licenceInfoProvider() {
     return Stream.of(
         VehicleLicenceLookupInfo.builder()
             .hasAnyOperatingLicenceActive(true)
+            .description(TAXI_DESCRIPTION)
             .wheelchairAccessible(true)
+            .addedTimestamp(LocalDateTime.now())
             .build(),
         VehicleLicenceLookupInfo.builder()
             .hasAnyOperatingLicenceActive(true)
+            .description(TAXI_DESCRIPTION)
             .wheelchairAccessible(false)
+            .addedTimestamp(LocalDateTime.now())
             .build(),
         VehicleLicenceLookupInfo.builder()
             .hasAnyOperatingLicenceActive(false)
+            .description(TAXI_DESCRIPTION)
             .wheelchairAccessible(false)
+            .addedTimestamp(LocalDateTime.now())
             .build(),
         VehicleLicenceLookupInfo.builder()
             .hasAnyOperatingLicenceActive(false)
+            .description(TAXI_DESCRIPTION)
             .wheelchairAccessible(null)
+            .addedTimestamp(LocalDateTime.now())
             .build(),
         VehicleLicenceLookupInfo.builder()
             .hasAnyOperatingLicenceActive(true)
+            .description(TAXI_DESCRIPTION)
             .wheelchairAccessible(null)
+            .addedTimestamp(LocalDateTime.now())
+            .build(),
+        VehicleLicenceLookupInfo.builder()
+            .hasAnyOperatingLicenceActive(true)
+            .description(PHV_DESCRIPTION)
+            .wheelchairAccessible(true)
+            .addedTimestamp(LocalDateTime.now())
+            .build(),
+        VehicleLicenceLookupInfo.builder()
+            .hasAnyOperatingLicenceActive(true)
+            .description(PHV_DESCRIPTION)
+            .wheelchairAccessible(false)
+            .addedTimestamp(LocalDateTime.now())
+            .build(),
+        VehicleLicenceLookupInfo.builder()
+            .hasAnyOperatingLicenceActive(false)
+            .description(PHV_DESCRIPTION)
+            .wheelchairAccessible(false)
+            .addedTimestamp(LocalDateTime.now())
+            .build(),
+        VehicleLicenceLookupInfo.builder()
+            .hasAnyOperatingLicenceActive(false)
+            .description(PHV_DESCRIPTION)
+            .wheelchairAccessible(null)
+            .addedTimestamp(LocalDateTime.now())
+            .build(),
+        VehicleLicenceLookupInfo.builder()
+            .hasAnyOperatingLicenceActive(true)
+            .description(PHV_DESCRIPTION)
+            .wheelchairAccessible(null)
+            .addedTimestamp(LocalDateTime.now())
             .build()
     );
   }

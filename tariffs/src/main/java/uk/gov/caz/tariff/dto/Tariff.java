@@ -35,4 +35,10 @@ public class Tariff {
 
   @ApiModelProperty(value = "${swagger.model.descriptions.tariff.informationUrls}")
   InformationUrls informationUrls;
+
+  @ApiModelProperty(value = "${swagger.model.descriptions.tariff.chargingDisabledVehicles}")
+  boolean chargingDisabledVehicles;
+
+  @ApiModelProperty(value = "${swagger.model.descriptions.tariff.activeChargeStartDate}")
+  String activeChargeStartDate;
 }

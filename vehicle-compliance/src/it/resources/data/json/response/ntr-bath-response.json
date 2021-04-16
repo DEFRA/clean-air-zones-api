@@ -1,0 +1,9 @@
+{
+  "active": true,
+  "licensedStatusExpires": "2090-10-10",
+  "description": "taxi",
+  "wheelchairAccessible": true,
+  "licensingAuthoritiesNames": [
+    "Bath"
+  ]
+}

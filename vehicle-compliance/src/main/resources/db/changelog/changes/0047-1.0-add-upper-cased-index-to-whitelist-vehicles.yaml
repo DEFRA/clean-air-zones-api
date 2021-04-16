@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0047-1.0-upper-cased-index-to-whitelist-vehicles
+      author: informed
+      changes:
+        - sql:
+            comment: Add upper-cased index to T_WHITELIST_VEHICLES on vrn column
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE INDEX IF NOT EXISTS idx_vehicle_whitelist_upper_vrn ON caz_whitelist_vehicles.t_whitelist_vehicles (UPPER(vrn));
+            stripComments: true

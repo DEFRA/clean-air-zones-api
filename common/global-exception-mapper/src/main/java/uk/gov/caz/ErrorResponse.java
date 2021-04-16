@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @XmlRootElement
-class ErrorResponse {
+public class ErrorResponse {
 
   /**
    * HTTP error code.

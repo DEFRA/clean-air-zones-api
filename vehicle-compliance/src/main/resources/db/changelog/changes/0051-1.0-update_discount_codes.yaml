@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0051-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update discount codes.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: UPDATE T_WHITELIST_DISCOUNT_CODE SET DISCOUNT_CODE_DESCRIPTION = 'NATIONAL_EXEMPTION'
+              WHERE WHITELIST_DISCOUNT_CODE = 'WDC001';
+
+              UPDATE T_WHITELIST_DISCOUNT_CODE SET DISCOUNT_CODE_DESCRIPTION = 'LOCAL_EXEMPTION'
+              WHERE WHITELIST_DISCOUNT_CODE = 'WDC002';

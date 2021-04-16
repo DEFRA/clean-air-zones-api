@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0064-1.0-add-indexes-for-licence-authority-and-licence-dates-for-audit-log
+      author: antoni.pstras
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0064-1.0-add-indexes-for-licence-authority-and-licence-dates-for-audit-log.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

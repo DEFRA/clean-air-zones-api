@@ -1,7 +1,10 @@
 {
   "active": false,
+  "description": null,
   "wheelchairAccessible": false,
+  "licensedStatusExpires": null,
   "licensingAuthoritiesNames": [
     "la-2"
-  ]
+  ],
+  "addedTimestamp": "2020-11-19 17:02:39"
 }

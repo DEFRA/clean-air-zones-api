@@ -46,11 +46,15 @@ public class CreateAndInviteUserTestIT {
   @Value("${services.sqs.new-queue-name}")
   private String emailSqsQueueName;
 
+  @Autowired
+  private StubbedIdentityProvider stubbedIdentityProvider;
+
   @BeforeEach
   public void startMockServer() {
     RestAssured.port = randomServerPort;
     RestAssured.baseURI = "http://localhost";
     RestAssured.basePath = AccountsController.ACCOUNTS_PATH;
+    stubbedIdentityProvider.clearUserData();
   }
 
   @BeforeEach
@@ -158,7 +162,7 @@ public class CreateAndInviteUserTestIT {
   }
 
   @Test
-  public void return422ErrorWhenTryingToInviteExistingUser() {
+  public void return422ErrorWhenTryingToInviteExistingUserWhenTokenIsStillActive() {
     String invitedUserEmail = "invited-user-1@a.gov.uk";
     String invitedUserName = "invitedUser1";
     String anyPassword = "p4$$word1";
@@ -203,6 +207,46 @@ public class CreateAndInviteUserTestIT {
         .whenRequestToCreateAndInviteUserIsMade()
         .then()
         .responseIsReturnedWithHttpUnprocessableEntityStatusCode();
+  }
+
+  @Test
+  public void allowsToInviteExistingUserWhenTokenIsExpired() {
+    String invitedUserEmail = "invited-user-2@a.gov.uk";
+    String invitedUserName = "invitedUser2";
+    String anyPassword = "p4$$word2";
+    UserAndAccountDataHolder firstAdminUserDataHolder = createAccountUserWithRandomAccountName();
+    UserAndAccountDataHolder secondAdminUserDataHolder = createAccountUserWithRandomAccountName();
+
+    givenCreateAndInviteUserJourney()
+        .forAccountId(firstAdminUserDataHolder.getAccountId())
+        .forAccountName(firstAdminUserDataHolder.getAccountName())
+        .forUserName(invitedUserName)
+        .forEmail(invitedUserEmail)
+        .forPassword(anyPassword)
+        .forUserSendingInvitation(firstAdminUserDataHolder.getUserId())
+
+        .whenRequestToCreateAndInviteUserIsMade()
+        .then()
+        .responseIsReturnedWithHttpCreatedStatusCode();
+
+
+    changeAllTokensToExpired();
+
+    givenCreateAndInviteUserJourney()
+        .forAccountId(secondAdminUserDataHolder.getAccountId())
+        .forAccountName(secondAdminUserDataHolder.getAccountName())
+        .forUserName(invitedUserName)
+        .forEmail(invitedUserEmail)
+        .forPassword(anyPassword)
+        .forUserSendingInvitation(secondAdminUserDataHolder.getUserId())
+
+        .whenRequestToCreateAndInviteUserIsMade()
+        .then()
+        .responseIsReturnedWithHttpCreatedStatusCode();
+  }
+
+  private void changeAllTokensToExpired() {
+    jdbcTemplate.execute("UPDATE caz_account.t_account_user_code SET status = 'EXPIRED'");
   }
 
   @Test
@@ -269,13 +313,13 @@ public class CreateAndInviteUserTestIT {
   }
 
   private String validEmail() {
-    return "jaqu" + RandomStringUtils.randomAlphabetic(3) + "@dev.co.uk";
+    return "jaqu" + RandomStringUtils.randomAlphabetic(31) + "@dev.co.uk";
   }
 
   private UserAndAccountDataHolder createAccountUserWithRandomAccountName() {
     String VALID_ACCOUNT_NAME = "jaqu";
     return createAccountAndUserWithAccountNameAndEmail(
-        (VALID_ACCOUNT_NAME + RandomStringUtils.randomAlphabetic(2)).toLowerCase(),
+        (VALID_ACCOUNT_NAME + RandomStringUtils.randomAlphabetic(20)).toLowerCase(),
         validEmail()
     );
   }

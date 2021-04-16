@@ -38,7 +38,6 @@ import uk.gov.caz.accounts.service.DirectDebitMandatesBulkUpdater;
 import uk.gov.caz.accounts.service.exception.AccountNotFoundException;
 import uk.gov.caz.accounts.service.exception.DirectDebitMandateDoesNotBelongsToAccountException;
 import uk.gov.caz.accounts.service.exception.DirectDebitMandateNotFoundException;
-import uk.gov.caz.accounts.service.exception.UserLockoutException;
 import uk.gov.caz.correlationid.Configuration;
 import uk.gov.caz.correlationid.Constants;
 
@@ -67,6 +66,7 @@ class DirectDebitMandateControllerTest {
 
   private static final String ANY_CORRELATION_ID = "03d339e2-875f-4b3f-9dfa-1f6aa57cc119";
   private static final String ANY_ACCOUNT_ID = "b6968560-cb56-4248-9f8f-d75b0aff726e";
+  private static final String ANY_ACCOUNT_USER_ID = "f64a06aa-347b-4852-966a-1441b04679f0";
   private static final String ANY_MANDATE_ID = "jhjcvaiqlediuhh23d89hd3";
   private static final String ANY_CAZ_ID = "6dda58e0-d215-4ce1-a7ca-653f860eaa3c";
   private static final String ANY_STATUS = "ACTIVE";
@@ -78,7 +78,8 @@ class DirectDebitMandateControllerTest {
     @Test
     public void shouldReturn400WhenDirectDebitMandateIdIsNull() throws Exception {
       UUID cleanAirZoneId = UUID.fromString(ANY_CAZ_ID);
-      String payload = requestPayloadFor(null, cleanAirZoneId);
+      UUID accountUserId = UUID.fromString(ANY_ACCOUNT_USER_ID);
+      String payload = requestPayloadFor(null, cleanAirZoneId, accountUserId);
 
       performRequestWithPayload(payload)
           .andExpect(header().string(Constants.X_CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
@@ -87,7 +88,8 @@ class DirectDebitMandateControllerTest {
 
     @Test
     public void shouldReturn400WhenCleanAirZoneIdIsNull() throws Exception {
-      String payload = requestPayloadFor(ANY_MANDATE_ID, null);
+      UUID accountUserId = UUID.fromString(ANY_ACCOUNT_USER_ID);
+      String payload = requestPayloadFor(ANY_MANDATE_ID, null, accountUserId);
 
       performRequestWithPayload(payload)
           .andExpect(header().string(Constants.X_CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
@@ -96,9 +98,20 @@ class DirectDebitMandateControllerTest {
     }
 
     @Test
+    public void shouldReturn400WhenAccountUserIdIsNull() throws Exception {
+      UUID cleanAirZoneId = UUID.fromString(ANY_CAZ_ID);
+      String payload = requestPayloadFor(ANY_MANDATE_ID, cleanAirZoneId, null);
+
+      performRequestWithPayload(payload)
+          .andExpect(header().string(Constants.X_CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
+          .andExpect(status().is4xxClientError());
+    }
+
+    @Test
     public void shouldReturn200WhenParamsAreCorrect() throws Exception {
       UUID cleanAirZoneId = UUID.fromString(ANY_CAZ_ID);
-      String payload = requestPayloadFor(ANY_MANDATE_ID, cleanAirZoneId);
+      UUID accountUserId = UUID.fromString(ANY_ACCOUNT_USER_ID);
+      String payload = requestPayloadFor(ANY_MANDATE_ID, cleanAirZoneId, accountUserId);
       mockSuccessfulDirectDebitMandateCreation();
 
       performRequestWithPayload(payload)
@@ -115,15 +128,18 @@ class DirectDebitMandateControllerTest {
       return DirectDebitMandate.builder()
           .id(UUID.randomUUID())
           .accountId(UUID.fromString(ANY_ACCOUNT_ID))
+          .accountUserId(UUID.fromString(ANY_ACCOUNT_USER_ID))
           .cleanAirZoneId(UUID.fromString(ANY_CAZ_ID))
           .paymentProviderMandateId(ANY_MANDATE_ID)
           .build();
     }
 
-    private String requestPayloadFor(String debitMandateId, UUID cleanAirZoneId) {
+    private String requestPayloadFor(String debitMandateId, UUID cleanAirZoneId,
+        UUID accountUserId) {
       DirectDebitMandateRequest request = DirectDebitMandateRequest.builder()
           .mandateId(debitMandateId)
           .cleanAirZoneId(cleanAirZoneId)
+          .accountUserId(accountUserId)
           .build();
 
       return toJson(request);
@@ -169,6 +185,7 @@ class DirectDebitMandateControllerTest {
           DirectDebitMandate.builder()
               .id(UUID.randomUUID())
               .accountId(UUID.fromString(ANY_ACCOUNT_ID))
+              .accountUserId(UUID.fromString(ANY_ACCOUNT_USER_ID))
               .cleanAirZoneId(UUID.fromString(ANY_CAZ_ID))
               .paymentProviderMandateId(ANY_MANDATE_ID)
               .status(DirectDebitMandateStatus.valueOf(ANY_STATUS))
@@ -290,7 +307,8 @@ class DirectDebitMandateControllerTest {
     }
 
     @Test
-    public void shouldReturn400WhenDirectDebitMandateDoesNotBelongsToAccountExists() throws Exception {
+    public void shouldReturn400WhenDirectDebitMandateDoesNotBelongsToAccountExists()
+        throws Exception {
       mockDirectDebitMandateDoesNotBelongsToAccount();
 
       performDeleteRequest()

@@ -1,5 +1,7 @@
-{
-  "cleanZoneId": "420b5cfb-cc9b-492b-bc07-5b77d380f72d",
-  "cazEntryTimestamp": [2017,10,1,15,53,1],
-  "vrn": "CAS308"
-}
+[
+  {
+    "cleanZoneId": "131af03c-f7f4-4aef-81ee-aae4f56dbeb5",
+    "cazEntryTimestamp": "2017-10-01T15:53:01",
+    "vrn": "CAS305"
+  }
+]

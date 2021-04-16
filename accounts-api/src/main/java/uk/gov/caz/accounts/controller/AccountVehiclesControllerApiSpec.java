@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import uk.gov.caz.accounts.dto.AccountVehicleRequest;
 import uk.gov.caz.accounts.dto.AccountVehicleResponse;
 import uk.gov.caz.accounts.dto.CsvExportResponse;
-import uk.gov.caz.definitions.dto.accounts.ChargeableVehiclesResponseDto;
 import uk.gov.caz.definitions.dto.accounts.VehiclesResponseDto;
 import uk.gov.caz.definitions.dto.accounts.VehiclesResponseDto.VehicleWithCharges;
 
@@ -87,53 +86,6 @@ public interface AccountVehiclesControllerApiSpec {
   @GetMapping
   ResponseEntity<VehiclesResponseDto> getAccountVehicleVrnsWithOffset(
       @PathVariable("accountId") UUID accountId,
-      @RequestParam Map<String, String> map);
-
-  /**
-   * Endpoint specification that returns a cursor-based page of vrns associated with an account.
-   *
-   * @param accountId string representing accountId.
-   * @param map the query strings included in the request
-   * @return a list of vrns matching accountId and corresponding to other params
-   */
-  @ApiOperation(
-      value = "${swagger.operations.accounts.account-vehicles.retrieve-cursor.description}"
-  )
-  @ApiResponses({
-      @ApiResponse(code = 503, message = "Service Unavailable Error"),
-      @ApiResponse(code = 500, message = "Internal Server Error / No message available"),
-      @ApiResponse(code = 404, message = "Account not found"),
-      @ApiResponse(code = 200, message = "List of vrns returned successfully")
-  })
-  @ApiImplicitParams({
-      @ApiImplicitParam(name = "accountId",
-          required = true,
-          value = "UUID formatted string from AccountVehicle table"
-              + " (must match PK in Account table)"),
-      @ApiImplicitParam(name = X_CORRELATION_ID_HEADER,
-          required = true,
-          value = "UUID formatted string to track the request through the enquiries stack",
-          paramType = "header"),
-      @ApiImplicitParam(name = "direction",
-          required = true,
-          value = "The direction in which to sort",
-          paramType = "query"),
-      @ApiImplicitParam(name = "pageSize",
-          required = true,
-          value = "The size of the page",
-          paramType = "query"),
-      @ApiImplicitParam(name = "vrn",
-          required = true,
-          value = "The cursor from which to start the page",
-          paramType = "query"),
-      @ApiImplicitParam(name = "chargeableCazId",
-          value = "UUID formatted string with CAZ identifier",
-          required = true,
-          paramType = "query")
-  })
-  @GetMapping(path = "/sorted-page")
-  ResponseEntity<ChargeableVehiclesResponseDto> getAccountVehicleVrnsWithCursor(
-      @PathVariable("accountId") String accountId,
       @RequestParam Map<String, String> map);
 
   /**

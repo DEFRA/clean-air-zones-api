@@ -1,9 +1,8 @@
 package uk.gov.caz.vcc.domain.service;
 
 import org.springframework.stereotype.Component;
-
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
 import uk.gov.caz.vcc.domain.service.vehicleidentifiers.LVehicleIdentifier;
 import uk.gov.caz.vcc.domain.service.vehicleidentifiers.M1VehicleIdentifier;
 import uk.gov.caz.vcc.domain.service.vehicleidentifiers.M2VehicleIdentifier;
@@ -24,16 +23,17 @@ import uk.gov.caz.vcc.util.UnidentifiableVehicleExceptionHandler;
 public class VehicleIdentificationService {
 
   private final UnidentifiableVehicleExceptionHandler unidentifiableVehicleExceptionHandler;
-  private final TVehicleIdentifier tVehicleIdentifier;
+  private final TVehicleIdentifier agriculturalVehicleIdentifier;
+
   /**
-   * Default constructor for domain service to identifying a vehicles type
-   * against the CAZ framework based on externally-sourced data attributes.
+   * Default constructor for domain service to identifying a vehicles type against
+   * the CAZ framework based on externally-sourced data attributes.
    */
-  public VehicleIdentificationService(
-      UnidentifiableVehicleExceptionHandler unidentifiableVehicleExceptionHandler,
-      TVehicleIdentifier tVehicleIdentifier) {
+  public VehicleIdentificationService(UnidentifiableVehicleExceptionHandler 
+      unidentifiableVehicleExceptionHandler,
+      TVehicleIdentifier agriculturalVehicleIdentifier) {
     this.unidentifiableVehicleExceptionHandler = unidentifiableVehicleExceptionHandler;
-    this.tVehicleIdentifier = tVehicleIdentifier;
+    this.agriculturalVehicleIdentifier = agriculturalVehicleIdentifier;
   }
 
   /**
@@ -63,7 +63,7 @@ public class VehicleIdentificationService {
       } else if (vehicle.getTypeApproval().equals("N3")) {
         identifier = new N3VehicleIdentifier();
       } else if (vehicle.getTypeApproval().startsWith("T")) {
-        identifier = tVehicleIdentifier;
+        identifier = agriculturalVehicleIdentifier;
       } else if (vehicle.getTypeApproval().startsWith("L")) {
         identifier = new LVehicleIdentifier();
       } else {
@@ -75,10 +75,17 @@ public class VehicleIdentificationService {
 
       identifier.identifyVehicle(vehicle);
 
-    } catch (UnidentifiableVehicleException e) {
-      unidentifiableVehicleExceptionHandler.handleError(e, vehicle);
+    } catch (UnidentifiableVehicleException notIdentifiedEx) {
+      // if the vehicle is unidentified attempt to identify it 
+      // using tax class and body type
+      try {
+        identifier = new NullVehicleIdentifier();
+        identifier.identifyVehicle(vehicle);
 
-      vehicle.setVehicleType(null);
+      } catch (UnidentifiableVehicleException e) {
+        unidentifiableVehicleExceptionHandler.handleError(e, vehicle);
+        vehicle.setVehicleType(null);
+      }
     }
   }
 

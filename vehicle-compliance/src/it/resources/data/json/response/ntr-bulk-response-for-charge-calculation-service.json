@@ -1,0 +1,36 @@
+{
+  "licencesInformation": {
+    "L-TAXI1": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": true,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "L-TAXI2": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": true,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "L-TAXI3": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": true,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "GWL342": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    }
+  }
+}

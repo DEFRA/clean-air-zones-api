@@ -68,17 +68,24 @@ import uk.gov.caz.accounts.dto.RegisterJobStatusDto;
 import uk.gov.caz.accounts.dto.StartRegisterCsvFromS3JobCommand;
 import uk.gov.caz.accounts.dto.StatusOfRegisterCsvFromS3JobQueryResult;
 import uk.gov.caz.accounts.model.Account;
+import uk.gov.caz.accounts.model.AccountPermission;
+import uk.gov.caz.accounts.model.AccountUserPermission;
+import uk.gov.caz.accounts.model.Permission;
 import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.model.registerjob.RegisterJob;
 import uk.gov.caz.accounts.model.registerjob.RegisterJobError;
 import uk.gov.caz.accounts.model.registerjob.RegisterJobErrors;
 import uk.gov.caz.accounts.model.registerjob.RegisterJobName;
 import uk.gov.caz.accounts.model.registerjob.RegisterJobStatus;
 import uk.gov.caz.accounts.model.registerjob.RegisterJobTrigger;
+import uk.gov.caz.accounts.repository.AccountPermissionRepository;
 import uk.gov.caz.accounts.repository.AccountRepository;
+import uk.gov.caz.accounts.repository.AccountUserPermissionRepository;
 import uk.gov.caz.accounts.repository.AccountUserRepository;
 import uk.gov.caz.accounts.repository.IdentityProvider;
 import uk.gov.caz.accounts.repository.RegisterJobRepository;
+import uk.gov.caz.accounts.repository.UserRepository;
 import uk.gov.caz.accounts.service.ExternalCallsIT;
 import uk.gov.caz.accounts.service.registerjob.CsvFileOnS3MetadataExtractor;
 import uk.gov.caz.correlationid.Constants;
@@ -90,15 +97,17 @@ import uk.gov.caz.correlationid.Constants;
 @Sql(scripts = "classpath:data/sql/registerjob/clear-jobs-and-vrns.sql", executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
 @Sql(scripts = "classpath:data/sql/registerjob/clear-jobs-and-vrns.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
 @TestPropertySource(properties = {
-    "charge-calculation.lambda.max-vehicles-to-process=2", // to force spawning a new charge calc lambda/thread
+    "charge-calculation.lambda.max-vehicles-to-process=2",
+    // to force spawning a new charge calc lambda/thread
 })
 public class RegisterTestIT extends ExternalCallsIT {
 
   private static final Path FILE_BASE_PATH = Paths
       .get("src", "it", "resources", "data", "csv", "registerjob");
 
-  private static final UUID BIRMINGHAM_CAZ_ID = UUID.fromString("53e03a28-0627-11ea-9511-ffaaee87e375");
-  private static final UUID LEEDS_CAZ_ID = UUID.fromString("39e54ed8-3ed2-441d-be3f-38fc9b70c8d3");
+  private static final UUID BIRMINGHAM_CAZ_ID = UUID
+      .fromString("53e03a28-0627-11ea-9511-ffaaee87e375");
+  private static final UUID BATH_CAZ_ID = UUID.fromString("742b343f-6ce6-42d3-8324-df689ad4c515");
 
   private static final String BUCKET_NAME = String.format(
       "accounts-vehicles-data-%d",
@@ -124,6 +133,15 @@ public class RegisterTestIT extends ExternalCallsIT {
   private AccountUserRepository accountUserRepository;
 
   @Autowired
+  private AccountPermissionRepository accountPermissionRepository;
+
+  @Autowired
+  private AccountUserPermissionRepository accountUserPermissionRepository;
+
+  @Autowired
+  private UserRepository userRepository;
+
+  @Autowired
   private RegisterJobRepository registerJobRepository;
 
   @Autowired
@@ -140,8 +158,8 @@ public class RegisterTestIT extends ExternalCallsIT {
 
   private Account account;
   private Account anotherAccount;
-  private User firstUser;
-  private User secondUser;
+  private UserEntity firstUser;
+  private UserEntity secondUser;
   private RegisterCsvFromS3JobHandle firstJobHandle;
   private RegisterCsvFromS3JobHandle secondJobHandle;
   private volatile StatusOfRegisterCsvFromS3JobQueryResult queryResult;
@@ -176,8 +194,8 @@ public class RegisterTestIT extends ExternalCallsIT {
   }
 
   private void clearAllTables() {
-    JdbcTestUtils.deleteFromTables(jdbcTemplate, "caz_account.t_account_user",
-        "caz_account.t_account_vehicle", "caz_account.t_account",
+    JdbcTestUtils.deleteFromTables(jdbcTemplate, "caz_account.t_account_user_permission",
+        "caz_account.t_account_user", "caz_account.t_account_vehicle", "caz_account.t_account",
         "caz_account.t_account_job_register");
   }
 
@@ -188,8 +206,10 @@ public class RegisterTestIT extends ExternalCallsIT {
     andAssociatedSecondAccountUser();
     andCsvFileHasBeenUploadedToS3ByUser("first-uploader-records-all.csv", firstUser);
     andCsvFileHasBeenUploadedToS3ByUser("first-uploader-records-with-duplicates.csv", firstUser);
-    andCsvFileHasBeenUploadedToS3ByUser("second-uploader-max-validation-errors-exceeded.csv", secondUser);
-    andCsvFileHasBeenUploadedToS3ByUser("second-uploader-mixed-parse-and-business-validation-errors.csv",
+    andCsvFileHasBeenUploadedToS3ByUser("second-uploader-max-validation-errors-exceeded.csv",
+        secondUser);
+    andCsvFileHasBeenUploadedToS3ByUser(
+        "second-uploader-mixed-parse-and-business-validation-errors.csv",
         secondUser);
 
     // first uploader - contains duplicated VRNs
@@ -202,7 +222,7 @@ public class RegisterTestIT extends ExternalCallsIT {
 
     // first uploader test
     // ABC459 does not exist in DVLa and its compliance cannot be determined
-    mockVccsBulkComplianceCallForVrnsFromRequestExceptFor(BIRMINGHAM_CAZ_ID, LEEDS_CAZ_ID,
+    mockVccsBulkComplianceCallForVrnsFromRequestExceptFor(BIRMINGHAM_CAZ_ID, BATH_CAZ_ID,
         Collections.singleton("ABC459"));
     atTheBeginningThereShouldBeNoVehicles();
     whenVehiclesAreRegisteredAgainstEmptyDatabaseByFirstUploader("first-uploader-records-all.csv");
@@ -212,10 +232,11 @@ public class RegisterTestIT extends ExternalCallsIT {
     andChargeabilityCacheWithNonCompliantDataShouldBePopulatedFor("ABC459");
     andChargeabilityCacheWithCompliantDataShouldBePopulatedFor("ABC456", "ABC457", "ABC458");
     andThereShouldBeNoErrors();
-    andEmailsHaveBeenSent();
+    andEmailsToVehicleManagersHaveBeenSent();
 
     // rerun test - there should be no errors
-    whenVehiclesAreRegisteredByFirstUploaderWithSendEmailsSetToFalse("first-uploader-records-all.csv");
+    whenVehiclesAreRegisteredByFirstUploaderWithSendEmailsSetToFalse(
+        "first-uploader-records-all.csv");
     thenRegisterJobShouldBePresentInTheDatabase();
     thenAllShouldBeInserted();
     andThereShouldBeNoErrors();
@@ -229,7 +250,8 @@ public class RegisterTestIT extends ExternalCallsIT {
     andThereShouldBeMaxValidationErrors();
     andNoEmailsHaveBeenSent();
 
-    whenVehiclesAreRegisteredBySecondUploader("second-uploader-mixed-parse-and-business-validation-errors.csv");
+    whenVehiclesAreRegisteredBySecondUploader(
+        "second-uploader-mixed-parse-and-business-validation-errors.csv");
     thenNoVehiclesShouldBeRegisteredBySecondUploader();
     andJobContainsMixedParseAndBusinessValidationErrors();
     andJobShouldFinishWithFailureStatus();
@@ -241,7 +263,7 @@ public class RegisterTestIT extends ExternalCallsIT {
   @ParameterizedTest
   @MethodSource("uk.gov.caz.accounts.RegisterTestIT#filesWithoutVehicles")
   public void emptyUploadTest(String emptyFilename) {
-    mockVccsBulkComplianceCallForVrnsFromRequest(BIRMINGHAM_CAZ_ID, LEEDS_CAZ_ID);
+    mockVccsBulkComplianceCallForVrnsFromRequest(BIRMINGHAM_CAZ_ID, BATH_CAZ_ID);
 
     givenThereIsAccount();
     andAssociatedFirstAccountUser();
@@ -263,7 +285,7 @@ public class RegisterTestIT extends ExternalCallsIT {
     assertThat(message).isEmpty();
   }
 
-  private void andEmailsHaveBeenSent() {
+  private void andEmailsToVehicleManagersHaveBeenSent() {
     Optional<Message> firstMessage = receiveSqsMessage();
     Optional<Message> secondMessage = receiveSqsMessage();
 
@@ -302,29 +324,29 @@ public class RegisterTestIT extends ExternalCallsIT {
   }
 
   private void thenDatabaseShouldContainAllOriginalRecords() {
-    int vehiclesCount = getUploaderVehiclesCount(firstUser) 
-        + getUploaderVehiclesCount(secondUser);
+    int vehiclesCount = getUploaderVehiclesCount(firstUser.getAccountId())
+        + getUploaderVehiclesCount(secondUser.getAccountId());
     assertThat(countAllVehicles()).isEqualTo(vehiclesCount);
   }
 
   private void andResponseShouldHaveAppropriateMessage(String error) {
     List<String> errors = getJobErrorsByJobName(firstJobHandle.getJobName());
-    assertTrue(errors.contains(error));    
+    assertTrue(errors.contains(error));
   }
 
   private void andAssociatedSecondAccountUserTo(Account account) {
-    User randomUserForAccount = createRandomUserForAccount(2, account);
-    secondUser = accountUserRepository.insert(randomUserForAccount);
+    UserEntity randomUserForAccount = createRandomUserForAccount(2, account);
+    secondUser = userRepository.save(randomUserForAccount);
     saveUserInIdentityProvider(randomUserForAccount);
   }
 
-  private User createRandomUserForAccount(int userNo, Account account) {
+  private UserEntity createRandomUserForAccount(int userNo, Account account) {
     return createRandomUser(userNo, account.getId());
   }
 
-  private int getUploaderVehiclesCount(User user) {
+  private int getUploaderVehiclesCount(UUID accountId) {
     return JdbcTestUtils.countRowsInTableWhere(jdbcTemplate, "caz_account.t_account_vehicle",
-        String.format("account_id = '%s'", user.getAccountId()));
+        String.format("account_id = '%s'", accountId));
   }
 
   @ParameterizedTest
@@ -357,7 +379,8 @@ public class RegisterTestIT extends ExternalCallsIT {
   void andFailedFileShouldBeRemovedFromS3() {
     verifyFileHasBeenRemovedFromS3("second-uploader-max-validation-errors-exceeded.csv");
     verifyFileHasBeenRemovedFromS3("first-uploader-records-with-duplicates.csv");
-    verifyFileHasBeenRemovedFromS3("second-uploader-mixed-parse-and-business-validation-errors.csv");
+    verifyFileHasBeenRemovedFromS3(
+        "second-uploader-mixed-parse-and-business-validation-errors.csv");
   }
 
   private void verifyFileHasBeenRemovedFromS3(String filename) {
@@ -405,13 +428,13 @@ public class RegisterTestIT extends ExternalCallsIT {
 
   private List<String> getJobErrorsByJobName(String jobName) {
     return registerJobRepository
-          .findByJobName(new RegisterJobName(jobName))
-          .map(RegisterJob::getErrors)
-          .map(RegisterJobErrors::getErrors)
-          .map(registerJobErrors -> registerJobErrors.stream()
-              .map(RegisterJobError::getDetail)
-              .collect(Collectors.toList()))
-          .orElseThrow(() -> new IllegalStateException("Can't find the job"));
+        .findByJobName(new RegisterJobName(jobName))
+        .map(RegisterJob::getErrors)
+        .map(RegisterJobErrors::getErrors)
+        .map(registerJobErrors -> registerJobErrors.stream()
+            .map(RegisterJobError::getDetail)
+            .collect(Collectors.toList()))
+        .orElseThrow(() -> new IllegalStateException("Can't find the job"));
   }
 
   private void whenVehiclesAreRegisteredBySecondUploader(String filename) {
@@ -503,7 +526,7 @@ public class RegisterTestIT extends ExternalCallsIT {
     expectedRegisterJobsCount += 1;
   }
 
-  private void andCsvFileHasBeenUploadedToS3ByUser(String filename, User user) {
+  private void andCsvFileHasBeenUploadedToS3ByUser(String filename, UserEntity user) {
     uploadFileToS3(user.getId().toString(), filename);
   }
 
@@ -521,17 +544,21 @@ public class RegisterTestIT extends ExternalCallsIT {
     anotherAccount = accountRepository.save(accountToBeCreated);
   }
 
-  private void andAssociatedSecondAccountUser() {
-    secondUser = accountUserRepository.insert(createRandomUser(2, account.getId()));
-    saveUserInIdentityProvider(secondUser);
-  }
-
   private void andAssociatedFirstAccountUser() {
-    firstUser = accountUserRepository.insert(createRandomUser(1, account.getId()));
+    firstUser = userRepository.save(createRandomUser(1, account.getId()));
+    accountUserPermissionRepository
+        .save(createVehicleManagementAccountPermission(firstUser.getId()));
     saveUserInIdentityProvider(firstUser);
   }
 
-  private void saveUserInIdentityProvider(User user) {
+  private void andAssociatedSecondAccountUser() {
+    secondUser = userRepository.save(createRandomUser(2, account.getId()));
+    accountUserPermissionRepository
+        .save(createVehicleManagementAccountPermission(secondUser.getId()));
+    saveUserInIdentityProvider(secondUser);
+  }
+
+  private void saveUserInIdentityProvider(UserEntity user) {
     identityProvider.createAdminUser(
         user.getIdentityProviderUserId(),
         user.getEmail(),
@@ -539,11 +566,20 @@ public class RegisterTestIT extends ExternalCallsIT {
     );
   }
 
-  private User createRandomUser(int userNo, UUID accountId) {
-    return User.builder()
+  private UserEntity createRandomUser(int userNo, UUID accountId) {
+    return UserEntity.builder()
         .email("user-" + userNo + "@defra.gov.uk")
         .identityProviderUserId(UUID.randomUUID())
         .accountId(accountId)
+        .build();
+  }
+
+  private AccountUserPermission createVehicleManagementAccountPermission(UUID userId) {
+    AccountPermission accountPermissionManageVehicles = accountPermissionRepository
+        .findByName(Permission.MANAGE_VEHICLES).get();
+    return AccountUserPermission.builder()
+        .accountPermissionId(accountPermissionManageVehicles.getId())
+        .accountUserId(userId)
         .build();
   }
 

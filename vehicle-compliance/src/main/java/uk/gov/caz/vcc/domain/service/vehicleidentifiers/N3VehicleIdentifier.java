@@ -1,7 +1,7 @@
 package uk.gov.caz.vcc.domain.service.vehicleidentifiers;
 
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
 
 /**
  * VehicleIdentifer class for vehicles with N3 typeApproval.
@@ -10,6 +10,9 @@ import uk.gov.caz.vcc.domain.VehicleType;
  */
 public class N3VehicleIdentifier extends VehicleIdentifier {
 
+  /**
+   * Method to identify N3 type approval vehicles as HGVs.
+   */
   @Override
   public void identifyVehicle(Vehicle vehicle) {
     vehicle.setVehicleType(VehicleType.HGV);

@@ -22,8 +22,10 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.caz.GlobalExceptionHandlerConfiguration;
 import uk.gov.caz.accounts.model.Account;
+import uk.gov.caz.accounts.model.AccountPermission;
 import uk.gov.caz.accounts.model.Permission;
 import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.service.AccountFetcherService;
 import uk.gov.caz.accounts.service.UserPermissionsService;
 import uk.gov.caz.accounts.service.UserPermissionsUpdaterService;
@@ -135,7 +137,7 @@ public class AccountUsersControllerTest {
     }
 
     private void mockUsersForAccount() {
-      User foundUser = User.builder()
+      UserEntity foundUser = UserEntity.builder()
           .id(UUID.randomUUID())
           .accountId(UUID.fromString(ANY_ACCOUNT_ID))
           .identityProviderUserId(UUID.randomUUID())
@@ -220,11 +222,16 @@ public class AccountUsersControllerTest {
     }
 
     private void mockAccountUserFoundResponse() {
-      User foundUser = User.builder()
+      AccountPermission accountPermission = AccountPermission.builder()
+        .name(Permission.MAKE_PAYMENTS)
+        .description("make payments")
+        .build();
+
+      UserEntity foundUser = UserEntity.builder()
           .id(UUID.fromString(ANY_ACCOUNT_USER_ID))
           .accountId(UUID.fromString(ANY_ACCOUNT_ID))
           .identityProviderUserId(UUID.randomUUID())
-          .accountPermissions(Collections.singletonList(Permission.MAKE_PAYMENTS.name()))
+          .accountPermissions(Collections.singletonList(accountPermission))
           .build();
 
       when(userService.getUserForAccountId(UUID.fromString(ANY_ACCOUNT_ID),

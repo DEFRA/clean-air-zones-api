@@ -1,5 +1,7 @@
 package uk.gov.caz.taxiregister.repository;
 
+import static java.util.stream.Collectors.groupingBy;
+
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
@@ -8,8 +10,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -19,6 +24,9 @@ import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.jdbc.core.BatchPreparedStatementSetter;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 import uk.gov.caz.taxiregister.model.LicenseDates;
 import uk.gov.caz.taxiregister.model.LicensingAuthority;
@@ -34,9 +42,9 @@ public class TaxiPhvLicencePostgresRepository {
 
   protected static final ImmutableMap<String, Boolean> EXPECTED_BOOLEAN_VALUES =
       new ImmutableMap.Builder<String, Boolean>()
-      .put("y", Boolean.TRUE)
-      .put("n", Boolean.FALSE)
-      .build();
+          .put("y", Boolean.TRUE)
+          .put("n", Boolean.FALSE)
+          .build();
 
   public static final String SELECT_FROM_TAXI_PHV_AND_LICENSING_AUTHORITY =
       "SELECT taxi_phv.taxi_phv_register_id, "
@@ -48,6 +56,7 @@ public class TaxiPhvLicencePostgresRepository {
           + "taxi_phv.licence_plate_number, "
           + "taxi_phv.wheelchair_access_flag, "
           + "taxi_phv.uploader_id, "
+          + "taxi_phv.insert_timestmp, "
           + "la.licence_authority_name "
           + "FROM t_md_taxi_phv taxi_phv, t_md_licensing_authority la ";
 
@@ -65,6 +74,10 @@ public class TaxiPhvLicencePostgresRepository {
   static final String SELECT_BY_VRM_SQL = SELECT_FROM_TAXI_PHV_AND_LICENSING_AUTHORITY
       + "WHERE la.licence_authority_id = taxi_phv.licence_authority_id "
       + "AND taxi_phv.vrm = ?";
+
+  static final String SELECT_BY_VRMS_SQL = SELECT_FROM_TAXI_PHV_AND_LICENSING_AUTHORITY
+      + "WHERE la.licence_authority_id = taxi_phv.licence_authority_id "
+      + "AND taxi_phv.vrm in (:vrms)";
 
   @VisibleForTesting
   static final String INSERT_SQL = "INSERT INTO t_md_taxi_phv("
@@ -97,11 +110,15 @@ public class TaxiPhvLicencePostgresRepository {
       + "t_md_taxi_phv "
       + "WHERE taxi_phv_register_id = ?";
 
+  private static final String DELETE_ALL_SQL = "DELETE FROM "
+      + "t_md_taxi_phv";
+
   private static final LicenceRowMapper MAPPER = new LicenceRowMapper();
 
   private final int updateBatchSize;
   private final int deleteBatchSize;
   private final JdbcTemplate jdbcTemplate;
+  private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
   /**
    * Creates an instance of {@link TaxiPhvLicencePostgresRepository}.
@@ -110,14 +127,15 @@ public class TaxiPhvLicencePostgresRepository {
    * @param updateBatchSize The number of records that should be inserted or updated in one
    *     batch database operation.
    * @param deleteBatchSize The number of records that should be deleted in one batch database
-   *     operation.
    */
   public TaxiPhvLicencePostgresRepository(JdbcTemplate jdbcTemplate,
       @Value("${application.jdbc.updateBatchSize:100}") int updateBatchSize,
-      @Value("${application.jdbc.deleteBatchSize:100}") int deleteBatchSize) {
+      @Value("${application.jdbc.deleteBatchSize:100}") int deleteBatchSize,
+      NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
     this.updateBatchSize = updateBatchSize;
     this.deleteBatchSize = deleteBatchSize;
+    this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
   }
 
   /**
@@ -178,6 +196,13 @@ public class TaxiPhvLicencePostgresRepository {
   }
 
   /**
+   * Deletes ALL licences from the database.
+   */
+  public void deleteAll() {
+    jdbcTemplate.update(DELETE_ALL_SQL);
+  }
+
+  /**
    * Finds all {@link TaxiPhvVehicleLicence} entities in the database.
    *
    * @return a {@link List} of all {@link TaxiPhvVehicleLicence} entities in the database
@@ -200,6 +225,21 @@ public class TaxiPhvLicencePostgresRepository {
     );
   }
 
+  /**
+   * Finds all {@link TaxiPhvVehicleLicence} entities for given vrms. The returned result is
+   * grouped by vrm.
+   */
+  public Map<String, List<TaxiPhvVehicleLicence>> findByVrms(Set<String> vrms) {
+    if (vrms.isEmpty()) {
+      return Collections.emptyMap();
+    }
+    SqlParameterSource namedParameters = new MapSqlParameterSource("vrms", vrms);
+    List<TaxiPhvVehicleLicence> licences = namedParameterJdbcTemplate
+        .query(SELECT_BY_VRMS_SQL, namedParameters, MAPPER);
+    return licences.stream()
+        .collect(groupingBy(TaxiPhvVehicleLicence::getVrm));
+  }
+
   @VisibleForTesting
   static class LicenceRowMapper implements RowMapper<TaxiPhvVehicleLicence> {
 
@@ -220,10 +260,11 @@ public class TaxiPhvLicencePostgresRepository {
           ))
           .licensePlateNumber(rs.getString("licence_plate_number"))
           .wheelchairAccessible(mapWheelchairAccessFlag(rs.getString("wheelchair_access_flag")))
+          .addedTimestamp(rs.getObject("insert_timestmp", LocalDateTime.class))
           .build();
     }
 
-    private static Boolean mapWheelchairAccessFlag(String wheelchairAccessFlag) {
+    static Boolean mapWheelchairAccessFlag(String wheelchairAccessFlag) {
       return EXPECTED_BOOLEAN_VALUES.getOrDefault(wheelchairAccessFlag, null);
     }
   }

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0006-1.0
+      author: informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0006-create-vrn-indexes.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+

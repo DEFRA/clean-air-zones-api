@@ -13,10 +13,10 @@ import static org.mockito.Mockito.when;
 import static uk.gov.caz.testutils.TestObjects.S3_REGISTER_JOB_ID;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_CORRELATION_ID;
 import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID;
+import static uk.gov.caz.testutils.TestObjects.TYPICAL_UPLOADER_EMAIL;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
-
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -36,7 +36,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import uk.gov.caz.csv.model.CsvValidationError;
 import uk.gov.caz.taxiregister.DateHelper;
 import uk.gov.caz.taxiregister.dto.VehicleDto;
@@ -75,13 +74,16 @@ class RegisterFromCsvServiceTest {
   @Mock
   private LicencesRegistrationSecuritySentinel securitySentinel;
 
+  @Mock
+  private EmailSendingValidationErrorsHandler validationErrorsHandler;
+
   private SourceAwareRegisterService registerFromCsvService;
 
   @BeforeEach
   public void setup() {
     RegisterServicesContext registerServicesContext = new RegisterServicesContext(
         registerService, exceptionResolver, registerJobSupervisor, vehicleToLicenceConverter,
-        csvRepository, securitySentinel, null, ANY_MAX_ERRORS_COUNT, 0, 0, null
+        csvRepository, securitySentinel, validationErrorsHandler, null, null, null, 0, 0, null, null
     );
     registerFromCsvService = new SourceAwareRegisterService(new RegisterCommandFactory(
         registerServicesContext));
@@ -96,11 +98,12 @@ class RegisterFromCsvServiceTest {
     List<VehicleDto> licences = mockDataAtS3(bucket, filename,
         TYPICAL_REGISTER_JOB_UPLOADER_ID);
     ConversionResults conversionResults = mockConversionResult(licences);
-    RegisterResult registerResult = SuccessRegisterResult.with(extractLicensingAuthorityFrom(licences));
+    RegisterResult registerResult = SuccessRegisterResult
+        .with(extractLicensingAuthorityFrom(licences));
     given(
         registerService.register(conversionResults.getLicences(), TYPICAL_REGISTER_JOB_UPLOADER_ID))
         .willReturn(registerResult);
-    
+
     given(
         registerJobSupervisor.hasActiveJobs(ArgumentMatchers.<Set<LicensingAuthority>>any()))
         .willReturn(false);
@@ -112,8 +115,10 @@ class RegisterFromCsvServiceTest {
     // then
     assertThat(actualRegisterResult).isEqualTo(registerResult);
     verify(registerJobSupervisor).updateStatus(S3_REGISTER_JOB_ID, RegisterJobStatus.RUNNING);
-    verify(registerJobSupervisor,times(1)).hasActiveJobs(ArgumentMatchers.<Set<LicensingAuthority>>any());
-    verify(registerJobSupervisor,times(1)).lockImpactedLocalAuthorities(anyInt(),ArgumentMatchers.<Set<LicensingAuthority>>any());
+    verify(registerJobSupervisor, times(1))
+        .hasActiveJobs(ArgumentMatchers.<Set<LicensingAuthority>>any());
+    verify(registerJobSupervisor, times(1))
+        .lockImpactedLocalAuthorities(anyInt(), ArgumentMatchers.<Set<LicensingAuthority>>any());
     verify(registerJobSupervisor).markSuccessfullyFinished(
         S3_REGISTER_JOB_ID, registerResult.getAffectedLicensingAuthorities());
     verifyNoMoreInteractions(registerJobSupervisor);
@@ -153,8 +158,10 @@ class RegisterFromCsvServiceTest {
     // then
     assertThat(actualRegisterResult).isEqualTo(registerResult);
     verify(registerJobSupervisor).updateStatus(S3_REGISTER_JOB_ID, RegisterJobStatus.RUNNING);
-    verify(registerJobSupervisor,times(1)).hasActiveJobs(ArgumentMatchers.<Set<LicensingAuthority>>any());
-    verify(registerJobSupervisor,times(1)).lockImpactedLocalAuthorities(anyInt(),ArgumentMatchers.<Set<LicensingAuthority>>any());
+    verify(registerJobSupervisor, times(1))
+        .hasActiveJobs(ArgumentMatchers.<Set<LicensingAuthority>>any());
+    verify(registerJobSupervisor, times(1))
+        .lockImpactedLocalAuthorities(anyInt(), ArgumentMatchers.<Set<LicensingAuthority>>any());
     verify(registerJobSupervisor).markFailureWithValidationErrors(S3_REGISTER_JOB_ID,
         RegisterJobStatus.FINISHED_FAILURE_VALIDATION_ERRORS,
         Collections.singletonList(validationError));
@@ -200,9 +207,10 @@ class RegisterFromCsvServiceTest {
         Collections.singletonList(ConversionResult.failure(dtoValidationError))
     );
     when(csvRepository.findAll(bucket, filename))
-        .thenReturn(new CsvFindResult(TYPICAL_REGISTER_JOB_UPLOADER_ID, Collections.emptyList(),
+        .thenReturn(new CsvFindResult(TYPICAL_REGISTER_JOB_UPLOADER_ID, TYPICAL_UPLOADER_EMAIL,
+            Collections.emptyList(),
             csvParseErrors));
-    when(vehicleToLicenceConverter.convert(anyList(), anyInt())).thenReturn(conversionResults);
+    when(vehicleToLicenceConverter.convert(anyList())).thenReturn(conversionResults);
 
     // when
     RegisterResult actualRegisterResult = registerFromCsvService
@@ -228,7 +236,8 @@ class RegisterFromCsvServiceTest {
     S3MetadataException exception = new S3MetadataException("a");
     ValidationError validationError = ValidationError.s3Error("some error");
     given(csvRepository.findAll(bucket, filename)).willThrow(exception);
-    given(exceptionResolver.resolve(exception)).willReturn(FailureRegisterResult.with(validationError));
+    given(exceptionResolver.resolve(exception))
+        .willReturn(FailureRegisterResult.with(validationError));
     given(exceptionResolver.resolveToRegisterJobFailureStatus(exception))
         .willReturn(RegisterJobStatus.STARTUP_FAILURE_INVALID_UPLOADER_ID);
     given(csvRepository.purgeFile(bucket, filename)).willReturn(true);
@@ -294,12 +303,12 @@ class RegisterFromCsvServiceTest {
                 .licensingAuthority(
                     LicensingAuthority.withNameOnly(vehicleDto.getLicensingAuthorityName()))
                 .licensePlateNumber(vehicleDto.getLicensePlateNumber())
-                .wheelchairAccessible(vehicleDto.getWheelchairAccessibleVehicle())
+                .wheelchairAccessible(Boolean.valueOf(vehicleDto.getWheelchairAccessibleVehicle()))
                 .build()
             )
         )
     );
-    given(vehicleToLicenceConverter.convert(vehicles, ANY_MAX_ERRORS_COUNT))
+    given(vehicleToLicenceConverter.convert(vehicles))
         .willReturn(conversionResults);
     return conversionResults;
   }
@@ -312,12 +321,13 @@ class RegisterFromCsvServiceTest {
         .description("taxi")
         .licensingAuthorityName("la-name")
         .licensePlateNumber("plate")
-        .wheelchairAccessibleVehicle(true)
+        .wheelchairAccessibleVehicle("true")
         .build();
     List<VehicleDto> licences = Collections.singletonList(licence);
 
     when(csvRepository.findAll(bucket, filename))
-        .thenReturn(new CsvFindResult(uploaderId, licences, Collections.emptyList()));
+        .thenReturn(new CsvFindResult(uploaderId, TYPICAL_UPLOADER_EMAIL, licences,
+            Collections.emptyList()));
     return licences;
   }
 

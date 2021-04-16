@@ -1,8 +1,10 @@
 package uk.gov.caz;
 
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static uk.gov.caz.TestController.ERROR_STATUS;
@@ -13,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @ContextConfiguration(classes = {GlobalExceptionHandlerConfiguration.class, TestController.class})
@@ -89,5 +92,20 @@ class GlobalExceptionHandlerTest {
         .andExpect(MockMvcResultMatchers.xpath("/errorResponse/status").number(500d))
         .andExpect(MockMvcResultMatchers.xpath("/errorResponse/message")
             .string(GlobalExceptionHandler.ERROR_MESSAGE));
+  }
+
+  @Test
+  void shouldMapSpringExceptionToProperResponse()
+      throws Exception {
+    mockMvc.perform(post("/test/springConversionException")
+        .content("{\"uuid\" : \"invalid\"")
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON))
+        .andExpect(status().is(BAD_REQUEST.value()))
+        .andExpect(noResponseBody());
+  }
+
+  private ResultMatcher noResponseBody() {
+    return jsonPath("$").doesNotExist();
   }
 }

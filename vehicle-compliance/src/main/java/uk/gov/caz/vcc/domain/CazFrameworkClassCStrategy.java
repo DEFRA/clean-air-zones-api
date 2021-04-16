@@ -1,7 +1,14 @@
 package uk.gov.caz.vcc.domain;
 
 import java.util.ArrayList;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
 
+/**
+ * Strategy pattern implementation for assessing chargeability of a given vehicle type
+ * in a class C clean air zone.
+ *
+ */
 public class CazFrameworkClassCStrategy extends CazFrameworkClassBStrategy {
 
   /***
@@ -14,8 +21,7 @@ public class CazFrameworkClassCStrategy extends CazFrameworkClassBStrategy {
   public CalculationResult execute(Vehicle vehicle, CalculationResult result) {
     ArrayList<VehicleType> chargeableTypes = new ArrayList<>();
 
-    chargeableTypes.add(VehicleType.LARGE_VAN);
-    chargeableTypes.add(VehicleType.SMALL_VAN);
+    chargeableTypes.add(VehicleType.VAN);
     chargeableTypes.add(VehicleType.MINIBUS);
 
     if (chargeableTypes.contains(vehicle.getVehicleType())) {

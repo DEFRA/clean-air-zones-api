@@ -19,6 +19,7 @@ import uk.gov.caz.accounts.model.AccountUserCode;
 import uk.gov.caz.accounts.model.CodeStatus;
 import uk.gov.caz.accounts.model.CodeType;
 import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.AccountUserCodeRepository;
 import uk.gov.caz.accounts.service.emailnotifications.EmailContext;
 import uk.gov.caz.accounts.service.emailnotifications.PasswordResetEmailSender;
@@ -53,11 +54,11 @@ public class PasswordResetService {
    */
   @Transactional
   public void generateAndSaveResetToken(String email, URI passwordResetLink) {
-    Optional<User> optionalUser = userService.getUserByEmail(email);
+    Optional<UserEntity> optionalUser = userService.getUserEntityByEmail(email);
 
     if (optionalUser.isPresent() && resetEmailsLimitNotExceeded(optionalUser.get())
         && noEmailChangeIsInProgress(optionalUser.get())) {
-      User user = optionalUser.get();
+      UserEntity user = optionalUser.get();
       log.info("Preparing to reset password to user '{}' with email: '{}'", user.getId(),
           mask(email));
       UUID resetToken = generateAndSaveResetTokenFor(user);
@@ -74,7 +75,7 @@ public class PasswordResetService {
   /**
    * Verifies if the user is performing email change.
    */
-  private boolean noEmailChangeIsInProgress(User user) {
+  private boolean noEmailChangeIsInProgress(UserEntity user) {
     List<AccountUserCode> emailChangeCodes = accountUserCodeRepository
         .findByAccountUserIdAndStatusAndCodeType(
             user.getId(),
@@ -90,7 +91,7 @@ public class PasswordResetService {
    * {@code user}. Finally an email is sent with the 'activation' (password-reset) link.
    */
   @Transactional
-  public void generateAndSaveResetTokenForInvitedUser(User user, Account userAccount,
+  public void generateAndSaveResetTokenForInvitedUser(UserEntity user, Account userAccount,
       URI verificationLink) {
     checkPreconditionsForInvitedUser(user, verificationLink);
 
@@ -99,7 +100,7 @@ public class PasswordResetService {
     log.info("Successfully sent invitation email to user '{}'", user.getId());
   }
 
-  private void sendUserInvitationEmail(User user, Account userAccount, URI invitationLink,
+  private void sendUserInvitationEmail(UserEntity user, Account userAccount, URI invitationLink,
       UUID resetToken) {
     String passwordResetUri = new URIBuilder(invitationLink)
         .addParameter("token", resetToken.toString())
@@ -109,22 +110,22 @@ public class PasswordResetService {
     userInvitationEmailSender.send(user.getEmail(), passwordResetUri, EmailContext.of(userAccount));
   }
 
-  private void saveResetToken(UUID resetToken, User user) {
+  private void saveResetToken(UUID resetToken, UserEntity user) {
     AccountUserCode accountUserCode = buildAccountUserCode(user.getId(), resetToken);
     accountUserCodeRepository.save(accountUserCode);
   }
 
-  private UUID generateAndSaveResetTokenFor(User user) {
+  private UUID generateAndSaveResetTokenFor(UserEntity user) {
     UUID resetToken = UUID.randomUUID();
     saveResetToken(resetToken, user);
     return resetToken;
   }
 
-  private void checkPreconditionsForInvitedUser(User user, URI verificationLink) {
+  private void checkPreconditionsForInvitedUser(UserEntity user, URI verificationLink) {
     Preconditions.checkNotNull(user, "user cannot be null");
     Preconditions.checkNotNull(verificationLink, "verificationLink cannot be null");
     Preconditions.checkArgument(!user.isOwner(), "user cannot be an owner");
-    Preconditions.checkNotNull(user.getAdministeredBy(), "User#administeredBy must be non-null");
+    Preconditions.checkNotNull(user.getIsAdministratedBy(), "User#administeredBy must be non-null");
     Preconditions.checkArgument(!user.isEmailVerified(), "user cannot have a verified email");
     Preconditions.checkArgument(StringUtils.hasText(user.getEmail()), "user must have a non-empty "
         + "email");
@@ -137,7 +138,7 @@ public class PasswordResetService {
    * @param passwordResetLink base URL for password reset.
    * @param resetToken token specialised for specific user.
    */
-  private void sendPasswordResetEmail(User user, URI passwordResetLink, UUID resetToken) {
+  private void sendPasswordResetEmail(UserEntity user, URI passwordResetLink, UUID resetToken) {
     String passwordResetUri = new URIBuilder(passwordResetLink)
         .addParameter("token", resetToken.toString())
         .toString();
@@ -170,7 +171,7 @@ public class PasswordResetService {
    * @param user user which tries to reset password
    * @return boolean
    */
-  private boolean resetEmailsLimitNotExceeded(User user) {
+  private boolean resetEmailsLimitNotExceeded(UserEntity user) {
     List<AccountUserCode> codes = accountUserCodeRepository
         .findByAccountUserIdFromLastHourWithLimit(
             user.getId(),

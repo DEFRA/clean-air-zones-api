@@ -8,12 +8,17 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
+
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import uk.gov.caz.vcc.dto.CleanAirZonesDto;
 
+import uk.gov.caz.definitions.dto.CleanAirZonesDto;
+
+/**
+ * Interface with swagger documentation for CleanAirZoneController.
+ */
 @RequestMapping(value = CLEAN_AIR_ZONES_PATH,
     produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 @Api(value = CLEAN_AIR_ZONES_PATH)

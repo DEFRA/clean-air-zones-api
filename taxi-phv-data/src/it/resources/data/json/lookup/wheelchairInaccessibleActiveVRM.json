@@ -1,7 +1,10 @@
 {
   "active": true,
+  "description": "PHV",
   "wheelchairAccessible": false,
+  "licensedStatusExpires": "2099-11-27",
   "licensingAuthoritiesNames": [
     "la-1"
-  ]
+  ],
+  "addedTimestamp": "2020-11-19 17:02:39"
 }

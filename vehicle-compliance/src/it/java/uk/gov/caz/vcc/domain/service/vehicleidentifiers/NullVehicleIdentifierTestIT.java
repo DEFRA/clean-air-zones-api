@@ -11,9 +11,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
 import uk.gov.caz.vcc.annotation.IntegrationTest;
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
 
 @IntegrationTest
 public class NullVehicleIdentifierTestIT {
@@ -33,7 +33,7 @@ public class NullVehicleIdentifierTestIT {
 
   private static Stream<Arguments> validVehicleBodyTypes(){
     List<String> taxClassesRequiringBodyTypeCheck = Arrays.asList("bicycle", "private/light goods (plg)",
-                    "crown vehicle", "not licensed", "exempt (no license)", "exempt (nil license)",
+                    "crown vehicle", "not licensed", "exempt (no licence)", "exempt (nil licence)",
                     "consular", "diplomatic", "plg (old)", "disabled", "electric", "limited use",
                     "police", "tricycle", "nhsv", "ambulance", "mowing machine", "fire service",
                     "fire engine", "gritting machine", "steam", "lifeboat haulage", "snow plough",
@@ -49,6 +49,8 @@ public class NullVehicleIdentifierTestIT {
     List<String> privateCarBodyTypes = Arrays.asList("2 door saloon", "4 door saloon", "saloon",
                     "convertible", "coupe", "estate", "taxi", "hearse", "limousine", "3 door hatchback",
                     "5 door hatchback", "sports", "pick-up", "light 4x4 utility", "tourer", "mpv");
+    List<String> vanBodyTypes = Arrays.asList("van - side windows", "car derived van", "panel van", "light van",
+    		        "insulated van",  "luton van", "box van", "van");
 
     return taxClassesRequiringBodyTypeCheck
       .stream()
@@ -67,9 +69,11 @@ public class NullVehicleIdentifierTestIT {
                                 .map(bodyType -> Arguments.of(bodyType, taxClass,VehicleType.BUS));                                
         Stream<Arguments> privateVehicles = privateCarBodyTypes
                                 .stream()
-                                .map(bodyType -> Arguments.of(bodyType, taxClass,VehicleType.PRIVATE_CAR));    
+                                .map(bodyType -> Arguments.of(bodyType, taxClass,VehicleType.PRIVATE_CAR));
+        Stream<Arguments> vans = vanBodyTypes.stream()
+                .map(bodyType -> Arguments.of(bodyType, "PRIVATE/LIGHT GOODS (PLG)",VehicleType.VAN));
         
-        return Stream.concat(Stream.concat(Stream.concat(Stream.concat(minuBuses, motorcyles),agriculturalVehicles),buses),privateVehicles);
+        return Stream.concat(Stream.concat(Stream.concat(Stream.concat(Stream.concat(minuBuses, motorcyles),agriculturalVehicles),buses),privateVehicles), vans);
       });
   }
 }

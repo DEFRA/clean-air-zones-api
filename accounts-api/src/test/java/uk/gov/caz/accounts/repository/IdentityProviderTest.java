@@ -226,7 +226,7 @@ class IdentityProviderTest {
       // given
       String username = "TestName";
       String email = "test@email.com";
-      User user = User.builder()
+      UserEntity user = UserEntity.builder()
           .identityProviderUserId(ANY_IDENTITY_PROVIDER_ID)
           .name(username)
           .email(email)
@@ -236,7 +236,7 @@ class IdentityProviderTest {
           .thenReturn(cognitoUser);
 
       // when
-      User userWithCognito = identityProvider.createStandardUser(user);
+      UserEntity userWithCognito = identityProvider.createStandardUser(user);
 
       //then
       assertThat(userWithCognito.getIdentityProviderUserId()).isEqualTo(
@@ -258,7 +258,9 @@ class IdentityProviderTest {
     @Test
     public void shouldThrowIdentityProviderUnavailableExceptionWhenCognitoThrowsException() {
       // given
-      User user = User.builder().identityProviderUserId(ANY_IDENTITY_PROVIDER_ID).name("TestName")
+      UserEntity user = UserEntity.builder()
+          .identityProviderUserId(ANY_IDENTITY_PROVIDER_ID)
+          .name("TestName")
           .email("test@email.com").build();
       doThrow(getStubbedCognitoIdentityProviderException()).when(cognitoClient)
           .adminCreateUser(any(AdminCreateUserRequest.class));
@@ -275,7 +277,10 @@ class IdentityProviderTest {
     @Test
     public void shouldThrowIllegalArgumentExceptionWhenUserIsAdministrator() {
       // given
-      User user = User.builder().identityProviderUserId(ANY_IDENTITY_PROVIDER_ID).owner().build();
+      UserEntity user = UserEntity.builder()
+          .identityProviderUserId(ANY_IDENTITY_PROVIDER_ID)
+          .isOwner(true)
+          .build();
 
       // when
       Throwable throwable = catchThrowable(() -> identityProvider.createStandardUser(user));
@@ -921,9 +926,9 @@ class IdentityProviderTest {
     private List<UserType> EMPTY_COLLECTION = new ArrayList();
 
     @Test
-    void shouldReturnUserWhenIdentityProviderUserFound() {
-      User user = createStandardUser();
-      User expectedUserResult = createUserWithDetails(user);
+    void shouldReturnUserEntityWhenIdentityProviderUserFound() {
+      UserEntity user = createStandardUserEntity();
+      UserEntity expectedUserResult = createUserEntityWithDetails(user);
       ListUsersResponse nonEmptyListUsersResponse = ListUsersResponse.builder()
           .users(NON_EMPTY_COLLECTION).build();
 
@@ -937,7 +942,7 @@ class IdentityProviderTest {
     @Test
     void shouldThrowExceptionWhenIdentityProviderUserNotFound() {
       // given
-      User user = createStandardUser();
+      UserEntity user = createStandardUserEntity();
       ListUsersResponse emptyListUsersResponse = ListUsersResponse.builder()
           .users(EMPTY_COLLECTION).build();
       when(cognitoClient.listUsers(any(ListUsersRequest.class)))
@@ -955,7 +960,7 @@ class IdentityProviderTest {
     @Test
     void shouldThrowExceptionWhenIdentityProviderUserIdIsNull() {
       // given
-      User user = User.builder().id(UUID.randomUUID()).build();
+      UserEntity user = UserEntity.builder().id(UUID.randomUUID()).build();
 
       // when
       Throwable throwable = catchThrowable(
@@ -966,7 +971,7 @@ class IdentityProviderTest {
       assertThat(throwable).hasMessage("'identityProviderUserId' cannot be null");
     }
 
-    private User createUserWithDetails(User user) {
+    private UserEntity createUserEntityWithDetails(UserEntity user) {
       return user.toBuilder()
           .email(ANY_EMAIL)
           .name(ANY_NAME)
@@ -1211,7 +1216,6 @@ class IdentityProviderTest {
     @Test
     public void clearLastPasswordsShouldTriggerCognitoClient() {
       String email = RandomStringUtils.randomAlphabetic(10);
-      mockLastPasswords(Lists.newArrayList("pass1@", "pass2!"));
 
       identityProvider.clearPreviousPasswordsForUser(email);
 
@@ -1470,6 +1474,13 @@ class IdentityProviderTest {
 
   private User createStandardUser() {
     return User.builder()
+        .id(UUID.randomUUID())
+        .identityProviderUserId(UUID.randomUUID())
+        .build();
+  }
+
+  private UserEntity createStandardUserEntity() {
+    return UserEntity.builder()
         .id(UUID.randomUUID())
         .identityProviderUserId(UUID.randomUUID())
         .build();

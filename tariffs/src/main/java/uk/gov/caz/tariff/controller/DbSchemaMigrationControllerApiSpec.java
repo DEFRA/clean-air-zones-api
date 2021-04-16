@@ -5,7 +5,6 @@ import static uk.gov.caz.tariff.controller.DbSchemaMigrationControllerApi.PATH;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,8 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * Interface with swagger documentation for DbSchemaMigrationController.
  */
 @RequestMapping(value = PATH, produces = {
-    MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_XML_VALUE})
+    MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE})
 public interface DbSchemaMigrationControllerApiSpec {
+
   /**
    * Trigger DB schema migration.
    */

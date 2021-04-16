@@ -1,3 +1,4 @@
+
 application:
   title: Accounts API
   validation:
@@ -28,6 +29,7 @@ services:
   fleets-ui:
     root-url: http://localhost:3001
   sqs:
+    account-closure-id: 016330c5-9a22-48a8-9a12-c7576abd5a72
     new-queue-name: notify-gateway_new_dev.fifo
     template-id: 36c3e259-e03c-415e-bf62-c7fbdb9d49a5
     verification-template-id: 1d4e5cac-4081-4282-83a7-6e89b0f9ae83
@@ -81,6 +83,11 @@ spring:
   profiles:
     active: dev
 
+  data:
+    jpa:
+      repositories:
+        bootstrap-mode: lazy
+
 swagger:
   operations:
     db:
@@ -105,6 +112,9 @@ swagger:
         description: Sends verification email for the provided recipient.
       create-and-invite-user-for-account:
         description: Creates a user and sends an invitation email.
+      inactivate:
+        description: Closing an account and sends an email notification.
+        reason: The reason why account was closed.
     password-reset:
       description: Endpoint used to initiate password reset
       attributes:

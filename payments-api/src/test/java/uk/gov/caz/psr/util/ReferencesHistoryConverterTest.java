@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static uk.gov.caz.psr.util.TestObjectFactory.Payments.preparePayment;
+import static uk.gov.caz.psr.util.TestObjectFactory.Payments.preparePaymentModifications;
 import static uk.gov.caz.psr.util.TestObjectFactory.Payments.preparePaymentWithTwoEntrantPayments;
 
 import java.util.Arrays;
@@ -37,7 +38,8 @@ class ReferencesHistoryConverterTest {
 
     // when
     ReferencesHistoryResponse referencesHistoryResponse = converter
-        .toReferencesHistoryResponse(preparePayment(UUID.randomUUID()));
+        .toReferencesHistoryResponse(preparePayment(UUID.randomUUID()),
+            preparePaymentModifications());
 
     // then
     assertThat(referencesHistoryResponse).isNotNull();
@@ -53,17 +55,22 @@ class ReferencesHistoryConverterTest {
         .isEqualTo(100);
     assertThat(referencesHistoryResponse.getLineItems().get(0).getVrn())
         .isEqualTo("CAS310");
+    assertThat(referencesHistoryResponse.getModificationHistory()).hasSize(2);
+    assertThat(referencesHistoryResponse.getModificationHistory().get(0).getVrn())
+        .isEqualTo("VRN123");
   }
 
   @Test
   public void shouldThrowExceptionWhenThereIsNotUniqueCazInEntrantPayments() {
     // when
     Throwable result = catchThrowable(() -> converter
-        .toReferencesHistoryResponse(preparePaymentWithTwoEntrantPayments(UUID.randomUUID())));
+        .toReferencesHistoryResponse(preparePaymentWithTwoEntrantPayments(UUID.randomUUID()),
+            preparePaymentModifications()));
 
     // then
     assertThat(result)
-        .hasMessage("There is more than one CAZ in entrant payments. CAZ should be unique for the same payment.");
+        .hasMessage(
+            "There is more than one CAZ in entrant payments. CAZ should be unique for the same payment.");
   }
 
   private Response<CleanAirZonesDto> sampleCleanAirZonesResponse() {
@@ -82,7 +89,7 @@ class ReferencesHistoryConverterTest {
             .build(),
         CleanAirZoneDto.builder()
             .cleanAirZoneId(UUID.fromString("5e554ef5-8513-4d98-8cd5-625dc6a77e80"))
-            .name("Leeds")
+            .name("Bath")
             .build()
     );
   }

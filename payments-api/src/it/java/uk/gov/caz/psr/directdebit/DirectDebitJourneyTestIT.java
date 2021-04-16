@@ -94,15 +94,17 @@ public class DirectDebitJourneyTestIT {
     @Test
     public void successfullyCreatedDirectDebitMandate() {
       // given
-      String cazId = "39e54ed8-3ed2-441d-be3f-38fc9b70c8d3";
+      String cazId = "b8e53786-c5ca-426a-a701-b14ee74857d4";
       String accountId = "36354a93-4e42-483c-ae2f-74511f6ab60e";
       String returnUrl = "http://return-url.com";
       String sessionToken = "3212e91fcbd19261493c909cd7a76520";
+      String accountUserId = "36354a93-4e42-483c-ae2f-74511f6ab60e";
 
       String flowId = performRedirectFlowCreationRequestAndReturnFlowId(accountId, cazId,
-          sessionToken, returnUrl);
+          sessionToken, returnUrl, accountUserId);
 
-      mockSuccessCompleteMandateResponseInGoCardless(flowId, accountId, sessionToken, cazId);
+      mockSuccessCompleteMandateResponseInGoCardless(flowId, accountId, sessionToken, cazId,
+          accountUserId);
       mockSuccessCreateMandateQueryResponseInAccounts(accountId);
 
       // when
@@ -115,8 +117,7 @@ public class DirectDebitJourneyTestIT {
     }
 
     private String performRedirectFlowCreationRequestAndReturnFlowId(String accountId, String cazId,
-        String sessionToken,
-        String returnUrl) {
+        String sessionToken, String returnUrl, String accountUserId) {
       mockSuccessCreateRedirectFlowResponseInGoCardless(accountId, cazId, sessionToken, returnUrl);
 
       // Redirect Flow creation
@@ -140,7 +141,7 @@ public class DirectDebitJourneyTestIT {
         // given
         String flowId = "RE0002W59W1ZNBRMCVWWTEVWM3B346Y3";
         String sessionToken = "3212e91fcbd19261493c909cd7a76520";
-        String cazId = "39e54ed8-3ed2-441d-be3f-38fc9b70c8d3";
+        String cazId = "b8e53786-c5ca-426a-a701-b14ee74857d4";
 
         mockInvalidTokenFailureInCompleteMandateResponseInGoCardless(flowId);
 
@@ -404,7 +405,7 @@ public class DirectDebitJourneyTestIT {
   }
 
   private void mockSuccessCompleteMandateResponseInGoCardless(String flowId,
-      String accountId, String sessionToken, String cazId) {
+      String accountId, String sessionToken, String cazId, String accountUserId) {
     goCardlessMockServer
         .when(HttpRequest.request()
             .withMethod("POST")
@@ -418,6 +419,7 @@ public class DirectDebitJourneyTestIT {
                     .replace("REDIRECT_FLOW_ID", flowId)
                     .replace("SESSION_TOKEN", sessionToken)
                     .replace("CAZ_ID", cazId)
+                    .replace("ACCOUNT_USER_ID", accountUserId)
             )
         );
   }
@@ -499,7 +501,8 @@ public class DirectDebitJourneyTestIT {
     return RestAssured.given()
         .pathParam("accountId", accountId)
         .body(toJsonString(
-            createDirectDebitMandateRequest(cleanAirZoneId, sessionToken, returnUrl)))
+            createDirectDebitMandateRequest(cleanAirZoneId, sessionToken, returnUrl,
+                UUID.randomUUID())))
         .accept(MediaType.APPLICATION_JSON_VALUE)
         .contentType(MediaType.APPLICATION_JSON_VALUE)
         .header(Constants.X_CORRELATION_ID_HEADER, ANY_CORRELATION_ID)
@@ -509,11 +512,12 @@ public class DirectDebitJourneyTestIT {
   }
 
   private CreateDirectDebitMandateRequest createDirectDebitMandateRequest(String cleanAirZoneId,
-      String sessionToken, String returnUrl) {
+      String sessionToken, String returnUrl, UUID accountUserId) {
     return CreateDirectDebitMandateRequest.builder()
         .cleanAirZoneId(UUID.fromString(cleanAirZoneId))
         .sessionId(sessionToken)
         .returnUrl(returnUrl)
+        .accountUserId(accountUserId)
         .build();
   }
 
@@ -679,10 +683,10 @@ public class DirectDebitJourneyTestIT {
   }
 
   @BeforeEach
-  public void setApiKeyInSecretsManagerForBirminghamAndLeeds() {
-    String leedsCazId = "39e54ed8-3ed2-441d-be3f-38fc9b70c8d3";
+  public void setApiKeyInSecretsManagerForBirminghamAndBath() {
+    String bathCazId = "b8e53786-c5ca-426a-a701-b14ee74857d4";
     String birminghamCazId = "53e03a28-0627-11ea-9511-ffaaee87e375";
-    secretsManagerInitialisation.createSecret(apiKeySecretName, "testApiKey", leedsCazId,
+    secretsManagerInitialisation.createSecret(apiKeySecretName, "testApiKey", bathCazId,
         birminghamCazId);
   }
 

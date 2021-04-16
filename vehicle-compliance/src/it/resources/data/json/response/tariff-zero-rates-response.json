@@ -1,0 +1,18 @@
+{
+  "cleanAirZoneId": "131af03c-f7f4-4aef-81ee-aae4f56dbeb5",
+  "name": "Bath",
+  "tariffClass": "C",
+  "chargeIdentifier": "BTH01",
+  "rates": {
+    "bus": 0,
+    "car": 0,
+    "miniBus": 0,
+    "coach": 0,
+    "taxi": 0,
+    "phv": 0,
+    "hgv": 0,
+    "van": 0,
+    "motorcycle": 0,
+    "moped": 0
+  }
+}

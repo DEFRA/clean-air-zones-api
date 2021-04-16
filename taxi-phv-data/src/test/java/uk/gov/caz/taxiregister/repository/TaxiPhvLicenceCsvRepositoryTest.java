@@ -4,12 +4,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static uk.gov.caz.testutils.TestObjects.TYPICAL_REGISTER_JOB_UPLOADER_ID;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,9 +31,11 @@ import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
 import uk.gov.caz.csv.model.CsvParseResult;
 import uk.gov.caz.taxiregister.dto.VehicleDto;
 import uk.gov.caz.taxiregister.service.CsvTaxiPhvLicenceObjectMapper;
+import uk.gov.caz.taxiregister.service.S3FileMetadataExtractor;
 import uk.gov.caz.taxiregister.service.exception.S3InvalidUploaderIdFormatException;
 import uk.gov.caz.taxiregister.service.exception.S3MaxFileSizeExceededException;
 import uk.gov.caz.taxiregister.service.exception.S3MetadataException;
+import uk.gov.caz.testutils.TestObjects;
 
 @ExtendWith(MockitoExtension.class)
 class TaxiPhvLicenceCsvRepositoryTest {
@@ -53,6 +58,9 @@ class TaxiPhvLicenceCsvRepositoryTest {
 
   @Mock
   private CsvTaxiPhvLicenceObjectMapper csvObjectMapper;
+
+  @Mock
+  private S3FileMetadataExtractor s3FileMetadataExtractor;
 
   @InjectMocks
   private TaxiPhvLicenceCsvRepository csvRepository;
@@ -148,24 +156,16 @@ class TaxiPhvLicenceCsvRepositoryTest {
   }
 
   @Test
-  public void shouldThrowS3InvalidUploaderIdFormatExceptionWhenFileUploaderIdIsNotUUID() {
+  public void shouldThrowS3InvalidUploaderIdFormatExceptionWhenFileUploaderIdDoesntExist() {
     // given
-    mockS3HeadObjectResponseWithUploaderId("NotUUID");
+    mockS3HeadObjectResponse(VALID_HEAD_OBJECT_RESPONSE);
+    mockEmptyUploaderIdInS3();
 
     // when
     Throwable throwable = catchThrowable(() -> csvRepository.findAll(ANY_BUCKET, ANY_FILE));
 
     // then
     assertThat(throwable).isInstanceOf(S3InvalidUploaderIdFormatException.class);
-  }
-
-  private void mockS3HeadObjectResponseWithUploaderId(String notUUID) {
-    HeadObjectResponse headObjectResponse = VALID_HEAD_OBJECT_RESPONSE.toBuilder()
-        .metadata(
-            Collections.singletonMap(TaxiPhvLicenceCsvRepository.UPLOADER_ID_METADATA_KEY, notUUID)
-        )
-        .build();
-    mockS3HeadObjectResponse(headObjectResponse);
   }
 
   @Test
@@ -187,7 +187,7 @@ class TaxiPhvLicenceCsvRepositoryTest {
         .description("taxi")
         .licensingAuthorityName("eInkINoNko")
         .licensePlateNumber("dJfRR")
-        .wheelchairAccessibleVehicle(true)
+        .wheelchairAccessibleVehicle("true")
         .build();
     List<VehicleDto> licences = Collections.singletonList(licence);
     mockValidS3HeadObjectResponse();
@@ -244,6 +244,8 @@ class TaxiPhvLicenceCsvRepositoryTest {
   }
 
   private void mockValidS3HeadObjectResponse() {
+    mockUploaderId();
+    mockUserEmail();
     mockS3HeadObjectResponse(VALID_HEAD_OBJECT_RESPONSE);
   }
 
@@ -251,5 +253,18 @@ class TaxiPhvLicenceCsvRepositoryTest {
     when(s3Client
         .deleteObject(DeleteObjectRequest.builder().bucket(ANY_BUCKET).key(ANY_FILE).build()))
         .thenReturn(null);
+  }
+
+  private void mockEmptyUploaderIdInS3() {
+    when(s3FileMetadataExtractor.getUploaderId(ANY_BUCKET, ANY_FILE)).thenReturn(Optional.empty());
+  }
+
+  private void mockUploaderId() {
+    when(s3FileMetadataExtractor.getUploaderId(ANY_BUCKET, ANY_FILE)).thenReturn(Optional.of(TYPICAL_REGISTER_JOB_UPLOADER_ID));
+  }
+
+  private void mockUserEmail() {
+    when(s3FileMetadataExtractor.getUploaderEmail(ANY_BUCKET, ANY_FILE)).thenReturn(Optional.of(
+        TestObjects.TYPICAL_UPLOADER_EMAIL));
   }
 }

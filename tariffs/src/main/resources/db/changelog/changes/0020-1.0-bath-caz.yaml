@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0020-1.0
+      author: lukasz.kuczynski
+      changes:
+        - sql:
+            comment: Add Bath tariffs and links
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: 
+              DO $$ 
+              BEGIN
+                BEGIN
+                  INSERT INTO T_CHARGE_DEFINITION(charge_definition_id, caz_name, caz_class, clean_air_zone_id, active_charge_start_time, active_charge_end_time, insert_timestmp, charge_identifier, charging_disabled_vehicles, caz_operator_name)
+                  VALUES (3, 'Bath', 'C', '131af03c-f7f4-4aef-81ee-aae4f56dbeb5', '2025-01-01', '2030-01-01', now(), 'BAT01', false, 'Bath and North East Somerset Council');
+                  
+                  INSERT INTO public.T_TARIFF_DEFINITION(tariff_id, charge_definition_id, hgv_entrant_fee, taxi_entrant_fee, car_entrant_fee, minibus_entrant_fee, phv_entrant_fee, bus_entrant_fee, motorcycle_ent_fee, coach_entrant_fee, van_entrant_fee, moped_entrant_fee, insert_timestmp)
+                  VALUES (4, 3, 100, 9, 0, 9, 9, 100, 0, 100, 9, 0, now());
+                  
+                  INSERT INTO public.t_caz_link_detail(caz_link_id, charge_definition_id, main_info_url, exemption_url, become_compliant_url, boundary_url, insert_timestmp, additional_info_url, public_transport_options_url)
+                  VALUES (3, 3, 'https://www.bathnes.gov.uk/bath-breathes-2021-overview', 'https://www.bathnes.gov.uk/bath-breathes-2021-overview/exemptions', 'https://www.bathnes.gov.uk/bath-breathes-2021-overview/support', 'https://www.bathnes.gov.uk/bath-breathes-2021-overview/the-zone-boundary', now(), 'https://www.bathnes.gov.uk/bath-breathes-2021-overview', 'https://www.bathnes.gov.uk/bath-breathes-2021-overview/clean-air-bath');
+                EXCEPTION
+                  WHEN unique_violation THEN RAISE NOTICE 'Primary key violation when inserting Bath.';
+                END;
+              END;
+              $$;

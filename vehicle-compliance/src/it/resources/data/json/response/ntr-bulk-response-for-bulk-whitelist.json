@@ -1,0 +1,44 @@
+{
+  "licencesInformation": {
+    "CAS341": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "CAS307": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "CAS310": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "CAS334": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "CAS342": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    }
+  }
+}

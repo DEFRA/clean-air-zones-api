@@ -30,6 +30,8 @@ class DirectDebitMandateUpdateErrorsCollectorTest {
 
   private static final UUID ANY_ACCOUNT_ID = UUID
       .fromString("1a9838f6-985e-4b19-9874-954caef1c4fe");
+  private static final UUID ANY_ACCOUNT_USER_ID = UUID
+      .fromString("f64a06aa-347b-4852-966a-1441b04679f0");
   private static final String ANY_MANDATE_ID = "jhjcvaiqlediuhh23d89hd3";
   private static final String ANY_STATUS = DirectDebitMandateStatus.ACTIVE.toString();
 
@@ -134,6 +136,7 @@ class DirectDebitMandateUpdateErrorsCollectorTest {
     DirectDebitMandate mandate = DirectDebitMandate.builder()
         .id(UUID.randomUUID())
         .accountId(accountId)
+        .accountUserId(ANY_ACCOUNT_USER_ID)
         .cleanAirZoneId(UUID.randomUUID())
         .paymentProviderMandateId(ANY_MANDATE_ID)
         .status(DirectDebitMandateStatus.SUBMITTED)

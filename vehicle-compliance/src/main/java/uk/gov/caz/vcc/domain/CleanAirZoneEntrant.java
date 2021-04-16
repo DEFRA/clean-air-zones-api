@@ -23,7 +23,7 @@ import org.hibernate.validator.constraints.Length;
  */
 @Entity
 @Getter
-@Table(name = "t_clean_air_zone_entrant")
+@Table(name = "t_clean_air_zone_entrant", schema = "CAZ_VEHICLE_ENTRANT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class CleanAirZoneEntrant {
 
@@ -38,9 +38,13 @@ public class CleanAirZoneEntrant {
   }
 
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = GenerationType.AUTO)
   @Column(name = "entrant_id")
-  private int entrantId;
+  private UUID entrantId;
+
+  @Column(name = "clean_air_zone_entrant_payment_id")
+  @Setter
+  private UUID entrantPaymentId;
 
   @Setter
   @ManyToOne

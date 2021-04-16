@@ -1,0 +1,1 @@
+DROP TABLE table_for_retrofit_audit_test;

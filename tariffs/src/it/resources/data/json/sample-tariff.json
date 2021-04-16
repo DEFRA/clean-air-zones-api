@@ -1,8 +1,8 @@
 {
-  "cleanAirZoneId": "dc1efcaf-a2cf-41ec-aa37-ea4b28a20a1d",
-  "name": "Leeds",
-  "tariffClass": "A",
-  "chargeIdentifier": "LCC01",
+  "cleanAirZoneId": "5dd5c926-ed33-4a0a-b911-46324433e866",
+  "name": "Bath",
+  "tariffClass": "C",
+  "chargeIdentifier": "BAT01",
   "rates": {
     "bus": 5.5,
     "car": 15.5,
@@ -11,21 +11,16 @@
     "taxi": 2,
     "phv": 80.1,
     "hgv": 5.69,
-    "largeVan": 100,
-    "smallVan": 80,
+    "van": 80,
     "motorcycle": 80.01,
     "moped": 49.49
   },
   "informationUrls": {
-    "emissionsStandards" : "www.test.uk",
     "mainInfo": "www.test.uk",
-    "hoursOfOperation": "www.test.uk",
-    "pricing": "www.test.uk",
     "exemptionOrDiscount": "www.test.uk",
-    "payCaz": "www.test.uk",
     "becomeCompliant": "www.test.uk",
-    "financialAssistance": "www.test.uk",
     "boundary": "www.test.uk",
-    "additionalInfo": "www.test.uk"
+    "additionalInfo": "www.test.uk",
+    "publicTransportOptions": "www.test.uk"
   }
 }

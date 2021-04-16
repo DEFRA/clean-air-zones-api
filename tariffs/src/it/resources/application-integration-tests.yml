@@ -2,7 +2,7 @@
 
 spring:
   datasource:
-    url: jdbc:postgresql://${postgres.url:localhost:9999}/caz-tariff
+    url: jdbc:postgresql://${postgres.url:localhost:9999}/tariffs
     hikari:
       maximum-pool-size: 10
 

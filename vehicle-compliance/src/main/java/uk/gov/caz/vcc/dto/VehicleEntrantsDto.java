@@ -7,6 +7,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Value;
 import uk.gov.caz.vcc.dto.validation.ValidationError;
 import uk.gov.caz.vcc.dto.validation.VehicleEntrantTimestampValidator;
@@ -17,6 +18,7 @@ import uk.gov.caz.vcc.dto.validation.VehicleEntrantVrnValidator;
  * Wrapper class for Vehicle Entrants API request object.
  */
 @Value
+@Builder
 @AllArgsConstructor
 public class VehicleEntrantsDto {
 

@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: caz-tariff
+      POSTGRES_DB: tariffs
 
   sonarqube:
     image: sonarqube

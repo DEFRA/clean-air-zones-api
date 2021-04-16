@@ -43,6 +43,8 @@ class DirectDebitMandatesBulkUpdaterTest {
 
   private static final UUID ANY_ACCOUNT_ID = UUID
       .fromString("c3dc7458-1089-4984-95a8-1c40e54c572b");
+  private static final UUID ANY_ACCOUNT_USER_ID = UUID
+      .fromString("f64a06aa-347b-4852-966a-1441b04679f0");
   private static final String ANY_MANDATE_ID = "dsvbasdhodsaifha98";
 
   @Test
@@ -111,10 +113,12 @@ class DirectDebitMandatesBulkUpdaterTest {
     when(directDebitMandateRepository.findByPaymentProviderMandateId(any()))
         .thenReturn(Optional.empty());
   }
+
   private void mockAssociatedDirectDebitMandateWithAccount() {
     DirectDebitMandate mandate = DirectDebitMandate.builder()
         .status(DirectDebitMandateStatus.SUBMITTED)
         .cleanAirZoneId(UUID.randomUUID())
+        .accountUserId(ANY_ACCOUNT_USER_ID)
         .paymentProviderMandateId(ANY_MANDATE_ID)
         .build();
 

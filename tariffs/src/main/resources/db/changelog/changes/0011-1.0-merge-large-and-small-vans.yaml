@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0011.1.1.0
+      author: informed
+      changes:
+      - dropColumn:
+          comment: Remove column for large van fees.
+          tableName: T_TARIFF_DEFINITION
+          columns:
+          - column:
+              name: LARGE_VAN_ENTRANT_FEE
+  - changeSet:
+      id: 0011.2.1.0
+      author: informed
+      changes:
+      - renameColumn:
+          comment: Rename small van fee to 'van' fee.
+          tableName: T_TARIFF_DEFINITION
+          newColumnName: VAN_ENTRANT_FEE
+          oldColumnName: SMALL_VAN_ENTRANT_FEE

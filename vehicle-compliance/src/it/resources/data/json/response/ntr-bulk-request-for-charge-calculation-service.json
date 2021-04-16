@@ -1,0 +1,31 @@
+{
+  "vrms": [
+    "L-TAXI1",
+    "L-TAXI2",
+    "L-TAXI3",
+    "EXEM001",
+    "EXEM002",
+    "EXEM003",
+    "COMP001",
+    "COMP002",
+    "CAS0001",
+    "CAS0002",
+    "RETRO01",
+    "RETRO02",
+    "RETRO03",
+    "GWLE001",
+    "GWLE002",
+    "GWLE003",
+    "GWLC001",
+    "GWLC002",
+    "GWLC003",
+    "MOD0O01",
+    "MOD0O02",
+    "MOD0O03",
+    "UNKNOWN1",
+    "GWL343",
+    "GWL342",
+    "UN-REG1",
+    "UN-REG2"
+  ]
+}

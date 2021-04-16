@@ -52,5 +52,18 @@ class UkVrnTestingServiceTest {
     boolean ukVrnTestOutcome = UkVrnTestingService.isPotentialUkVrn(validVrn);
     assertFalse(ukVrnTestOutcome);
   }
-  
+
+  @Test
+  void shouldBeNonUkWhenVrnLeadingZeros() {
+    String validVrn = "0257ABC";
+    boolean ukVrnTestOutcome = UkVrnTestingService.isPotentialUkVrn(validVrn);
+    assertFalse(ukVrnTestOutcome);
+  }
+
+  @Test
+  void shouldBeUkWhenVrnHasZeros() {
+    String validVrn = "C057ABC";
+    boolean ukVrnTestOutcome = UkVrnTestingService.isPotentialUkVrn(validVrn);
+    assertTrue(ukVrnTestOutcome);
+  }
 }

@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0007.1-whitelist-1.0
+      author: jaroslaw.niedorozow
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0007-whitelist-1.0-update_audit_table_schema.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

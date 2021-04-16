@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -19,7 +20,7 @@ import uk.gov.caz.taxiregister.util.JsonHelpers.MapToJsonException;
 @ExtendWith(MockitoExtension.class)
 class JsonHelpersTest {
 
-  @Mock
+  @Mock(answer = Answers.RETURNS_DEEP_STUBS)
   private ObjectMapper objectMapper;
 
   @InjectMocks
@@ -49,5 +50,36 @@ class JsonHelpersTest {
 
     // then
     assertThat(json).isEqualTo("{\"key\":\"value\"}");
+  }
+
+  @Test
+  public void shouldThrowMapToJsonExceptionUponMappingToPrettyJson()
+      throws JsonProcessingException {
+    // given
+    Map<String, String> input = Collections.singletonMap("key", "value");
+    BDDMockito.given(objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(input))
+        .willThrow(JsonParseException.class);
+
+    // when
+    Throwable throwable = catchThrowable(() -> jsonHelpers.toPrettyJson(input));
+
+    // then
+    assertThat(throwable).isInstanceOf(MapToJsonException.class);
+  }
+
+  @Test
+  public void shouldMapInputToPrettyJson() {
+    // given
+    Map<String, String> input = Collections.singletonMap("key", "value");
+    jsonHelpers = new JsonHelpers(new ObjectMapper());
+
+    // when
+    String json = jsonHelpers.toPrettyJson(input);
+
+    // then
+    assertThat(json)
+        .isNotEqualTo(input)
+        .contains("key")
+        .contains("value");
   }
 }

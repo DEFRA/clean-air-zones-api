@@ -44,7 +44,7 @@ class CsvContentGeneratorTest {
 
     assertThat(headers).isNotNull();
     assertThat(headers)
-        .isEqualTo("Number plate,Vehicle Type,Bath (Live),Birmingham (Upcoming),Leeds (Upcoming)");
+        .isEqualTo("Number plate,Vehicle Type,Bath (Live),Birmingham (Upcoming),Test (Upcoming)");
   }
 
   private void mockClearAirZones() {
@@ -56,7 +56,7 @@ class CsvContentGeneratorTest {
     CleanAirZoneDto caz2 = CleanAirZoneDto.builder()
         .cleanAirZoneId(CAZ_2_ID)
         .activeChargeStartDate("2023-08-20")
-        .name("Leeds")
+        .name("Test")
         .build();
     CleanAirZoneDto caz3 = CleanAirZoneDto.builder()
         .cleanAirZoneId(CAZ_3_ID)

@@ -30,7 +30,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,7 +44,6 @@ import uk.gov.caz.taxiregister.util.JsonHelpers;
 
 class RegisterJobRepositoryTest {
 
-  private static final int MAX_ERRORS_COUNT = 10;
   private static final ObjectMapper objectMapper = new ObjectMapper();
   private static final JsonHelpers jsonHelpers = new JsonHelpers(objectMapper);
 
@@ -55,8 +53,7 @@ class RegisterJobRepositoryTest {
   @BeforeEach
   public void initialize() {
     jdbcTemplate = Mockito.mock(JdbcTemplate.class);
-    registerJobRepository = new RegisterJobRepository(jdbcTemplate, jsonHelpers, objectMapper,
-        MAX_ERRORS_COUNT);
+    registerJobRepository = new RegisterJobRepository(jdbcTemplate, jsonHelpers, objectMapper);
   }
 
   @Nested
@@ -113,34 +110,6 @@ class RegisterJobRepositoryTest {
           .append('}').append(']')
           .toString();
       verify(jdbcTemplate).update(anyString(), eq(expected), eq(registerJobId));
-    }
-
-    @Test
-    public void shouldTruncateErrorsListIfItIsTooBig() {
-      // given
-      mockRepositoryWithMaxOneErrorAllowed();
-      int registerJobId = 12;
-      List<RegisterJobError> errors = Arrays.asList(
-          new RegisterJobError("123", "Validation error", "some error"),
-          new RegisterJobError("124", "Validation error", "some error"));
-
-      // when
-      registerJobRepository.updateErrors(registerJobId, errors);
-
-      // then
-      String expected = new StringBuilder().append('[').append('{')
-          .append(jsonField("vrm", "123"))
-          .append(',')
-          .append(jsonField("title", "Validation error"))
-          .append(',')
-          .append(jsonField("detail", "some error"))
-          .append('}').append(']')
-          .toString();
-      verify(jdbcTemplate).update(anyString(), eq(expected), eq(registerJobId));
-    }
-
-    private void mockRepositoryWithMaxOneErrorAllowed() {
-      registerJobRepository = new RegisterJobRepository(jdbcTemplate, jsonHelpers, objectMapper, 1);
     }
 
     @Test
@@ -286,8 +255,7 @@ class RegisterJobRepositoryTest {
 
   private void mockInputOutputExceptionWhenParsingJson() throws IOException {
     ObjectMapper om = mock(ObjectMapper.class);
-    given(om.readValue(anyString(), any(TypeReference.class))).willThrow(new IOException());
-    registerJobRepository = new RegisterJobRepository(jdbcTemplate, jsonHelpers, objectMapper,
-        MAX_ERRORS_COUNT);
+    given(om.readValue(anyString(), any(TypeReference.class))).willThrow(new RuntimeException());
+    registerJobRepository = new RegisterJobRepository(jdbcTemplate, jsonHelpers, objectMapper);
   }
 }

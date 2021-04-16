@@ -2,6 +2,7 @@ package uk.gov.caz.vcc;
 
 import static org.hamcrest.core.Is.is;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,8 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.server.LocalServerPort;
 import uk.gov.caz.vcc.annotation.FullyRunningServerIntegrationTest;
 import uk.gov.caz.vcc.repository.CleanAirZoneEntrantRepository;
-import uk.gov.caz.vcc.repository.ModRepository;
+import uk.gov.caz.vcc.repository.GeneralWhitelistRepository;
 import uk.gov.caz.vcc.repository.RetrofitRepository;
+import uk.gov.caz.vcc.repository.VehicleDetailsRepository;
 import uk.gov.caz.vcc.service.CazTariffService;
 import uk.gov.caz.vcc.service.NationalTaxiRegisterService;
 import uk.gov.caz.vcc.service.VehicleEntrantsService;
@@ -36,10 +38,16 @@ public class VehicleEntrantsIT extends MockServerTestIT {
   private CleanAirZoneEntrantRepository repository;
 
   @Autowired
-  private ModRepository modRepository;
+  private RetrofitRepository retrofitRepository;
 
   @Autowired
-  private RetrofitRepository retrofitRepository;
+  private GeneralWhitelistRepository generalWhitelistRepository;
+
+  @Autowired
+  private VehicleDetailsRepository vehicleRepository;
+
+  @Autowired
+  private ObjectMapper objectMapper;
 
   @LocalServerPort
   int randomServerPort;
@@ -56,7 +64,6 @@ public class VehicleEntrantsIT extends MockServerTestIT {
     mockServer.reset();
     tariffService.cacheEvictCleanAirZones();
     repository.deleteAll();
-    modRepository.deleteAll();
     retrofitRepository.deleteAll();
   }
 
@@ -80,7 +87,8 @@ public class VehicleEntrantsIT extends MockServerTestIT {
   }
 
   AnprAssertion given() {
-    return new AnprAssertion(vehicleEntrantsService, modRepository, nationalTaxiRegisterService,
-        mockServer, repository);
+    return new AnprAssertion(vehicleEntrantsService, nationalTaxiRegisterService,
+        generalWhitelistRepository, retrofitRepository, vehicleRepository, mockServer, repository,
+        null, null, objectMapper);
   }
 }

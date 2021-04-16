@@ -13,9 +13,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-
+import uk.gov.caz.definitions.exceptions.UnrecognisedFuelTypeException;
 import uk.gov.caz.vcc.annotation.IntegrationTest;
-import uk.gov.caz.vcc.domain.exceptions.UnrecognisedFuelTypeException;
 
 @IntegrationTest
 public class FuelTypeServiceTestIT {

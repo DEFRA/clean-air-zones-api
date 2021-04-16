@@ -2,6 +2,7 @@ package uk.gov.caz.taxiregister.configuration;
 
 import com.fasterxml.classmate.TypeResolver;
 import java.util.Collections;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -19,11 +20,13 @@ import uk.gov.caz.taxiregister.dto.StatusOfRegisterCsvFromS3JobQueryResult;
 import uk.gov.caz.taxiregister.dto.VehicleDto;
 import uk.gov.caz.taxiregister.dto.Vehicles;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobStatus;
+import uk.gov.caz.taxiregister.tasks.AnyTaskEnabled;
 
 @EnableSwagger2
 @Configuration
 @Profile("!integration-tests")
 @Import({BeanValidatorPluginsConfiguration.class, SwaggerApiInfo.class})
+@ConditionalOnMissingBean(value = AnyTaskEnabled.class)
 public class SwaggerConfiguration {
 
   public static final String TAG_REGISTER_CONTROLLER = "RegisterController";

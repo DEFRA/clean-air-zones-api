@@ -1,0 +1,3 @@
+TRUNCATE TABLE caz_whitelist_vehicles.t_whitelist_job_register CASCADE;
+TRUNCATE TABLE caz_whitelist_vehicles.t_whitelist_vehicles CASCADE;
+TRUNCATE TABLE caz_whitelist_vehicles_audit.logged_actions CASCADE;

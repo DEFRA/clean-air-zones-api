@@ -20,6 +20,7 @@ import uk.gov.caz.csv.model.CsvParseResult;
 import uk.gov.caz.taxiregister.dto.VehicleDto;
 import uk.gov.caz.taxiregister.model.CsvFindResult;
 import uk.gov.caz.taxiregister.service.CsvTaxiPhvLicenceObjectMapper;
+import uk.gov.caz.taxiregister.service.S3FileMetadataExtractor;
 import uk.gov.caz.taxiregister.service.exception.S3InvalidUploaderIdFormatException;
 import uk.gov.caz.taxiregister.service.exception.S3MaxFileSizeExceededException;
 import uk.gov.caz.taxiregister.service.exception.S3MetadataException;
@@ -36,17 +37,20 @@ public class TaxiPhvLicenceCsvRepository {
 
   private final S3Client s3Client;
   private final CsvTaxiPhvLicenceObjectMapper csvObjectMapper;
+  private final S3FileMetadataExtractor s3FileMetadataExtractor;
 
   /**
    * Creates an instance of {@link TaxiPhvLicenceCsvRepository}.
-   *
-   * @param s3Client A client for AWS S3
+   *  @param s3Client A client for AWS S3
    * @param csvObjectMapper An instance of {@link CsvObjectMapper}
+   * @param s3FileMetadataExtractor An instance of {@link S3FileMetadataExtractor}
    */
   public TaxiPhvLicenceCsvRepository(S3Client s3Client,
-      CsvTaxiPhvLicenceObjectMapper csvObjectMapper) {
+      CsvTaxiPhvLicenceObjectMapper csvObjectMapper,
+      S3FileMetadataExtractor s3FileMetadataExtractor) {
     this.s3Client = s3Client;
     this.csvObjectMapper = csvObjectMapper;
+    this.s3FileMetadataExtractor = s3FileMetadataExtractor;
   }
 
   /**
@@ -74,10 +78,17 @@ public class TaxiPhvLicenceCsvRepository {
     HeadObjectResponse fileMetadata = getFileMetadata(bucket, filename);
     checkMaxFileSizePrecondition(fileMetadata);
 
-    UUID uploaderId = getUploaderId(fileMetadata);
+    UUID uploaderId = getUploaderId(bucket, filename);
+    String uploaderEmail = getUploaderEmail(bucket, filename);
+
     try (InputStream inputStream = getS3FileInputStream(bucket, filename)) {
       CsvParseResult<VehicleDto> result = csvObjectMapper.read(inputStream);
-      return new CsvFindResult(uploaderId, result.getObjects(), result.getValidationErrors());
+      return new CsvFindResult(
+          uploaderId,
+          uploaderEmail,
+          result.getObjects(),
+          result.getValidationErrors()
+      );
     } catch (IOException e) {
       log.error("IOException while reading file {}/{}", bucket, filename);
       throw new UncheckedIOException(e);
@@ -111,13 +122,16 @@ public class TaxiPhvLicenceCsvRepository {
     }
   }
 
-  private UUID getUploaderId(HeadObjectResponse fileMetadata) {
-    try {
-      return UUID.fromString(fileMetadata.metadata().get(UPLOADER_ID_METADATA_KEY));
-    } catch (IllegalArgumentException e) {
-      log.error("Invalid format of uploader-id: {}", e.getMessage());
-      throw new S3InvalidUploaderIdFormatException();
-    }
+  private String getUploaderEmail(String bucket, String filename) {
+    return s3FileMetadataExtractor
+        .getUploaderEmail(bucket, filename)
+        .orElseThrow(S3InvalidUploaderIdFormatException::new);
+  }
+
+  private UUID getUploaderId(String bucket, String filename) {
+    return s3FileMetadataExtractor
+        .getUploaderId(bucket, filename)
+        .orElseThrow(S3InvalidUploaderIdFormatException::new);
   }
 
   private HeadObjectResponse validateMetadata(HeadObjectResponse fileMetadata) {

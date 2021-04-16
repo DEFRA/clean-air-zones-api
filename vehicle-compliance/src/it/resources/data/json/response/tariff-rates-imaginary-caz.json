@@ -1,0 +1,19 @@
+{
+  "cleanAirZoneId": "5cd7441d-766f-48ff-b8ad-1809586fea36",
+  "name": "Imaginary",
+  "tariffClass": "D",
+  "chargeIdentifier": "IMG01",
+  "chargingDisabledVehicles": true,
+  "rates": {
+    "bus": 10,
+    "car": 10,
+    "miniBus": 10,
+    "coach": 10,
+    "taxi": 10,
+    "phv": 10,
+    "hgv": 10,
+    "van": 10,
+    "motorcycle": 10,
+    "moped": 10
+  }
+}

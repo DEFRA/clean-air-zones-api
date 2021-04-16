@@ -3,10 +3,11 @@ package uk.gov.caz.accounts.service.chargecalculation;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.model.registerjob.RegisterJobStatus;
 import uk.gov.caz.accounts.service.ChargeCalculationService;
 import uk.gov.caz.accounts.service.ChargeCalculationService.CachePopulationResult;
@@ -106,13 +107,16 @@ public class ChargeCalculationJobSupervisor {
   private void processAnotherBatchIfApplicable(UUID accountId, Integer jobId, int invocationNumber,
       UUID correlationId, boolean shouldSendEmailsUponSuccessfulJobCompletion) {
     if (invocationNumber >= maxInvocationCount) {
-      log.warn("Reached the maximum number of invocations, stopping the calculation, marking "
-          + "the job with ID: {} as failed", jobId);
+      log.warn("Reached the maximum number of invocations: {}, stopping the calculation, marking "
+          + "the job with ID: {} as failed", maxInvocationCount, jobId);
       registerJobSupervisor.updateStatus(jobId,
           RegisterJobStatus.FINISHED_FAILURE_MAX_INVOCATION_COUNT_REACHED);
     } else {
       log.info("There are still vehicles for which charge calculations must be done. "
-              + "Invoking Charge Calculation lambda again");
+              + "Invoking Charge Calculation lambda again. "
+              + "Invocations number: {} and the maximum number of invocations: {}",
+          invocationNumber,
+          maxInvocationCount);
       asyncChargeCalculationStarter.fireAndForget(
           accountId,
           jobId,
@@ -129,8 +133,12 @@ public class ChargeCalculationJobSupervisor {
    * @param accountId Account UUID
    */
   private void sendEmailsToAccountUsers(UUID accountId) {
-    List<User> users = userService.getAllUsersForAccountId(accountId);
+    List<UserEntity> users = userService.getAllUsersForAccountId(accountId).stream()
+        .filter(user -> !user.isRemoved() && user.hasVehicleManagementPermission())
+        .collect(Collectors.toList());
+
     users.forEach(user -> chargeCalculationCompleteEmailSender.send(user.getEmail()));
+
     log.info("Successfully sent email(s) to {} users", users.size());
   }
 

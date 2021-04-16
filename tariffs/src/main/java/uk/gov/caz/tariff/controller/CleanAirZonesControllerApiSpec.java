@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import uk.gov.caz.tariff.dto.CleanAirZones;
+import uk.gov.caz.definitions.dto.CleanAirZonesDto;
 import uk.gov.caz.tariff.dto.Tariff;
 
 @RequestMapping(
     value = CleanAirZonesController.PATH,
-    produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_XML_VALUE}
+    produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
 )
 @Api(value = CleanAirZonesController.PATH)
 public interface CleanAirZonesControllerApiSpec {
@@ -32,7 +32,7 @@ public interface CleanAirZonesControllerApiSpec {
    */
   @ApiOperation(
       value = "${swagger.operations.cleanAirZones.description}",
-      response = CleanAirZones.class
+      response = CleanAirZonesDto.class
   )
   @ApiResponses({
       @ApiResponse(code = 500, message = "Internal Server Error / No message available"),
@@ -49,7 +49,7 @@ public interface CleanAirZonesControllerApiSpec {
   })
   @GetMapping
   @ResponseStatus(value = HttpStatus.OK)
-  ResponseEntity<CleanAirZones> cleanAirZones();
+  ResponseEntity<CleanAirZonesDto> cleanAirZones();
 
   /**
    * Returns details of Tariff.

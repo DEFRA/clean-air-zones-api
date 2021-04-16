@@ -72,39 +72,39 @@ public class ExternalCallsIT {
   }
 
   @SneakyThrows
-  public void mockVccsBulkComplianceCallForVrnsFromRequest(UUID birminghamCazId, UUID leedsCazId){
+  public void mockVccsBulkComplianceCallForVrnsFromRequest(UUID birminghamCazId, UUID bathCazId){
     vccsMockServer
         .when(requestPost("/v1/compliance-checker/vehicles/bulk-compliance"))
         .respond(httpRequest -> bulkComplianceResponseWithVrnAndCleanAirZoneId(
             "vehicle-compliance-response.json",
             extractVrnsFromRequest(httpRequest),
-            birminghamCazId, leedsCazId,
+            birminghamCazId, bathCazId,
             HttpStatus.OK.value())
         );
   }
 
   @SneakyThrows
   public void mockVccsBulkComplianceCallForVrnsFromRequestExceptFor(UUID birminghamCazId,
-      UUID leedsCazId, Set<String> notExistingVrns) {
+      UUID bathCazId, Set<String> notExistingVrns) {
     vccsMockServer
         .when(requestPost("/v1/compliance-checker/vehicles/bulk-compliance"))
         .respond(httpRequest -> bulkComplianceResponseWithVrnAndCleanAirZoneId(
             "vehicle-compliance-response.json",
             extractVrnsFromRequest(httpRequest),
             notExistingVrns,
-            birminghamCazId, leedsCazId,
+            birminghamCazId, bathCazId,
             HttpStatus.OK.value())
         );
   }
 
   @SneakyThrows
-  public void mockVccsBulkComplianceCall(Set<String> vrns, UUID birminghamCazId, UUID leedsCazId,
+  public void mockVccsBulkComplianceCall(Set<String> vrns, UUID birminghamCazId, UUID bathCazId,
       String filePath, int statusCode) {
     vccsMockServer
         .when(requestPost("/v1/compliance-checker/vehicles/bulk-compliance"),
             exactly(1))
         .respond(bulkComplianceResponseWithVrnAndCleanAirZoneId(filePath, vrns,
-            birminghamCazId, leedsCazId, statusCode));
+            birminghamCazId, bathCazId, statusCode));
   }
 
   private Set<String> extractVrnsFromRequest(HttpRequest httpRequest) throws java.io.IOException {
@@ -147,26 +147,26 @@ public class ExternalCallsIT {
 
   @SneakyThrows
   public static HttpResponse bulkComplianceResponseWithVrnAndCleanAirZoneId(String filePath,
-      Set<String> vrns, UUID birminghamCazId, UUID leedsCazId, int statusCode) {
+      Set<String> vrns, UUID birminghamCazId, UUID bathCazId, int statusCode) {
     return bulkComplianceResponseWithVrnAndCleanAirZoneId(filePath, vrns, Collections.emptySet(),
-        birminghamCazId, leedsCazId, statusCode);
+        birminghamCazId, bathCazId, statusCode);
   }
 
   @SneakyThrows
   public static HttpResponse bulkComplianceResponseWithVrnAndCleanAirZoneId(String filePath,
-      Set<String> vrns, Set<String> notExistingVrns, UUID birminghamCazId, UUID leedsCazId,
+      Set<String> vrns, Set<String> notExistingVrns, UUID birminghamCazId, UUID bathCazId,
       int statusCode) {
     List<ComplianceResultsDto> responses = new ArrayList<>();
 
     for (String vrnWithCompliance : Sets.difference(vrns, notExistingVrns)) {
-      responses.add(getBody(filePath, vrnWithCompliance, birminghamCazId, leedsCazId));
+      responses.add(getBody(filePath, vrnWithCompliance, birminghamCazId, bathCazId));
       chargeableVrns.add(vrnWithCompliance);
     }
 
     // nonExistingVrn -> vrn for which there is no compliance data
     for (String nonExistingVrn : Sets.intersection(notExistingVrns, vrns)) {
       responses.add(getBody("vehicle-compliance-non-existing-vrn-response.json",
-          nonExistingVrn, birminghamCazId, leedsCazId));
+          nonExistingVrn, birminghamCazId, bathCazId));
     }
 
     return HttpResponse.response()
@@ -195,10 +195,10 @@ public class ExternalCallsIT {
   }
 
   private static ComplianceResultsDto getBody(String filePath, String vrn, UUID birminghamCazId,
-      UUID leedsCazId)
+      UUID bathCazId)
       throws JsonProcessingException {
     return objectMapper.readValue(readJson(filePath).replace("TEST_VRN", vrn)
         .replace("BIRMINGHAM_CAZ_ID", birminghamCazId.toString())
-        .replace("LEEDS_CAZ_ID", leedsCazId.toString()), ComplianceResultsDto.class);
+        .replace("BATH_CAZ_ID", bathCazId.toString()), ComplianceResultsDto.class);
   }
 }

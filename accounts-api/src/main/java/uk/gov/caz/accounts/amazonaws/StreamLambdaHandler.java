@@ -1,10 +1,13 @@
 package uk.gov.caz.accounts.amazonaws;
 
-import com.amazonaws.serverless.proxy.internal.LambdaContainerHandler;
+import static uk.gov.caz.awslambda.AwsHelpers.splitToArray;
+
+import com.amazonaws.serverless.exceptions.ContainerInitializationException;
 import com.amazonaws.serverless.proxy.internal.testutils.AwsProxyRequestBuilder;
 import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
+import com.amazonaws.serverless.proxy.spring.SpringBootProxyHandlerBuilder;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,20 +30,46 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StreamUtils;
 import uk.gov.caz.accounts.Application;
-import uk.gov.caz.awslambda.AwsHelpers;
 
 @Slf4j
 public class StreamLambdaHandler implements RequestStreamHandler {
 
   private static final String KEEP_WARM_ACTION = "keep-warm";
+  private static SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
 
-  private SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
+  static {
+    try {
+      log.info("Initializing lambda handler");
+      
+      String listOfActiveSpringProfiles =
+          System.getenv("SPRING_PROFILES_ACTIVE");
+      
+      if (listOfActiveSpringProfiles != null) {
+        handler = new SpringBootProxyHandlerBuilder<AwsProxyRequest>()
+            .defaultProxy()
+            .asyncInit()
+            .springBootApplication(Application.class)
+            .profiles(splitToArray(listOfActiveSpringProfiles))
+            .buildAndInitialize();
+      } else {
+        handler = new SpringBootProxyHandlerBuilder<AwsProxyRequest>()
+            .defaultProxy()
+            .asyncInit()
+            .springBootApplication(Application.class)
+            .buildAndInitialize();
+      }
+      
+      log.info("Lambda handler initialization finished");
+    } catch (ContainerInitializationException e) {
+      // If we fail here. We re-throw the exception to force another cold start
+      log.info("Initialization of lambda failed");
+      throw new IllegalStateException("Could not initialize Spring Boot application", e);
+    }
+  }
 
   @Override
   public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
       throws IOException {
-    initializeHandlerIfNull();
-    setDefaultContentCharset();
     byte[] inputBytes = StreamUtils.copyToByteArray(inputStream);
     if (isWarmupRequest(toString(inputBytes))) {
       delayToAllowAnotherLambdaInstanceWarming(handler, context);
@@ -51,21 +80,6 @@ public class StreamLambdaHandler implements RequestStreamHandler {
       log.info("Processing API request");
       LambdaContainerStats.setLatestRequestTime(LocalDateTime.now());
       handler.proxyStream(toInputStream(inputBytes), outputStream, context);
-    }
-  }
-
-  /**
-   * Sets default character set to UTF-8.
-   * https://github.com/awslabs/aws-serverless-java-container/issues/352
-   */
-  private void setDefaultContentCharset() {
-    LambdaContainerHandler.getContainerConfig()
-        .setDefaultContentCharset(StandardCharsets.UTF_8.name());
-  }
-
-  private void initializeHandlerIfNull() {
-    if (handler == null) {
-      handler = AwsHelpers.initSpringBootHandler(Application.class);
     }
   }
 

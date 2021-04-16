@@ -7,7 +7,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-
+import uk.gov.caz.async.rest.AsyncRestService;
 import uk.gov.caz.vcc.domain.exceptions.ExternalServiceCallException;
 import uk.gov.caz.vcc.dto.TaxiPhvLicenseInformationResponse;
 
@@ -34,6 +33,12 @@ class NationalTaxiRegisterRepositoryTest {
   private RestTemplate nationalTaxiRegisterRestTemplate;
 
   @Mock
+  private NationalTaxiRegisterAsyncRepository asyncRepository;
+
+  @Mock
+  private AsyncRestService asyncRestService;
+
+  @Mock
   private ResponseEntity responseEntity;
 
   @BeforeEach
@@ -41,7 +46,7 @@ class NationalTaxiRegisterRepositoryTest {
     when(restTemplateBuilder.rootUri(anyString())).thenReturn(restTemplateBuilder);
     when(restTemplateBuilder.build()).thenReturn(nationalTaxiRegisterRestTemplate);
     nationalTaxiRegisterRepository = new NationalTaxiRegisterRepository(restTemplateBuilder,
-        nationalTaxiRegisterRootUri);
+        nationalTaxiRegisterRootUri, asyncRepository, asyncRestService);
   }
 
   @Test

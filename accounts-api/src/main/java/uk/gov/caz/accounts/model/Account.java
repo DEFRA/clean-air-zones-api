@@ -5,6 +5,8 @@ import java.util.Optional;
 import java.util.UUID;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -29,6 +31,10 @@ public class Account {
 
   @Column(name = "account_name")
   String name;
+
+  @Column(name = "closure_reason")
+  @Enumerated(EnumType.STRING)
+  AccountClosureReason closureReason;
 
   @Column(name = "inactivation_tstamp")
   LocalDateTime inactivationTimestamp;
