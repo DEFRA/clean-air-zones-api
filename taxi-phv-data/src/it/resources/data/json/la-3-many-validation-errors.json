@@ -1,0 +1,49 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "<OI64EFO",
+      "start": "2019-04-30-invalid-date",
+      "end": "invalid-date-2019-05-22",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-3",
+      "licensePlateNumber": "\"a\"\"",
+      "wheelchairAccessibleVehicle": null
+    },
+    {
+      "vrm": "$OI64EFO",
+      "start": "#2019-04-27",
+      "end": "invalid-2019-06-23",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-3",
+      "licensePlateNumber": "a & b'c & d",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "^DS98UDG-",
+      "start": "2019-03-12",
+      "end": "2019-06-25-invalid",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-23",
+      "licensePlateNumber": "hragF",
+      "wheelchairAccessibleVehicle": false
+    },
+    {
+      "vrm": "-DS98UDG-",
+      "start": "invalid-date-2019-03-11",
+      "end": "2019-07-24-invalid-date",
+      "taxiOrPHV": "PHV",
+      "licensingAuthorityName": "la-3",
+      "licensePlateNumber": "iragG",
+      "wheelchairAccessibleVehicle": null
+    },
+    {
+      "vrm": "%ND84VSX3",
+      "start": "2019-04-14",
+      "end": "2019-06-13",
+      "taxiOrPHV": "taxi",
+      "licensingAuthorityName": "la-3",
+      "licensePlateNumber": "Oretr",
+      "wheelchairAccessibleVehicle": false
+    }
+  ]
+}

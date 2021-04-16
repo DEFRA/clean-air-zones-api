@@ -2,6 +2,7 @@ package uk.gov.caz.accounts.service;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -36,6 +37,7 @@ public class UserPermissionsService {
 
   /**
    * Sets permissions for a user with {@code userId} and account {@code accountId}.
+   *
    * @param accountId User's account identifier.
    * @param userId User's identifier.
    * @param newPermissions A collection of permissions that is to be set for the given user.
@@ -50,7 +52,9 @@ public class UserPermissionsService {
         .findByIdAndAccountId(userId, accountId)
         .filter(user -> user.getIdentityProviderUserId() != null)
         .orElseThrow(() -> new AccountUserNotFoundException("User not found"));
-    List<AccountPermission> currentPermissions = userEntity.getAccountPermissions();
+    List<AccountPermission> currentPermissions =
+        (userEntity.getAccountPermissions() != null) ? userEntity.getAccountPermissions()
+            : Collections.emptyList();
 
     Set<AccountUserPermission> toDelete = computeToDelete(userId, newPermissions,
         currentPermissions);

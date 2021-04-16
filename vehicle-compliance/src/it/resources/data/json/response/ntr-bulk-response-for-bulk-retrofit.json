@@ -1,0 +1,12 @@
+{
+  "licencesInformation": {
+    "IS19AAA": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    }
+  }
+}

@@ -1,6 +1,6 @@
 package uk.gov.caz.correlationid;
 
-import java.util.Collections;
+import com.google.common.collect.ImmutableList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,5 +11,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 @ConfigurationProperties(prefix = "uk.gov.caz.correlationid")
 public class CorrelationIdProperties {
 
-  private List<String> includedPathPatterns = Collections.singletonList("/v1/**");
+  private List<String> includedPathPatterns = ImmutableList.of("/v1/**", "/v2/**");
 }

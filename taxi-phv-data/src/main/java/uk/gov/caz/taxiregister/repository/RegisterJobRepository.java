@@ -19,7 +19,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -99,7 +98,6 @@ public class RegisterJobRepository {
   private final JdbcTemplate jdbcTemplate;
   private final SimpleJdbcInsert jdbcInsert;
   private final JsonHelpers jsonHelpers;
-  private final int maxErrorsCount;
 
   /**
    * Creates an instance of {@link RegisterJobRepository}.
@@ -107,12 +105,10 @@ public class RegisterJobRepository {
    * @param jdbcTemplate An instance of {@link JdbcTemplate}.
    * @param jsonHelpers An instance of {@link JsonHelpers}.
    * @param objectMapper An instance of {@link ObjectMapper} used for errors (de)serialization.
-   * @param maxErrorsCount The maximum number of errors that can be stored for a single job.
    */
   public RegisterJobRepository(JdbcTemplate jdbcTemplate,
       JsonHelpers jsonHelpers,
-      ObjectMapper objectMapper,
-      @Value("${registerjob.db.max-errors-count}") int maxErrorsCount) {
+      ObjectMapper objectMapper) {
     this.jdbcTemplate = jdbcTemplate;
     jdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
         .withTableName("t_md_register_jobs")
@@ -121,7 +117,6 @@ public class RegisterJobRepository {
             COL_CORRELATION_ID);
     this.jsonHelpers = jsonHelpers;
     this.rowMapper = new RegisterJobRowMapper(objectMapper);
-    this.maxErrorsCount = maxErrorsCount;
   }
 
   /**
@@ -241,7 +236,7 @@ public class RegisterJobRepository {
    */
   public void updateErrors(int registerJobId, List<RegisterJobError> errorsList) {
     Preconditions.checkNotNull(errorsList);
-    String errors = convertToJsonUnlessEmpty(truncate(errorsList));
+    String errors = convertToJsonUnlessEmpty(errorsList);
     jdbcTemplate.update(UPDATE_ERRORS_SQL, errors, registerJobId);
   }
 
@@ -265,15 +260,6 @@ public class RegisterJobRepository {
     });
   }
   
-  private List<RegisterJobError> truncate(List<RegisterJobError> errorsList) {
-    if (errorsList.size() > maxErrorsCount) {
-      log.warn("Errors list contains too many elements ({}), truncating it to maximum allowed: {}.",
-          errorsList.size(), maxErrorsCount);
-      return errorsList.subList(0, maxErrorsCount);
-    }
-    return errorsList;
-  }
-
   /**
    * Returns {@code null} if {@code errors} is empty, a converted object to JSON otherwise.
    */

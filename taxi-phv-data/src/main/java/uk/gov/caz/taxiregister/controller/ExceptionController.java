@@ -22,6 +22,7 @@ import org.springframework.web.context.request.WebRequest;
 import uk.gov.caz.GlobalExceptionHandler;
 import uk.gov.caz.taxiregister.controller.exception.InvalidUploaderIdFormatException;
 import uk.gov.caz.taxiregister.controller.exception.PayloadValidationException;
+import uk.gov.caz.taxiregister.controller.exception.SecurityThreatException;
 import uk.gov.caz.taxiregister.controller.exception.UnableToGetUploaderIdMetadataException;
 import uk.gov.caz.taxiregister.dto.ErrorsResponse;
 import uk.gov.caz.taxiregister.service.exception.JobNameDuplicateException;
@@ -49,6 +50,12 @@ public class ExceptionController extends GlobalExceptionHandler {
   ResponseEntity<String> handleMissingHeaderException(MissingRequestHeaderException e) {
     log.error("Missing request header: ", e);
     return ResponseEntity.status(BAD_REQUEST).body(stripStackTrace(e.getMessage()));
+  }
+
+  @ExceptionHandler(value = SecurityThreatException.class)
+  ResponseEntity<String> handleSecurityThreatException(SecurityThreatException e) {
+    log.error("Security threat discovered: ", e);
+    return ResponseEntity.badRequest().build();
   }
 
   @ExceptionHandler(JobNameDuplicateException.class)

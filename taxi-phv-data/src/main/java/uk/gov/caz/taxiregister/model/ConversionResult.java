@@ -4,17 +4,21 @@ import java.util.Collections;
 import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Singular;
 import lombok.Value;
 
 @Value
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(toBuilder = true, access = AccessLevel.PRIVATE)
 public class ConversionResult {
+  @Singular
   List<ValidationError> validationErrors;
 
   TaxiPhvVehicleLicence licence;
 
   public boolean isSuccess() {
-    return licence != null;
+    return licence != null && validationErrors.isEmpty();
   }
 
   public boolean isFailure() {
@@ -27,5 +31,14 @@ public class ConversionResult {
 
   public static ConversionResult failure(List<ValidationError> validationErrors) {
     return new ConversionResult(validationErrors, null);
+  }
+
+  /**
+   * Method that combines non unique vehicle error with errors that are already stored in the List.
+   */
+  public ConversionResult withError(ValidationError additionalError) {
+    return toBuilder()
+        .validationError(additionalError)
+        .build();
   }
 }

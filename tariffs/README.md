@@ -1,6 +1,8 @@
 # JAQU-CAZ-Tariff-Service
 JAQU CAZ Tariff Service
 
+[![Build Status](http://drone-1587293244.eu-west-2.elb.amazonaws.com/api/badges/InformedSolutions/JAQU-CAZ-Tariff-Service/status.svg?ref=refs/heads/develop)](http://drone-1587293244.eu-west-2.elb.amazonaws.com/InformedSolutions/JAQU-CAZ-Tariff-Service)
+
 ## Data validation rules
 
 | Field                        | Validation                                                   | 
@@ -22,10 +24,8 @@ JAQU CAZ Tariff Service
 | motorcycle ent fee           | Acceptable formats: „12”, „12.0”, „12.00”, „12.5”, „12.50”   | 
 | coach entrant fee            | should be more or equal 0                                    | 
 | coach entrant fee            | Acceptable formats: „12”, „12.0”, „12.00”, „12.5”, „12.50”   | 
-| large van entrant fee        | should be more or equal 0                                    | 
-| large van entrant fee        | Acceptable formats: „12”, „12.0”, „12.00”, „12.5”, „12.50”   | 
-| small van entrant fee        | should be more or equal 0                                    | 
-| small van entrant fee        | Acceptable formats: „12”, „12.0”, „12.00”, „12.5”, „12.50”   | 
+| van entrant fee              | should be more or equal 0                                    | 
+| van entrant fee              | Acceptable formats: „12”, „12.0”, „12.00”, „12.5”, „12.50”   | 
 | moped entrant fee            | should be more or equal 0                                    | 
 | moped entrant fee            | Acceptable formats: „12”, „12.0”, „12.00”, „12.5”, „12.50”   | 
 | caz name                     | must be string                                               | 
@@ -161,3 +161,6 @@ If one changeset file contains more than one change, please put consecutive numb
 
 Raw SQL files must be used from Liquibase Yaml changesets and put into `rawSql` subfolder.
 Please use existing files as an example.
+#### ERDs
+##### Physical model
+![ERD](documentation-assets/tariffs-erd.png)

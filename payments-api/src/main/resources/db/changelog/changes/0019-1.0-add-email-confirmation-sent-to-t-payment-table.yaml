@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0019-1.0
+      author: antoni.pstras
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0019-1.0-add-email-confirmation-sent-to-t-payment-table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

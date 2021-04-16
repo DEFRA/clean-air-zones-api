@@ -55,6 +55,7 @@ class DirectDebitMandateControllerTestIT {
   private static final String EXISTING_MANDATE_ID = "jhjcvaiqlediuhh23d89hd3";
   private static final String VALID_DIRECT_DEBIT_MANDATE_ID = "1825761b-304e-416f-89ab-c74177591345";
   private static final String INVALID_DIRECT_DEBIT_MANDATE_ID = "9b910a77-f9f1-425d-a2b4-9f709b57924c";
+  private static final String VALID_ACCOUNT_USER_ID = "4e581c88-3ba3-4df0-91a3-ad46fb48bfd1";
 
   @Autowired
   private MockMvc mockMvc;
@@ -78,6 +79,7 @@ class DirectDebitMandateControllerTestIT {
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.directDebitMandateId").exists())
         .andExpect(jsonPath("$.accountId").value(VALID_ACCOUNT_ID))
+        .andExpect(jsonPath("$.accountUserId").value(VALID_ACCOUNT_USER_ID))
         .andExpect(jsonPath("$.cleanAirZoneId").value(ANY_CLEAN_AIR_ZONE_ID))
         .andExpect(jsonPath("$.paymentProviderMandateId").value(ANY_MANDATE_ID));
 
@@ -126,7 +128,8 @@ class DirectDebitMandateControllerTestIT {
         .andExpect(header().string(Constants.X_CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.directDebitMandates").exists())
-        .andExpect(jsonPath("$.directDebitMandates").isNotEmpty());
+        .andExpect(jsonPath("$.directDebitMandates").isNotEmpty())
+        .andExpect(jsonPath("$.directDebitMandates[0].accountUserId").value(VALID_ACCOUNT_USER_ID));
   }
 
   @Test
@@ -209,6 +212,7 @@ class DirectDebitMandateControllerTestIT {
   private String validRequestPayload(String paymentProviderMandateId) {
     DirectDebitMandateRequest request = DirectDebitMandateRequest.builder()
         .cleanAirZoneId(UUID.fromString(ANY_CLEAN_AIR_ZONE_ID))
+        .accountUserId(UUID.fromString(VALID_ACCOUNT_USER_ID))
         .mandateId(paymentProviderMandateId)
         .build();
     return toJson(request);

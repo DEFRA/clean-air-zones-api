@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0013-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update Birmingham's Minibus charge
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+                UPDATE public.T_TARIFF_DEFINITION
+                SET MINIBUS_ENTRANT_FEE = '8'
+                WHERE CHARGE_DEFINITION_ID = 1;
+            stripComments: true

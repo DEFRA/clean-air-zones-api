@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0069-1.0-add-vehicle-type-breakdown-views
+      author: Informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0069-1.0-add-vehicle-type-breakdown-views.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

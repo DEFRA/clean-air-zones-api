@@ -1,5 +1,6 @@
 {
   "active": true,
+  "description": "taxi",
   "wheelchairAccessible": true,
   "licensingAuthoritiesNames": [
     "la-1",

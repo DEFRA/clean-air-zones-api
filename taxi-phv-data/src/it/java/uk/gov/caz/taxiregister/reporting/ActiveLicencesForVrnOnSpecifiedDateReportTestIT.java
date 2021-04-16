@@ -1,11 +1,11 @@
 package uk.gov.caz.taxiregister.reporting;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.is;
 import static uk.gov.caz.taxiregister.controller.Constants.CORRELATION_ID_HEADER;
 
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
 import java.util.List;
 import java.util.UUID;
@@ -244,6 +244,7 @@ public class ActiveLicencesForVrnOnSpecifiedDateReportTestIT {
       String correlationId = UUID.randomUUID().toString();
       RequestSpecification requestSpecification = RestAssured
           .given()
+          .contentType(ContentType.JSON)
           .accept(ContentType.JSON)
           .header(CORRELATION_ID_HEADER, correlationId)
           .pathParam("vrn", this.vrn);

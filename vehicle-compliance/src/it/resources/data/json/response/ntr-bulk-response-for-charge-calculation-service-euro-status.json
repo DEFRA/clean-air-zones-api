@@ -1,0 +1,20 @@
+{
+  "licencesInformation": {
+    "CAS123": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "CAS234": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    }
+  }
+}

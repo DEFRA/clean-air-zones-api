@@ -6,9 +6,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -55,7 +57,7 @@ public class UserEntity {
   @Column(name = "pending_user_id")
   UUID pendingUserId;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(
       schema = "CAZ_ACCOUNT",
       name = "T_ACCOUNT_USER_PERMISSION",
@@ -96,5 +98,15 @@ public class UserEntity {
 
   public boolean isRemoved() {
     return Objects.isNull(identityProviderUserId);
+  }
+
+  /**
+   * Check if user has {@code Permission.MANAGE_VEHICLES} assigned.
+   */
+  public boolean hasVehicleManagementPermission() {
+    return !getAccountPermissions().stream()
+        .filter(accountPermission -> accountPermission.getName().equals(Permission.MANAGE_VEHICLES))
+        .collect(Collectors.toList())
+        .isEmpty();
   }
 }

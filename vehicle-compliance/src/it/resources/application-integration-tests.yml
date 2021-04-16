@@ -1,12 +1,21 @@
 ### Integration tests configuration
+postgres:
+  url: localhost:9999
 
 spring:
   datasource:
-    url: jdbc:postgresql://${postgres.url:localhost:9999}/postgres
+    url: jdbc:postgresql://${postgres.url:localhost:9999}/vehicle_compliance
     hikari:
-      maximum-pool-size: 10
+      maximum-pool-size: 2
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
+    change-log: classpath:db/changelog/db.changelog-master-test.yaml
+
+aws:
+  s3:
+    endpoint: http://${aws.s3.url:localhost:4572}
+  sqs:
+    endpoint: http://${aws.sqs.url:localhost:4576}
+    reporting-data-queue-name: data_queue.fifo
 
 redis:
   enabled: true
@@ -21,6 +30,8 @@ services:
   payments:
     root-url: http://localhost:1080
     enabled: true
+  mod:
+    root-url: http://localhost:1080
 
 dvla-api-endpoint: http://localhost:1080
 dvla-authentication-endpoint: http://localhost:1080/

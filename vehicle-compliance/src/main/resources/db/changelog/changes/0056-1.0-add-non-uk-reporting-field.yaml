@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0056-1.0-add-non-uk-reporting-field
+      author: informed
+      failOnError: false
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            columnExist:
+              schemaName: CAZ_REPORTING
+              tableName: T_VEHICLE_ENTRANT_REPORTING
+              columnName: NON_UK_VEHICLE
+      changes:
+        - addColumn:
+            comment: Add additional column to indicate if vehicle is non UK.
+            schemaName: CAZ_REPORTING
+            tableName: T_VEHICLE_ENTRANT_REPORTING
+            columns:
+              - column:
+                  name: NON_UK_VEHICLE
+                  type: BOOLEAN

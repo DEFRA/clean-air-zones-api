@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0044-1.0
+      author: informed
+      failOnError: false
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0044-1.0-create-roles.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

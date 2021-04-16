@@ -2,6 +2,7 @@ package uk.gov.caz.taxiregister.model;
 
 import com.google.common.collect.Sets;
 import java.util.Set;
+import lombok.ToString;
 import lombok.Value;
 
 /**
@@ -10,6 +11,7 @@ import lombok.Value;
 @Value
 public class VrmSet {
 
+  @ToString.Exclude
   Set<String> vrms;
 
   /**

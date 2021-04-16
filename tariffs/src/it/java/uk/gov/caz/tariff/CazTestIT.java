@@ -45,8 +45,8 @@ public class CazTestIT {
   @Test
   public void shouldReturnCleanAirZones() throws Exception {
     mockMvc.perform(get(CleanAirZonesController.PATH)
-        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
         .header(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID))
         .andExpect(status().isOk())
         .andExpect(content().json(cleanAirZonesJson()))
@@ -68,8 +68,8 @@ public class CazTestIT {
   @Test
   public void shouldReturnTariffAndStatusOk() throws Exception {
     mockMvc.perform(get(tariffWithCleanAirZoneId("5cd7441d-766f-48ff-b8ad-1809586fea37"))
-        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
         .header(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID))
         .andExpect(content().json(tariffJson()))
         .andExpect(status().isOk())
@@ -79,8 +79,8 @@ public class CazTestIT {
   @Test
   public void shouldReturnNotFoundWhenTariffNotExist() throws Exception {
     mockMvc.perform(get(tariffWithCleanAirZoneId("dc1efcaf-a2cf-41ec-aa37-ea4b28a20a1d"))
-        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
         .header(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID))
         .andExpect(status().isNotFound())
         .andExpect(header().string(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID));
@@ -90,8 +90,8 @@ public class CazTestIT {
   public void shouldReturnNotFoundWhenInvalidUUID() throws Exception {
     // when
     Exception resolvedException = mockMvc.perform(get(tariffWithCleanAirZoneId("asd"))
-        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
         .header(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID))
         .andExpect(status().isNotFound())
         .andReturn()

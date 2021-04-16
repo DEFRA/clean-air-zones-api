@@ -1,0 +1,2 @@
+TRUNCATE caz_vehicle_entrant.t_failed_identification_logs;
+TRUNCATE caz_vehicle_entrant_audit.logged_actions;

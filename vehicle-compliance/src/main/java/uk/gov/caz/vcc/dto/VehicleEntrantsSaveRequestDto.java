@@ -11,5 +11,5 @@ import lombok.Value;
 public class VehicleEntrantsSaveRequestDto {
   private UUID cazId;
   private String correlationId;
-  List<VehicleEntrantDto> vehicleEntrants;
+  List<VehicleEntrantSaveDto> vehicleEntrants;
 }

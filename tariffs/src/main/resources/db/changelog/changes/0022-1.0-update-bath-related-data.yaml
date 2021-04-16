@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0022-1.0
+      author: radoslaw.morytko
+      changes:
+        - sql:
+            comment: Update URLs for Bath
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET
+                MAIN_INFO_URL = 'http://www.bathnes.gov.uk/BathCAZ',
+                BOUNDARY_URL = 'http://www.bathnes.gov.uk/zonemaps',
+                BECOME_COMPLIANT_URL = 'http://www.bathnes.gov.uk/CAZsupport',
+                PUBLIC_TRANSPORT_OPTIONS_URL = 'http://www.bathnes.gov.uk/cleanair4bathnes',
+                EXEMPTION_URL = 'http://www.bathnes.gov.uk/CAZexemptions'
+              WHERE CHARGE_DEFINITION_ID = 3;
+        - sql:
+            comment: Update charge operator name for Bath
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+              UPDATE public.T_CHARGE_DEFINITION
+              SET
+                CAZ_OPERATOR_NAME = 'Bath City Council'
+              WHERE CHARGE_DEFINITION_ID = 3;

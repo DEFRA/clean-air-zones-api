@@ -5,6 +5,7 @@ import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.Value;
 import uk.gov.caz.csv.model.CsvValidationError;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobError;
@@ -34,6 +35,7 @@ public class ValidationError implements Comparable<ValidationError> {
       = new ValidationError(null, LICENSING_AUTHORITY_UNAVAILABILIY_ERROR_TITLE,
       LICENSING_AUTHORITY_UNAVAILABILIY_ERROR, EMPTY_LINE_NUMBER);
 
+  @ToString.Exclude
   String vrm;
   String title;
   String detail;

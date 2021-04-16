@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0011.1.0-create-reporting-user
+      author: informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0011-1.0-add-reporting-user.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true 

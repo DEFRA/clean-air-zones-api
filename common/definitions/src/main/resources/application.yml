@@ -1,0 +1,78 @@
+swagger:
+  model.descriptions:
+    vehicle:
+      registrationNumber: Registration number of the vehicle
+      typeApproval: Vehicle type approval category
+      type: Type of the vehicle
+      make: Vehicle manifacturer
+      model: Vehicle model
+      colour: Colour of the vehicle
+      fuelType: Fuel type of the vehicle
+      isTaxiOrPhv: Returns true if the vehicle is a taxi or PHV
+      isExempt: Returns true if the vehicle is exempt
+      licensingAuthoritiesNames: Returns list of authority names that the taxi or phv is licensed with
+    cleanAirZones:
+      cleanAirZoneDetails: List of Clean Air Zones
+    cleanAirZone:
+      activeChargeStartDateText: Text date when a CAZ becomes visible
+      cleanAirZoneId: System ID of the clean air zone
+      displayFrom: The textual content displayed on the VCCS compliance page in the “Zone live” column
+      displayOrder: The ordering of Clean Air Zones in display components
+      name: Name of Tariff
+      boundaryUrl: URL provided by zone operators, boundary
+      exemptionUrl: URL provided by zone operators, exemption
+      mainInfoUrl: URL provided by zone operators, main info
+      paymentsComplianceUrl: URL provided by zone operators, payments compliance
+      privacyPolicyUrl: URL provided by zone operators, privacy
+      fleetsComplianceUrl: URL provided by zone operators, fleets compliance
+      activeChargeStartDate: ISO-8601 formatted date of when CAZ has effectively started to charge
+      operatorName: Name of Clean Air Zone Operator
+      directDebitEnabled: Returns true if direct debit is enabled for given caz
+      directDebitStartDateText: Text date when payments with direct debits are going to be enabled
+    complianceResults:
+      registationNumber: Registration number of the vehicle
+      isRetrofitted: Returns true if the vehicle is retrofitted
+      isExempt: Returns true if the vehicle is not to be charged in any Clean Air Zone due to national exemption
+      vehicleType: The type of vehicle as categorised under the CAZ Framework
+      complianceOutcomes: A list of compliance results for a vehicle in a set of Clean Air Zones
+      note: Compliance check note
+    complianceResult:
+      cleanAirZoneId: System ID of the clean air zone
+      name: Official name of the zone
+      charge: Charge to pay in £, 0 means 'no charge'
+      charges: List of Charges
+      operatorName: Name of Clean Air Zone Operator
+    informationUrls:
+      description: A series of informational URLs to guidance published by a given Clean Air Zone operator
+      mainInfoUrl: A URL linking to the main information guidance published by a given Clean Air Zone operator
+      exemptionOrDiscountUrl: A URL linking to exemptions or discounts guidance published by a given Clean Air Zone operator
+      becomeCompliantUrl: A URL linking to vehicle compliance guidance published by a given Clean Air Zone operator
+      boundaryUrl: A URL linking to geographic boundary guidance published by a given Clean Air Zone operator
+      paymentsComplianceUrl: A URL linking to payment compliance guidance published by a given Clean Air Zone operator
+      privacyPolicyUrl: A URL linking to privacy policy page published by a given Clean Air Zone operator
+      fleetsComplianceUrl: A URL linking to fleets compliance guidance published by a given Clean Air Zone operator
+      publicTransportOptionsUrl: A URL linking to public transport options published by a given Clean Air Zone operator
+    vehicleResult:
+      vehicleResultDetails: List of Vehicle Result
+      vrn: Registration number of the vehicle
+      make: Vehicle make
+      model: Vehicle model
+      colour: Vehicle colour
+      typeApproval: Vehicle type approval category
+      status: Returns one of the following values (exempt, compliant, notCompliantPaid, notCompliantNotPaid, unrecognisedPaid, unrecognisedNotPaid)
+      exemptionCode: A code that uniquely identifies the national exemption on which the exempt status is based
+      tariffCode: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay
+      isTaxiOrPhv: Returns true if the vehicle is a taxi or PHV
+      licensingAuthority: Return list of Licensing Authority that the taxi or Private Hire vehicle is licensed with
+    vrms:
+      vrmsDetails: List of vrms (registration number of the vehicle)
+  operations:
+    vehicle:
+      details:
+        description: Returns vehicle registation details
+      unrecognised:
+        description: Returns list of charges for given type to be used by Payments.
+      compliance:
+        description: Returns vehicle compliance details
+    cleanAirZones:
+      description: Returns list of available CAZs

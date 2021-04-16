@@ -3,7 +3,7 @@ package uk.gov.caz.vcc.amazonaws;
 import static uk.gov.caz.awslambda.AwsHelpers.splitToArray;
 
 import com.amazonaws.serverless.exceptions.ContainerInitializationException;
-import com.amazonaws.serverless.proxy.internal.LambdaContainerHandler;
+import com.amazonaws.serverless.proxy.internal.testutils.AwsProxyRequestBuilder;
 import com.amazonaws.serverless.proxy.model.AwsProxyRequest;
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
 import com.amazonaws.serverless.proxy.spring.SpringBootLambdaContainerHandler;
@@ -27,10 +27,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.util.StreamUtils;
 import uk.gov.caz.vcc.Application;
+import uk.gov.caz.vcc.util.VrnLogFormatter;
 
+/**
+ * Primary AWS Lambda handler implementation for serving REST API requests.
+ *
+ */
 @Slf4j
 public class StreamLambdaHandler implements RequestStreamHandler {
 
@@ -38,31 +42,34 @@ public class StreamLambdaHandler implements RequestStreamHandler {
   private static SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
 
   static {
-    long startTime = Instant.now().minusMillis(1200).toEpochMilli();
     try {
-      // For applications that take longer than 10 seconds to start, use the async builder:
-      log.info("Initialization lambda starts");
-      String listOfActiveSpringProfiles = System.getenv("SPRING_PROFILES_ACTIVE");
-      LambdaContainerHandler.getContainerConfig().setInitializationTimeout(50_000);
-      log.info("Initialization lambda with handler {}", handler);
+      log.info("Initializing lambda handler");
+      
+      String listOfActiveSpringProfiles =
+          System.getenv("SPRING_PROFILES_ACTIVE");
+      
       if (listOfActiveSpringProfiles != null) {
-        handler = new SpringBootProxyHandlerBuilder()
+        handler = new SpringBootProxyHandlerBuilder<AwsProxyRequest>()
             .defaultProxy()
-            .asyncInit(startTime)
+            .asyncInit()
             .springBootApplication(Application.class)
             .profiles(splitToArray(listOfActiveSpringProfiles))
             .buildAndInitialize();
       } else {
-        handler = new SpringBootProxyHandlerBuilder()
+        handler = new SpringBootProxyHandlerBuilder<AwsProxyRequest>()
             .defaultProxy()
-            .asyncInit(startTime)
+            .asyncInit()
             .springBootApplication(Application.class)
             .buildAndInitialize();
       }
-      log.info("Initialization lambda finished");
+      
+      // Change log formatter to remove vrns from urls in logs.
+      handler.setLogFormatter(new VrnLogFormatter<>());
+      
+      log.info("Lambda handler initialization finished");
     } catch (ContainerInitializationException e) {
-      // if we fail here. We re-throw the exception to force another cold start
-      log.info("Initialization lambda failed");
+      // If we fail here. We re-throw the exception to force another cold start
+      log.info("Initialization of lambda failed");
       throw new IllegalStateException("Could not initialize Spring Boot application", e);
     }
   }
@@ -72,7 +79,7 @@ public class StreamLambdaHandler implements RequestStreamHandler {
       throws IOException {
     byte[] inputBytes = StreamUtils.copyToByteArray(inputStream);
     if (isWarmupRequest(toString(inputBytes))) {
-      delayToAllowAnotherLambdaInstanceWarming();
+      delayToAllowAnotherLambdaInstanceWarming(handler, context);
       try (Writer osw = new OutputStreamWriter(outputStream)) {
         osw.write(LambdaContainerStats.getStats());
       }
@@ -90,7 +97,6 @@ public class StreamLambdaHandler implements RequestStreamHandler {
    * @return {@link InputStream} over byte array.
    * @throws IOException When unable to convert.
    */
-  @NotNull
   private InputStream toInputStream(byte[] inputBytes) throws IOException {
     try (InputStream inputStream = new ByteArrayInputStream(inputBytes)) {
       return inputStream;
@@ -105,25 +111,46 @@ public class StreamLambdaHandler implements RequestStreamHandler {
   }
 
   /**
-   * Delay lambda response if the container is new and cold
-   * to allow subsequent keep-warm requests to be routed to a different lambda container.
+   * Delay lambda response if the container is new and cold to allow subsequent keep-warm requests
+   * to be routed to a different lambda container.
    *
    * @throws IOException when it is impossible to pause the thread
    */
-  private void delayToAllowAnotherLambdaInstanceWarming() throws IOException {
+  private void delayToAllowAnotherLambdaInstanceWarming(
+      SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler,
+      Context context) throws IOException {
     try {
       if (LambdaContainerStats.getLatestRequestTime() == null) {
-        int sleepDuration = Integer.parseInt(Optional.ofNullable(
-                                  System.getenv("thundra_lambda_warmup_warmupSleepDuration"))
-                                  .orElse("100"));
-        log.info(String.format("Container %s go to sleep for %f seconds",
-            LambdaContainerStats.getInstanceId(),
-            (double)sleepDuration / 1000));
-        Thread.sleep(sleepDuration);
+        long initStartTime = Instant.now().toEpochMilli();
+        AwsProxyRequest awsProxyRequest = buildHealthCheckRequest();
+        // force spring initialation to finish
+        handler.proxy(awsProxyRequest, context);
+        long initEndTime = Instant.now().toEpochMilli();
+        long initDuration = initEndTime - initStartTime;
+        long sleepDuration = Long.parseLong(Optional.ofNullable(
+            System.getenv("thundra_lambda_warmup_warmupSleepDuration"))
+            .orElse("100"));
+        if (sleepDuration > initDuration) {
+          log.info(String.format("Container %s go to sleep for %f seconds",
+              LambdaContainerStats.getInstanceId(),
+              (double) (sleepDuration - initDuration) / 1000));
+          Thread.sleep(sleepDuration - initDuration);
+        }
       }
     } catch (Exception e) {
       throw new IOException(e);
     }
+  }
+
+  /**
+   * Build a virtual health check request.
+   */
+  private AwsProxyRequest buildHealthCheckRequest() {
+    return new AwsProxyRequestBuilder("/virtual/health/check", "GET")
+        .header("X-Correlation-ID",UUID.randomUUID().toString())
+        .header("Content-Type","application/json")
+        .nullBody()
+        .build();
   }
 
   /**

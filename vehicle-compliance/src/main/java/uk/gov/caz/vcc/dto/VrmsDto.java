@@ -5,6 +5,7 @@ import java.util.List;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
+import lombok.ToString;
 import lombok.Value;
 
 /**
@@ -14,6 +15,7 @@ import lombok.Value;
 @Builder(toBuilder = true)
 public class VrmsDto {
 
+  @ToString.Exclude
   @ApiModelProperty(notes = "${swagger.model.descriptions.vrms.vrmsDetails}")
   @NotNull
   @Valid

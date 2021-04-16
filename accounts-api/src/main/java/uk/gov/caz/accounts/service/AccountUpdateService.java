@@ -2,12 +2,14 @@ package uk.gov.caz.accounts.service;
 
 import com.google.common.base.Preconditions;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.caz.accounts.model.Account;
+import uk.gov.caz.accounts.model.Permission;
 import uk.gov.caz.accounts.repository.AccountRepository;
 import uk.gov.caz.accounts.service.exception.AccountNotFoundException;
 import uk.gov.caz.accounts.service.validation.DuplicateAccountValidator;
@@ -33,6 +35,17 @@ public class AccountUpdateService {
     checkCreateAccountPreconditions(accountName);
     accountRepository.updateName(accountId, accountName);
   }
+
+  /**
+   * Updates Account MultiPayerAccount.
+   */
+  @Transactional
+  public void updateMultiPayerAccount(Account account, Set<Permission> permissions) {
+    if (permissions.contains(Permission.MAKE_PAYMENTS)) {
+      accountRepository.updateMultiPayerAccount(account.getId(), Boolean.TRUE);
+    }
+  }
+
 
   /**
    * Throws {@link AccountNotFoundException} when account with specified ID does not exist.

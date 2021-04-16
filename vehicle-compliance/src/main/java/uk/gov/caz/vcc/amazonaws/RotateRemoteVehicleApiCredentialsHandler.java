@@ -17,7 +17,7 @@ import uk.gov.caz.vcc.domain.authentication.CredentialRotationRequest;
 import uk.gov.caz.vcc.domain.authentication.VehicleApiCredentialRotationManager;
 
 /**
- * Lambda handler for API credential rotation.
+ * AWS Lambda handler for remote Vehicle API credential rotation.
  *
  */
 @Slf4j
@@ -58,9 +58,9 @@ public class RotateRemoteVehicleApiCredentialsHandler implements RequestStreamHa
    */
   private <T> T getBean(
       SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler,
-      Class<T> exampleServiceClass) {
+      Class<T> classToInstantiate) {
     return WebApplicationContextUtils
         .getWebApplicationContext(handler.getServletContext())
-        .getBean(exampleServiceClass);
+        .getBean(classToInstantiate);
   }
 }

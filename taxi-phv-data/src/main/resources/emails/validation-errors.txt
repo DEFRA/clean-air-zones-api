@@ -1,0 +1,12 @@
+Dear Licensing Authority,<br>
+Thank you for attempting data upload to the Taxi & PHV Centralised Database. Unfortunately, there were several errors in the CSV file and the upload has been unsuccessful. You need to review and correct the errors listed and upload the CSV file again.<br>
+<br>
+Error List:<br>
+<br>
+!errors-placeholder!
+<br>
+<br>
+If you are still experiencing errors or have any questions, please contact the Taxi mailbox (TaxiPHVDatabase.Support@informed.com) and we will be happy to help.<br>
+<br>
+Regards,<br>
+Taxi and PHV Database Team<br>

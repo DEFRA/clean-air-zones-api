@@ -46,7 +46,7 @@ class ValidationErrorTest {
         .isEqualTo(ErrorResponse.builder()
             .vrn(SOME_VRN)
             .title("Invalid field value")
-            .detail("invalid VRN format")
+            .detail("VRN should have from 2 to 15 characters")
             .status(HttpStatus.BAD_REQUEST.value())
             .build()
         );

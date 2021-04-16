@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0010.1.1.0
+      author: informed
+      changes:
+      - addColumn:
+          comment: Add column to check if CAZ charging vehicles with a 'DISABLED' tax class.
+          tableName: T_CHARGE_DEFINITION
+          columns:
+          - column:
+              name: CHARGING_DISABLED_VEHICLES
+              type: boolean
+  - changeSet:
+      id: 0010.2.1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Update additionalInfo
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+                UPDATE public.T_CHARGE_DEFINITION
+                SET CHARGING_DISABLED_VEHICLES = FALSE
+                WHERE CHARGE_DEFINITION_ID = 1;
+                
+                UPDATE public.T_CHARGE_DEFINITION
+                SET CHARGING_DISABLED_VEHICLES = TRUE
+                WHERE CHARGE_DEFINITION_ID = 2;
+            stripComments: true

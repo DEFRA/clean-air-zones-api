@@ -1,6 +1,7 @@
 package uk.gov.caz.taxiregister.dto;
 
 import lombok.Builder;
+import lombok.ToString;
 import lombok.Value;
 import org.springframework.http.HttpStatus;
 import uk.gov.caz.taxiregister.model.ValidationError;
@@ -14,6 +15,7 @@ public class ErrorResponse {
   private static final String VALIDATION_ERROR_TITLE = "Validation error";
   private static final String UNKNOWN_ERROR_TITLE = "Unknown error";
 
+  @ToString.Exclude
   String vrm;
   String title;
   String detail;

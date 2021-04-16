@@ -1,7 +1,8 @@
 package uk.gov.caz.vcc.domain.service.vehicleidentifiers;
 
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
 
 /**
  * VehicleIdentifer class for vehicles with N1 typeApproval.
@@ -10,22 +11,19 @@ import uk.gov.caz.vcc.domain.VehicleType;
  */
 public class N1VehicleIdentifier extends VehicleIdentifier {
 
+  /**
+   * Method to identify N1 type approval vehicles.
+   */
   @Override
   public void identifyVehicle(Vehicle vehicle) {
 
     testNotNull(checkRevenueWeight, vehicle, "revenueWeight");
 
     if (vehicle.getRevenueWeight() <= 3500) {
-
-      testNotNull(checkMassInService, vehicle, "massInService");
-
-      if (vehicle.getMassInService() <= 1280) {
-        vehicle.setVehicleType(VehicleType.SMALL_VAN);
-      } else {
-        vehicle.setVehicleType(VehicleType.LARGE_VAN);
-      }
+      vehicle.setVehicleType(VehicleType.VAN);
     } else {
-      vehicle.setVehicleType(VehicleType.LARGE_VAN);
+      throw new UnidentifiableVehicleException(
+          "Cannot identify N1 vehicle with revenue weight > 3500kg.");
     }
   }
 

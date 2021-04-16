@@ -164,7 +164,8 @@ to spin Postgres and Localstack using one command.
 endpoints to use localhost. (you don't have to change the defaults if you haven't changed Localstack config)
 5. Run app by `make localstack-run`. It will set proper env vars and run Spring-Boot app as usual.
 6. You can test endpoints using curl or Postman as usual.
-7. After you're done, drop local Postgres and Localstack: `make local-services-down` or 
+7. To load test fixtures into the database, you will need to make a post request to the `v1/migrate-db` endpoint.
+8. After you're done, drop local Postgres and Localstack: `make local-services-down` or 
 `make local-db-down` and `make localstack-down` if you want to run 2 separate commands.
 
 #### Preparing S3 data

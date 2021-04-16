@@ -1,0 +1,1 @@
+DROP TABLE table_for_whitelist_audit_test;

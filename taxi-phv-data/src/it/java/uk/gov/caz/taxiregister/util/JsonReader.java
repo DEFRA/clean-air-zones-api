@@ -32,4 +32,8 @@ public class JsonReader {
   public static String nullWheelchairFlagActiveVRM() throws IOException {
     return readJson("nullWheelchairFlagActiveVRM.json");
   }
+
+  public static String multipleLicencesVRM() throws IOException {
+    return readJson("multipleLicencesVRM.json");
+  }
 }

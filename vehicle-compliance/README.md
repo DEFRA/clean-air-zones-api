@@ -1,6 +1,8 @@
 # JAQU-CAZ Vehicle Compliance Checker API
 
-## First steps in Vehile Compliance Checker
+[![Build Status](http://drone-1587293244.eu-west-2.elb.amazonaws.com/api/badges/InformedSolutions/JAQU-CAZ-Vehicle-Compliance-Checker-API/status.svg?ref=refs/heads/develop)](http://drone-1587293244.eu-west-2.elb.amazonaws.com/InformedSolutions/JAQU-CAZ-Vehicle-Compliance-Checker-API)
+
+## First steps in Vehicle Compliance Checker
 
 ### Prerequisites
 
@@ -205,3 +207,11 @@ A logging strategy is employed to ensure traceability throughout the application
 - When checked exceptions are caught. Verbosity level: `ERROR`
 
 The logs must contain a means of identifying the request - usually X-Correlation-ID.
+
+## Architecture
+
+#### ERDs
+##### Conceptual model
+![ERD](documentation-assets/ERD-conceptual-model.png)
+##### Physical model
+![ERD](documentation-assets/ERD-physical-model.png)

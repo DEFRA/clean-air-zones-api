@@ -1,0 +1,40 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0023-1.0-remove-leeds
+      author: Informed
+      changes:
+        - sql:
+            comment: delete Leeds caz_link_detail
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: 
+               DELETE FROM public.t_caz_link_detail
+               WHERE 
+               charge_definition_id = 
+               (select charge_definition_id 
+               from public.t_charge_definition 
+               where caz_name = 'Leeds');
+  
+              
+        - sql:
+            comment: delete leeds from tariff definition
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+              DELETE from public.t_tariff_definition
+              where charge_definition_id = 
+              (select charge_definition_id 
+              from public.t_charge_definition 
+              where caz_name = 'Leeds');
+              
+        - sql:
+            comment: delete leeds from charge definition
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+              DELETE FROM public.t_charge_definition
+              WHERE caz_name = 'Leeds';
+              

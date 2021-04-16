@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +19,10 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.caz.accounts.model.AccountPermission;
+import uk.gov.caz.accounts.model.Permission;
 import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.model.registerjob.RegisterJobStatus;
 import uk.gov.caz.accounts.service.ChargeCalculationService;
 import uk.gov.caz.accounts.service.ChargeCalculationService.CachePopulationResult;
@@ -29,11 +33,14 @@ import uk.gov.caz.accounts.service.registerjob.RegisterJobSupervisor;
 @ExtendWith(MockitoExtension.class)
 class ChargeCalculationJobSupervisorTest {
 
-  private static final UUID ANY_ACCOUNT_ID = UUID.fromString("de798253-4b7a-4a6f-91a4-c7c3f0e1c4e1");
-  private static final UUID ANY_CORRELATION_ID = UUID.fromString("d69e2371-3020-4b2b-8d4e-9b4b2f0f7cd3");
+  private static final UUID ANY_ACCOUNT_ID = UUID
+      .fromString("de798253-4b7a-4a6f-91a4-c7c3f0e1c4e1");
+  private static final UUID ANY_CORRELATION_ID = UUID
+      .fromString("d69e2371-3020-4b2b-8d4e-9b4b2f0f7cd3");
   private static final int ANY_INVOCATION_NUMBER = 4;
   private static final int ANY_JOB_ID = 97244;
   private static final String ANY_EMAIL = "a@b.com";
+  private static final String OTHER_EMAIL = "c@d.com";
   private static final boolean ANY_SHOULD_SEND_EMAILS_UPON_SUCCESSFUL_JOB_COMPLETION_FLAG = false;
 
   private static final int MAX_INVOCATION_COUNT = 10;
@@ -74,7 +81,8 @@ class ChargeCalculationJobSupervisorTest {
 
         // when
         chargeCalculationJobSupervisor.populateChargeCalculationCache(ANY_ACCOUNT_ID, ANY_JOB_ID,
-            ANY_INVOCATION_NUMBER, ANY_CORRELATION_ID, ANY_SHOULD_SEND_EMAILS_UPON_SUCCESSFUL_JOB_COMPLETION_FLAG);
+            ANY_INVOCATION_NUMBER, ANY_CORRELATION_ID,
+            ANY_SHOULD_SEND_EMAILS_UPON_SUCCESSFUL_JOB_COMPLETION_FLAG);
 
         // then
         verify(asyncChargeCalculationStarter).fireAndForget(ANY_ACCOUNT_ID, ANY_JOB_ID,
@@ -98,7 +106,8 @@ class ChargeCalculationJobSupervisorTest {
 
         // when
         chargeCalculationJobSupervisor.populateChargeCalculationCache(ANY_ACCOUNT_ID, ANY_JOB_ID,
-            invocationNumber, ANY_CORRELATION_ID, ANY_SHOULD_SEND_EMAILS_UPON_SUCCESSFUL_JOB_COMPLETION_FLAG);
+            invocationNumber, ANY_CORRELATION_ID,
+            ANY_SHOULD_SEND_EMAILS_UPON_SUCCESSFUL_JOB_COMPLETION_FLAG);
 
         // then
         verify(asyncChargeCalculationStarter, never()).fireAndForget(any(), any(), any(), anyInt(),
@@ -127,7 +136,7 @@ class ChargeCalculationJobSupervisorTest {
       class AndFlagToSendEmailsIsTrue {
 
         @Test
-        public void shouldMarkJobAsFinishedSuccessfullyAndSendEmails() {
+        public void shouldMarkJobAsFinishedSuccessfullyAndSendEmailsToVehicleManagersOnly() {
           // given
           mockFinishedCachingWithResult(CachePopulationResult.ALL_RECORDS_CACHED);
           mockUsersForAccount(ANY_ACCOUNT_ID);
@@ -137,10 +146,13 @@ class ChargeCalculationJobSupervisorTest {
               ANY_INVOCATION_NUMBER, ANY_CORRELATION_ID, true);
 
           // then
-          verify(registerJobSupervisor).updateStatus(ANY_JOB_ID, RegisterJobStatus.FINISHED_SUCCESS);
+          verify(registerJobSupervisor)
+              .updateStatus(ANY_JOB_ID, RegisterJobStatus.FINISHED_SUCCESS);
           verify(chargeCalculationCompleteEmailSender).send(ANY_EMAIL);
-          verify(asyncChargeCalculationStarter, never()).fireAndForget(any(), any(), any(), anyInt(),
-              anyBoolean());
+          verify(chargeCalculationCompleteEmailSender, never()).send(OTHER_EMAIL);
+          verify(asyncChargeCalculationStarter, never())
+              .fireAndForget(any(), any(), any(), anyInt(),
+                  anyBoolean());
         }
       }
 
@@ -157,10 +169,12 @@ class ChargeCalculationJobSupervisorTest {
               ANY_INVOCATION_NUMBER, ANY_CORRELATION_ID, false);
 
           // then
-          verify(registerJobSupervisor).updateStatus(ANY_JOB_ID, RegisterJobStatus.FINISHED_SUCCESS);
+          verify(registerJobSupervisor)
+              .updateStatus(ANY_JOB_ID, RegisterJobStatus.FINISHED_SUCCESS);
           verify(chargeCalculationCompleteEmailSender, never()).send(anyString());
-          verify(asyncChargeCalculationStarter, never()).fireAndForget(any(), any(), any(), anyInt(),
-              anyBoolean());
+          verify(asyncChargeCalculationStarter, never())
+              .fireAndForget(any(), any(), any(), anyInt(),
+                  anyBoolean());
         }
       }
     }
@@ -186,8 +200,23 @@ class ChargeCalculationJobSupervisorTest {
     }
 
     private void mockUsersForAccount(UUID anyAccountId) {
+      AccountPermission vehicleManagementPermission = AccountPermission.builder()
+          .name(Permission.MANAGE_VEHICLES)
+          .description("Manage Vehicles")
+          .build();
+      UserEntity vehicleManagerUser = UserEntity.builder().email(ANY_EMAIL)
+          .identityProviderUserId(UUID.randomUUID())
+          .accountPermissions(Collections.singletonList(vehicleManagementPermission))
+          .build();
+      UserEntity nonVehicleManagerUser = UserEntity.builder().email(OTHER_EMAIL)
+          .identityProviderUserId(UUID.randomUUID())
+          .accountPermissions(Collections.emptyList())
+          .build();
+      UserEntity removedUser = UserEntity.builder().email(OTHER_EMAIL)
+          .accountPermissions(Collections.singletonList(vehicleManagementPermission))
+          .build();
       given(userService.getAllUsersForAccountId(anyAccountId)).willReturn(
-          Collections.singletonList(User.builder().email(ANY_EMAIL).build())
+          Arrays.asList(vehicleManagerUser, nonVehicleManagerUser, removedUser)
       );
     }
 

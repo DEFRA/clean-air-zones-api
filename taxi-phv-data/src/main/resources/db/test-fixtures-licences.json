@@ -1,0 +1,155 @@
+[
+  {
+    "vrm": "IS19PCA",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "TAXI",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "xpMJB",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS19DCA",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "xpMJK",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS19FCA",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "Taxi",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "xpMJL",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS19DCI",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "xpMJM",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS19DCJ",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "xpMJN",
+    "wheelchairAccessibleVehicle": "TRUE"
+  },
+  {
+    "vrm": "IS19FCB",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "Taxi",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "xpMJO",
+    "wheelchairAccessibleVehicle": "TRUE"
+  },
+  {
+    "vrm": "IS05YBG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "TAXI",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "xpMJP",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS14DBG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Birmingham",
+    "licensePlateNumber": "xpMJQ",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS05YHG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "Taxi",
+    "licensingAuthorityName": "Birmingham",
+    "licensePlateNumber": "xpMJS",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS19DHG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Birmingham",
+    "licensePlateNumber": "xpMJT",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS05PMG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "TAXI",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "xpMJR",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS17DMG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Birmingham",
+    "licensePlateNumber": "xpMJU",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS08HCG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "Taxi",
+    "licensingAuthorityName": "Birmingham",
+    "licensePlateNumber": "xpMJV",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS19DCG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Birmingham",
+    "licensePlateNumber": "xpMJW",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS05PNG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "TAXI",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "xpMJX",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS19DNG",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Birmingham",
+    "licensePlateNumber": "xpMJY",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "IS19AAA",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Birmingham",
+    "licensePlateNumber": "xpMJYT",
+    "wheelchairAccessibleVehicle": "FALSE"
+  }
+]

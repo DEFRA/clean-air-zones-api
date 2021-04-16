@@ -1,11 +1,17 @@
 spring:
+  data:
+    redis:
+      repositories:
+        enabled: false
   datasource:
     platform: postgres
-    url: jdbc:postgresql://localhost:5433/caz_vcc
+    url: jdbc:postgresql://localhost:5433/vehicle_compliance
     username: postgres
     password: postgres
     hikari:
-      maximum-pool-size: 1
+      maximum-pool-size: 2
+      connection-timeout: 5000 # in ms
+      max-lifetime: 0 # always keep the connection in the pool unless it has been closed
   jpa:
     hibernate:
       naming:
@@ -15,8 +21,20 @@ spring:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
     drop-first: false
+  main:
+    banner-mode: "off"
   profiles:
     active: dev
+
+logging:
+  level:
+    uk:
+      gov:
+        caz:
+          correlationid: INFO
+    org:
+      springframework:
+        cache: ERROR
 
 redis:
   endpoint: localhost
@@ -31,19 +49,22 @@ redis:
 application:
   title: Vehicle Compliance Checker API
   version: '@project.version@'
-  leeds-caz-identifier: 39e54ed8-3ed2-441d-be3f-38fc9b70c8d3
-  petrol-types: petrol,hybrid electric,gas bi-fuel,gas/petrol
+  bath-caz-identifier: 131af03c-f7f4-4aef-81ee-aae4f56dbeb5
+  petrol-types: petrol,hybrid electric,gas bi-fuel,gas/petrol,petrol/gas
   diesel-types: diesel,heavy oil,electric diesel,gas diesel
-  exempt-tax-classes: electric motorcycle,electric,disabled passenger vehicle,historic vehicle,gas
+  exempt-tax-classes: electric motorcycle,electric,disabled passenger vehicle,historic vehicle,disabled
   exempt-type-approvals: T1,T2,T3,T4,T5
-  leeds:
-    exempt-fuel-types: steam,electricity,fuel cells,gas
-    chargeable-fuel-types: hybrid electric
+  test-fixture-refresh:
+    enabled: false
+  bath:
+    default-hybrid-fuel-types: hybrid electric,gas bi-fuel,gas/petrol,petrol/gas,electric diesel,gas diesel
   vehicle-identifier:
     agricultural-type-approvals: T1,T2,T3,T4,T5
   validation:
     vehicle-entrants:
       max-errors-count: 5
+  bulk-checker:
+    s3-bucket: jaqu.caz
 
 services:
   connection-timeout-seconds: 29
@@ -51,12 +72,17 @@ services:
   national-taxi-register:
     root-url: https://dev-api.taxiphvdata.co.uk
   tariff-service:
-    root-url: https://l5us0jv0rc.execute-api.eu-west-2.amazonaws.com/dev
+    root-url: https://dev-tariffs-api.cleanairzonevehiclecheck.co.uk
   payments:
-    root-url: https://t4oig4d3g0.execute-api.eu-west-2.amazonaws.com/dev
+    root-url: https://dev-api.paycleanairzonecharge.co.uk
     enabled: false
+  mod:
+    root-url: https://t4oig4d3g0.execute-api.eu-west-2.amazonaws.com/dev
+  sqs:
+    reporting-data-queue-name: vccs_job_reporting_data_queue_dev.fifo
   remote-vehicle-data:
     use-remote-api: false
+    max-dvla-concurrent-calls: 10
 
 management:
   endpoints:
@@ -86,6 +112,10 @@ swagger:
         description: Returns list of charges for given type to be used by Payments.
       compliance:
         description: Returns vehicle compliance details
+      bulk-compliance:
+        description: Returns vehicle compliance details in bulk
+      dvla:
+        description: Returns DVLA data for a vehicle
     cleanAirZones:
       description: Returns list of available CAZs
     vehicleResults:
@@ -95,6 +125,12 @@ swagger:
         description: Evicting a cached clean-air-zones from redis
       licences:
         description: Evicting a cached licenses from redis
+    bulkChecker:
+      statusCheck:
+        description: Query bulk checker processing status
+    register:
+      details:
+        description: Return register details from services
 
   model.descriptions:
     vehicle:
@@ -114,11 +150,13 @@ swagger:
       cleanAirZoneId: System ID of the clean air zone
       name: Name of Tariff
       boundaryUrl: URL provided by zone operators, boundary
+      exemptionUrl: URL provided by zone operators, exemption
     complianceResults:
       registationNumber: Registration number of the vehicle
       isRetrofitted: Returns true if the vehicle is retrofitted
       isExempt: Returns true if the vehicle is not to be charged in any Clean Air Zone due to national exemption
       complianceOutcomes: A list of compliance results for a vehicle in a set of Clean Air Zones
+      phgvDiscountAvailable: True if the vehicle's tax class is equal to PRIVATE HGV and body type is equal to either MOTOR HOME/CARAVAN or LIVESTOCK CARRIER
     complianceResult:
       cleanAirZoneId: System ID of the clean air zone
       name: Official name of the zone
@@ -126,16 +164,12 @@ swagger:
       charges: List of Charges
     informationUrls:
       description: A series of informational URLs to guidance published by a given Clean Air Zone operator
-      emissionsStandardsUrl: A URL linking to emission standards guidance published by a given Clean Air Zone operator
       mainInfoUrl: A URL linking to the main information guidance published by a given Clean Air Zone operator
-      pricingUrl: A URL linking to pricing information guidance published by a given Clean Air Zone operator
-      hoursOfOperationUrl: A URL linking to operating hours guidance published by a given Clean Air Zone operator
       exemptionOrDiscountUrl: A URL linking to exemptions or discounts guidance published by a given Clean Air Zone operator
-      payCazUrl: A URL linking to charge payment guidance published by a given Clean Air Zone operator
       becomeCompliantUrl: A URL linking to vehicle compliance guidance published by a given Clean Air Zone operator
-      financialAssistanceUrl: A URL linking to financial assistance guidance published by a given Clean Air Zone operator
       boundaryUrl: A URL linking to geographic boundary guidance published by a given Clean Air Zone operator
       additionalInfoUrl: A URL linking to additional info published by a given Clean Air Zone operator
+      publicTransportOptionsUrl: A URL linking to public transport options published by a given Clean Air Zone operator
     vehicleEntrants:
       vehicleEntrantsDetails: List of vehicle entrant
       vrn: String containing Vehicle registration mark
@@ -148,12 +182,35 @@ swagger:
       colour: Vehicle colour
       typeApproval: Vehicle type approval category
       status: Returns one of the following values (exempt, compliant, notCompliantPaid, notCompliantNotPaid, unrecognisedPaid, unrecognisedNotPaid)
+      paymentMethod: Returns one of the following values (card, direct_debit). Will be present only if status is "notCompliantPaid" or "unrecognisedPaid"
       exemptionCode: A code that uniquely identifies the national exemption on which the exempt status is based
       tariffCode: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay
       isTaxiOrPhv: Returns true if the vehicle is a taxi or PHV
       licensingAuthority: Return list of Licensing Authority that the taxi or Private Hire vehicle is licensed with
     vrms:
       vrmsDetails: List of vrms (registration number of the vehicle)
+    vehicleFromDvlaDto:
+      registationNumber: Registration number of the vehicle
+      colour: Vehicle Colour
+      dateOfFirstRegistration: Year and month of First Registration in YYYY-MM format
+      euroStatus: Euro Status (Dealer / Customer provided)
+      fuelType: Fuel Type (Method of Propulsion)
+      make: Vehicle Make
+      typeApproval: Vehicle Type Approval Category
+      revenueWeight: Revenue weight in kilograms
+      unladenWeight: Unladen weight in kilograms
+      bodyType: Body type of vehicle
+      model: Vehicle model
+      seatingCapacity: Seating capacity of vehicle
+      standingCapacity: Standing capacity of vehicle
+      taxClass: Tax class of vehicle
+    registerDetails:
+      registerCompliant: should be set to true if vehicle features on Retrofit, or is “compliant” in GPW
+      registerExempt: should be set to true if vehicle features on MOD, or is “exempt” in GPW
+      registeredMOD: should be set to true if vehicle features in MOD
+      registeredGPW: should be set to true if vehicle features in GPW
+      registeredNTR: should be set to true if vehicle features in NTR
+      registeredRetrofit: should be set to true if vehicle features in Retrofit
 
 springfox:
   documentation:
@@ -164,7 +221,7 @@ springfox:
 aws:
   region: eu-west-2
   secret-name: /config/vccs.dev
-
+  
 # Note these are default values that will be overriden by aws secrets manager values 
 dvla-api-username:
 dvla-api-password:

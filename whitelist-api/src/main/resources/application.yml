@@ -1,0 +1,95 @@
+application:
+  title: Whitelist API
+  validation:
+    max-errors-count: 5
+  test-fixtures-location: /db/test-fixtures-vehicles.json
+
+management:
+  endpoints:
+    web:
+      base-path:
+  endpoint:
+    health:
+      show-details: always
+  health:
+    diskspace:
+      enabled: false
+
+logging:
+  level:
+    uk:
+      gov:
+        caz:
+          correlationid: INFO
+ 
+
+swagger:
+  api:
+    title: Whitelist API
+    description: This service allows uploading CSV files with whitelisted vehicles. Uploaded CSV files are processed asynchronously. Data saved by Whitelist service is read by Vehicle Compliance Checker service directly from database.
+    version: 0.1
+  model:
+    descriptions:
+      whitelisted-vehicle-details:
+        vrn: String containing vehicle registration number
+        category: Vehicle category
+        reasonUpdated: Reason given in csv file
+        updateTimestamp: Date of update
+        addedTimestamp: Date of insert
+        uploaderId: User's sub
+        email: User's email
+        manufacturer: A company, which build vehicle, i.e. Fiat, Audi
+        exempt: Specifies if vehicle is exempt
+        compliant: Specifies if vehicle is compliant
+      export-csv:
+        fileUrl: String containing the url to the s3 file
+        bucketName: String containing the bucket name
+      whitelist-info-historical-request:
+        start-date: start date of historical data range
+        end-date: end date of historical data range
+        page-number: the number of the page to be retrieved
+        page-size: the size of the page to be retrieved
+  operations:
+    whitelisted-vehicle-delete:
+      description: Removes whitelisted vehicle.
+    whitelisted-vehicle-details:
+      description: Returns whitelisted vehicle details.
+    export-csv:
+      description: Returns the details of an exported csv file.
+    whitelist-info-historical:
+      description: Looks up vehicle's information about its historical data for given VRN inside provided date range.
+    test-fixture-load:
+      description: Imports a predefined data into the database. Available only in DEV, SIT and ST environments.
+
+registerjob:
+  db:
+    max-errors-count: 100
+  lambda:
+    name: WhitelistRegisterCsvFromS3Function
+
+csv-export:
+  bucket: override-me
+
+spring:
+  liquibase:
+    enabled: false
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5433/vehicle_compliance
+    username: postgres
+    password: postgres
+    hikari:
+      maximum-pool-size: 1
+      connection-timeout: 5000 # in ms
+      max-lifetime: 0 # always keep the connection in the pool unless it has been closed
+    initialization-mode: always
+  main:
+    banner-mode: "off"
+  profiles:
+    active: dev
+
+springfox:
+  documentation:
+    swagger:
+      v2:
+        path: /v1/swagger-docs

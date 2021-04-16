@@ -1,0 +1,1 @@
+DROP INDEX IF EXISTS idx_logged_actions_json_vrm;

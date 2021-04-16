@@ -12,8 +12,8 @@ import org.mockserver.integration.ClientAndServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
+import uk.gov.caz.definitions.dto.InformationUrlsDto;
 import uk.gov.caz.vcc.annotation.IntegrationTest;
-import uk.gov.caz.vcc.dto.InformationUrlsDto;
 import uk.gov.caz.vcc.util.MockServerTestIT;
 
 @IntegrationTest
@@ -62,7 +62,6 @@ public class TariffDetailsRepositoryTestIT extends MockServerTestIT {
   public void shouldReturnTariffWithUrls() {
     given()
         .mockTariffResponseWithUrls()
-
         .whenCallTariffForDetails()
 
         .then()
@@ -71,20 +70,11 @@ public class TariffDetailsRepositoryTestIT extends MockServerTestIT {
         .hasBecomeCompliant(
             "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/7")
         .hasAdditionalInfo("https://www.brumbreathes.co.uk/what-does-it-mean-for-me")
-        .hasEmissionsStandards(
-            "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/2")
+        .hasPublicTransportOptions("https://www.brumbreathes.co.uk/info/15/drive-work-clean-air-zone-1/9/drive-work-clean-air-zone/4")
         .hasExemptionOrDiscount(
             "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/6")
-        .hasFinancialAssistance(
-            "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/7")
-        .hasHoursOfOperation(
-            "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/4")
         .hasMainInfo(
-            "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham")
-        .hasPayCaz(
-            "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3")
-        .hasPricing(
-            "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/5");
+            "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham");
   }
 
   private void thenCacheShouldBeNotEmpty() {
@@ -163,23 +153,8 @@ public class TariffDetailsRepositoryTestIT extends MockServerTestIT {
 
     InformationUrlsDto informationUrls;
 
-    public TariffDetailsAssertion hasEmissionsStandards(String expectedEmissionsStandards) {
-      assertThat(informationUrls.getEmissionsStandards()).isEqualTo(expectedEmissionsStandards);
-      return this;
-    }
-
     public TariffDetailsAssertion hasMainInfo(String expectedMainInfo) {
       assertThat(informationUrls.getMainInfo()).isEqualTo(expectedMainInfo);
-      return this;
-    }
-
-    public TariffDetailsAssertion hasHoursOfOperation(String expectedHoursOfOperation) {
-      assertThat(informationUrls.getHoursOfOperation()).isEqualTo(expectedHoursOfOperation);
-      return this;
-    }
-
-    public TariffDetailsAssertion hasPricing(String expectedPricing) {
-      assertThat(informationUrls.getPricing()).isEqualTo(expectedPricing);
       return this;
     }
 
@@ -188,18 +163,8 @@ public class TariffDetailsRepositoryTestIT extends MockServerTestIT {
       return this;
     }
 
-    public TariffDetailsAssertion hasPayCaz(String expectedPayCaz) {
-      assertThat(informationUrls.getPayCaz()).isEqualTo(expectedPayCaz);
-      return this;
-    }
-
     public TariffDetailsAssertion hasBecomeCompliant(String expectedBecomeCompliant) {
       assertThat(informationUrls.getBecomeCompliant()).isEqualTo(expectedBecomeCompliant);
-      return this;
-    }
-
-    public TariffDetailsAssertion hasFinancialAssistance(String expectedFinancialAssistance) {
-      assertThat(informationUrls.getFinancialAssistance()).isEqualTo(expectedFinancialAssistance);
       return this;
     }
 
@@ -210,6 +175,11 @@ public class TariffDetailsRepositoryTestIT extends MockServerTestIT {
 
     public TariffDetailsAssertion hasAdditionalInfo(String expectedAdditionalInfo) {
       assertThat(informationUrls.getAdditionalInfo()).isEqualTo(expectedAdditionalInfo);
+      return this;
+    }
+
+    public TariffDetailsAssertion hasPublicTransportOptions(String expectedPublicTransportOptions) {
+      assertThat(informationUrls.getPublicTransportOptions()).isEqualTo(expectedPublicTransportOptions);
       return this;
     }
 

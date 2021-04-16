@@ -1,0 +1,36 @@
+{
+  "licencesInformation": {
+    "CAS300": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "IS19DCA": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": true,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "IS05YBG": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    },
+    "IS19FCA": {
+      "active": true,
+      "description": "taxi",
+      "wheelchairAccessible": false,
+      "licensingAuthoritiesNames": [
+        "Bath"
+      ]
+    }
+  }
+}

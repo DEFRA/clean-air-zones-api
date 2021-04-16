@@ -118,12 +118,12 @@ public class IdentityProvider {
    * Gets user's details from the external identity provider based on the provided external
    * identifier.
    *
-   * @param user User object containing details from DB
-   * @return {@link User} with collected email and name.
+   * @param user UserEntity object containing details from DB
+   * @return {@link UserEntity} with collected email and name.
    * @throws IdentityProviderUnavailableException if user not found.
    * @throws NullPointerException if user identityProviderUserId is null.
    */
-  public User getUserDetailsByIdentityProviderId(User user) {
+  public UserEntity getUserDetailsByIdentityProviderId(UserEntity user) {
     Preconditions.checkNotNull(user.getIdentityProviderUserId(),
         "'identityProviderUserId' cannot be null");
 
@@ -369,7 +369,7 @@ public class IdentityProvider {
    * @throws IllegalArgumentException when {@link User#isOwner()} is true
    * @throws IdentityProviderUnavailableException when IdentityProvider fails
    */
-  public User createStandardUser(User user) {
+  public UserEntity createStandardUser(UserEntity user) {
     Preconditions.checkNotNull(user.getIdentityProviderUserId(),
         "identityProviderUserId cannot be null");
     Preconditions.checkArgument(!user.isOwner(), "User can't be Administrator");
@@ -549,7 +549,8 @@ public class IdentityProvider {
    * @param email User's email
    */
   public void clearPreviousPasswordsForUser(String email) {
-    updatePreviousPasswordsAndTimestampAttribute(email, "");
+    cognitoClient.adminUpdateUserAttributes(
+        prepareClearPreviousPasswordsAndTimestampUpdateRequest(email));
   }
 
   /**
@@ -597,6 +598,30 @@ public class IdentityProvider {
             AttributeType.builder()
                 .name(PREVIOUS_PASSWORDS_ATTRIBUTE)
                 .value(updatePreviousPasswords(previousPasswordsRaw, password))
+                .build(),
+            AttributeType.builder()
+                .name(PASSWORD_LAST_UPDATE_TIMESTAMP_ATTRIBUTE)
+                .value(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME))
+                .build()
+        )
+        .build();
+    return updateUserAttributesRequest;
+  }
+
+  /**
+   * Prepares {@link AdminUpdateUserAttributesRequest} object with empty previous passwords and last
+   * update timestamp.
+   */
+  private AdminUpdateUserAttributesRequest prepareClearPreviousPasswordsAndTimestampUpdateRequest(
+      String email) {
+    AdminUpdateUserAttributesRequest updateUserAttributesRequest = AdminUpdateUserAttributesRequest
+        .builder()
+        .userPoolId(userPoolId)
+        .username(email)
+        .userAttributes(
+            AttributeType.builder()
+                .name(PREVIOUS_PASSWORDS_ATTRIBUTE)
+                .value("")
                 .build(),
             AttributeType.builder()
                 .name(PASSWORD_LAST_UPDATE_TIMESTAMP_ATTRIBUTE)

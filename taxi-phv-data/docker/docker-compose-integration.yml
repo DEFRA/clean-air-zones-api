@@ -2,14 +2,15 @@ version: '3.3'
 
 services:
   postgres:
-    image: postgres:11-alpine
+    build: ./postgres-with-pgaudit
+    image: postgres-pgaudit-local:1
     container_name: postgres.docker.integration
     ports:
       - 9999:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: caz-national-taxi-phv
+      POSTGRES_DB: taxi_phv
     networks:
       - localstack_network
       

@@ -63,8 +63,10 @@ import uk.gov.caz.accounts.dto.CreateAndInviteUserRequestDto;
 import uk.gov.caz.accounts.dto.UserForAccountCreationRequestDto;
 import uk.gov.caz.accounts.dto.UserValidationRequest;
 import uk.gov.caz.accounts.model.Account;
+import uk.gov.caz.accounts.model.AccountPermission;
 import uk.gov.caz.accounts.model.Permission;
 import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.AccountRepository;
 import uk.gov.caz.accounts.repository.IdentityProvider;
 import uk.gov.caz.accounts.service.UserService;
@@ -77,6 +79,7 @@ public class AccountsControllerTestIT {
   private static final String PASSWORD = "password";
   private static final String VERIFICATION_URL = "http://example.com";
   private static final String EXAMPLE_EMAIL = "example1@email.com";
+  private static final String UNVERIFIED_WITH_CODES_EMAIL = "unverified@example.com";
   private static final UUID EXISTING_ACCOUNT_ID = UUID
       .fromString("1f30838f-69ee-4486-95b4-7dfcd5c6c67c");
   private static final UUID EXISTING_USER_ID = UUID
@@ -225,13 +228,15 @@ public class AccountsControllerTestIT {
           createAndInviteUserRequestDto);
 
       //then
-      User user = userService.getUserByEmail(email)
+      UserEntity user = userService.getUserByEmail(email)
           .flatMap(u -> userService.getUserForAccountId(EXISTING_ACCOUNT_ID, u.getId()))
           .orElseThrow(() -> new RuntimeException("cannot find user"));
 
       resultActions.andExpect(status().isCreated());
       assertThat(user).isNotNull();
-      assertThat(user.getAccountPermissions()).containsExactly(Permission.MAKE_PAYMENTS.toString());
+      assertThat(user.getAccountPermissions()).hasSize(1);
+      assertThat(user.getAccountPermissions().stream().findFirst().get().getName())
+          .isEqualTo(Permission.MAKE_PAYMENTS);
     }
 
     @Test
@@ -251,7 +256,7 @@ public class AccountsControllerTestIT {
           createAndInviteUserRequestDto);
 
       //then
-      User user = userService.getUserByEmail(email)
+      UserEntity user = userService.getUserByEmail(email)
           .flatMap(u -> userService.getUserForAccountId(EXISTING_ACCOUNT_ID, u.getId()))
           .orElseThrow(() -> new RuntimeException("cannot find user"));
 
@@ -282,7 +287,8 @@ public class AccountsControllerTestIT {
     }
 
     @Test
-    public void shouldReturn204IfUserWithGivenEmailDoesntExist() throws Exception {
+    public void shouldReturn204IfUserWithGivenEmailDoesNotExists()
+        throws Exception {
       //given
       UserValidationRequest userValidationRequest = UserValidationRequest.builder()
           .email("email@here.com")
@@ -296,11 +302,47 @@ public class AccountsControllerTestIT {
     }
 
     @Test
-    public void shouldReturnBadRequestIfEmailAlreadyExists() throws Exception {
+    public void shouldReturn204IfUserWithGivenEmailExistsUnverifiedWithoutCodes()
+        throws Exception {
+      //given
+      stubUnverifiedUsersInIdentityProvider();
+      UserValidationRequest userValidationRequest = UserValidationRequest.builder()
+          .email(EXAMPLE_EMAIL)
+          .build();
+
+      //when
+      ResultActions result = callValidateUserEndpoint(UUID.randomUUID(), userValidationRequest);
+
+      //then
+      result.andExpect(status().is(204));
+    }
+
+    @Test
+    public void shouldReturnBadRequestIfActiveUserWithEmailAlreadyExists() throws Exception {
       //given
       stubUsersInIdentityProvider();
       UserValidationRequest userValidationRequest = UserValidationRequest.builder()
           .email(EXAMPLE_EMAIL)
+          .build();
+
+      //when
+      ResultActions result = callValidateUserEndpoint(EXISTING_ACCOUNT_ID, userValidationRequest);
+
+      //then
+      result.andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.message", is(
+              "Provided email is not unique"
+          )))
+          .andExpect(jsonPath("$.status", is(400)));
+    }
+
+    @Test
+    public void shouldReturnBadRequestIfUnverifiedUserWithEmailAlreadyExistsWithActiveCodes()
+        throws Exception {
+      //given
+      stubUnverifiedUsersInIdentityProvider();
+      UserValidationRequest userValidationRequest = UserValidationRequest.builder()
+          .email(UNVERIFIED_WITH_CODES_EMAIL)
           .build();
 
       //when
@@ -448,15 +490,24 @@ public class AccountsControllerTestIT {
 
   private void stubUsersInIdentityProvider() {
     Stream.of(
-        createUser("54f04990-fea5-4ca2-9c60-834a5d9ba411", EXAMPLE_EMAIL),
-        createUser("08d84742-b196-481e-b2d2-1bb0d7324d0d", "example2@email.com")
+        createUser("54f04990-fea5-4ca2-9c60-834a5d9ba411", EXAMPLE_EMAIL, true),
+        createUser("08d84742-b196-481e-b2d2-1bb0d7324d0d", "example2@email.com", true)
     ).forEach(identityProvider::createStandardUser);
   }
 
-  private User createUser(String identityProviderUserId, String email) {
-    return User.builder()
+  private void stubUnverifiedUsersInIdentityProvider() {
+    Stream.of(
+        createUser("54f04990-fea5-4ca2-9c60-834a5d9ba411", EXAMPLE_EMAIL, false),
+        createUser("5d5e79d8-6055-4d0f-a841-829b97b79279", UNVERIFIED_WITH_CODES_EMAIL, false)
+    ).forEach(identityProvider::createStandardUser);
+  }
+
+  private UserEntity createUser(String identityProviderUserId, String email,
+      boolean emailVerified) {
+    return UserEntity.builder()
         .email(email)
         .name("Test Name")
+        .emailVerified(emailVerified)
         .identityProviderUserId(UUID.fromString(identityProviderUserId))
         .build();
   }

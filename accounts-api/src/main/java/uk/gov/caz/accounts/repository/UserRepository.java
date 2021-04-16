@@ -22,6 +22,8 @@ public interface UserRepository extends CrudRepository<UserEntity, UUID> {
 
   int countByAccountId(UUID accountId);
 
+  List<UserEntity> findAllByAccountId(UUID accountId);
+
   List<UserEntity> findAllByAccountIdAndIdentityProviderUserIdIsNotNull(UUID accountId);
 
   default List<UserEntity> findAllActiveUsersByAccountId(UUID accountId) {

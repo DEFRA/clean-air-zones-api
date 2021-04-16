@@ -16,6 +16,7 @@ import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.test.web.servlet.MockMvc;
 import uk.gov.caz.accounts.annotation.MockedMvcIntegrationTest;
 import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.IdentityProvider;
 import uk.gov.caz.correlationid.Constants;
 
@@ -110,8 +111,8 @@ class UsersControllerTestIT {
         .andExpect(status().isNotFound());
   }
 
-  private User createUser(String userId) {
-    return User.builder()
+  private UserEntity createUser(String userId) {
+    return UserEntity.builder()
         .email(UsersControllerTestIT.SAMPLE_EMAIL)
         .name(TEST_NAME)
         .identityProviderUserId(UUID.fromString(userId))
@@ -124,7 +125,7 @@ class UsersControllerTestIT {
     populator.execute(dataSource);
   }
 
-  private User stubUserInIdentityProvider(String userId) {
+  private UserEntity stubUserInIdentityProvider(String userId) {
     return identityProvider.createStandardUser(createUser(userId));
   }
 }

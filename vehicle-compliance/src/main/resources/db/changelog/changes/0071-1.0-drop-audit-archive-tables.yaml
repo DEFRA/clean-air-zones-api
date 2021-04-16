@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0070-1.0-drop-audit-archive-tables
+      author: Informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0071-1.0-drop-audit-archive-tables.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+        

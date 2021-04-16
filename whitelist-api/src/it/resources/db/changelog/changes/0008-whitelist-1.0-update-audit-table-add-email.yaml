@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0008.1-whitelist-1.0
+      author: lukaszkuczynski
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0008-whitelist-1.0-update_audit_table_add_email.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

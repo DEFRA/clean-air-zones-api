@@ -10,10 +10,13 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.caz.accounts.dto.DirectDebitMandateRequest;
 import uk.gov.caz.accounts.model.Account;
 import uk.gov.caz.accounts.model.DirectDebitMandate;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.AccountRepository;
 import uk.gov.caz.accounts.repository.DirectDebitMandateRepository;
+import uk.gov.caz.accounts.repository.UserRepository;
 import uk.gov.caz.accounts.repository.exception.NotUniquePaymentProviderMandateIdException;
 import uk.gov.caz.accounts.service.exception.AccountNotFoundException;
+import uk.gov.caz.accounts.service.exception.AccountUserNotFoundException;
 import uk.gov.caz.accounts.service.exception.DirectDebitMandateDoesNotBelongsToAccountException;
 import uk.gov.caz.accounts.service.exception.DirectDebitMandateNotFoundException;
 
@@ -24,6 +27,7 @@ public class DirectDebitMandateService {
 
   private final DirectDebitMandateRepository directDebitMandateRepository;
   private final AccountRepository accountRepository;
+  private final UserRepository userRepository;
 
   /**
    * Persists the provided data in the database.
@@ -35,6 +39,7 @@ public class DirectDebitMandateService {
   @Transactional
   public DirectDebitMandate create(UUID accountId, DirectDebitMandateRequest request) {
     verifyAccountPresence(accountId);
+    verifyAccountUserPresence(accountId, request.getAccountUserId());
     verifyMandateIdIsUnique(request.getMandateId());
     DirectDebitMandate directDebitMandate = buildDirectDebitMandate(accountId, request);
     return directDebitMandateRepository.save(directDebitMandate);
@@ -51,7 +56,7 @@ public class DirectDebitMandateService {
   }
 
   /**
-   * Persists the provided data in the database.
+   * Removes the direct debit mandate from the database based on the provided params.
    *
    * @param accountId an ID of the account.
    * @param directDebitMandateId an ID of the DirectDebitMandate.
@@ -65,7 +70,6 @@ public class DirectDebitMandateService {
     directDebitMandateRepository.delete(directDebitMandate);
   }
 
-
   /**
    * Verifies if there exists an account with provided accountId.
    *
@@ -76,6 +80,20 @@ public class DirectDebitMandateService {
     if (!matchedAccount.isPresent()) {
       log.debug("Matching account was not found.");
       throw new AccountNotFoundException("Account was not found.");
+    }
+  }
+
+  /**
+   * Verifies if there exists and accountUser associated with the provided account.
+   *
+   * @param accountId expected ID of the account.
+   * @param accountUserId expected ID of the accountUser.
+   */
+  private void verifyAccountUserPresence(UUID accountId, UUID accountUserId) {
+    Optional<UserEntity> userEntity = userRepository.findByIdAndAccountId(accountUserId, accountId);
+    if (!userEntity.isPresent()) {
+      log.debug("Matching accountUser was not found.");
+      throw new AccountUserNotFoundException("AccountUser was not found.");
     }
   }
 
@@ -120,6 +138,7 @@ public class DirectDebitMandateService {
       DirectDebitMandateRequest request) {
     return DirectDebitMandate.builder()
         .accountId(accountId)
+        .accountUserId(request.getAccountUserId())
         .paymentProviderMandateId(request.getMandateId())
         .cleanAirZoneId(request.getCleanAirZoneId())
         .build();

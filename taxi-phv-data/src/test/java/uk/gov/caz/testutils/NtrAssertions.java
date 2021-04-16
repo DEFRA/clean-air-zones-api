@@ -1,6 +1,7 @@
 package uk.gov.caz.testutils;
 
 import org.assertj.core.api.Assertions;
+import uk.gov.caz.taxiregister.model.ActiveLicenceInReportingWindow;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJob;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.StartParams;
 
@@ -12,5 +13,10 @@ public class NtrAssertions extends Assertions {
 
   public static RegisterJobSupervisorStartParamsAssert assertThat(StartParams actual) {
     return new RegisterJobSupervisorStartParamsAssert(actual);
+  }
+
+  public static ActiveLicenceInReportingWindowAssert assertThat(
+      ActiveLicenceInReportingWindow actual) {
+    return new ActiveLicenceInReportingWindowAssert(actual);
   }
 }

@@ -20,11 +20,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.caz.definitions.dto.InformationUrlsDto;
+import uk.gov.caz.definitions.dto.RatesDto;
 import uk.gov.caz.vcc.domain.exceptions.ExternalServiceCallException;
 import uk.gov.caz.vcc.domain.CazClass;
 import uk.gov.caz.vcc.domain.TariffDetails;
-import uk.gov.caz.vcc.dto.InformationUrlsDto;
-import uk.gov.caz.vcc.dto.RatesDto;
 import uk.gov.caz.vcc.dto.TariffDto;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,16 +55,15 @@ public class TariffDetailsRepositoryTest {
     UUID testCleanAirZoneId = UUID.randomUUID();
     InformationUrlsDto testUrls = InformationUrlsDto.builder()
         .becomeCompliant("become-compliant").boundary("boundary")
-        .emissionsStandards("emissions").exemptionOrDiscount("exemptions")
-        .financialAssistance("finanical-assistance")
-        .hoursOfOperation("hours-of-operation").mainInfo("main-info")
-        .payCaz("pay").pricing("pricing").build();
+        .exemptionOrDiscount("exemptions")
+        .mainInfo("main-info")
+        .build();
 
     RatesDto testRates = RatesDto.builder().bus(new BigDecimal("10.1"))
         .car(new BigDecimal("10.2")).coach(new BigDecimal("10.3"))
-        .hgv(new BigDecimal("10.4")).largeVan(new BigDecimal("10.5"))
+        .hgv(new BigDecimal("10.4")).van(new BigDecimal("10.5"))
         .motorcycle(new BigDecimal("10.6")).miniBus(new BigDecimal("10.8"))
-        .smallVan(new BigDecimal("10.9")).taxi(new BigDecimal("10.10")).build();
+        .van(new BigDecimal("10.9")).taxi(new BigDecimal("10.10")).build();
 
     TariffDto testExternalTariff = TariffDto.builder()
         .cleanAirZoneId(testCleanAirZoneId).tariffClass('A')

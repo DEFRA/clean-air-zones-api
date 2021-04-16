@@ -1,6 +1,8 @@
 # JAQU-CAZ-Retrofit Register API
 JAQU CAZ Retrofit Register API
 
+[![Build Status](http://drone-1587293244.eu-west-2.elb.amazonaws.com/api/badges/InformedSolutions/JAQU-CAZ-Retrofit-API/status.svg?ref=refs/heads/develop)](http://drone-1587293244.eu-west-2.elb.amazonaws.com/InformedSolutions/JAQU-CAZ-Retrofit-API)
+
 ## First steps in Retrofit API
 
 ### Prerequisites
@@ -192,7 +194,7 @@ where:
 | Missing field                                                                                | N/A (there will be a parse error)                                                                         | 
 | Empty VRN                                                                                    | Line {}: VRN should have from 1 to 7 characters instead of 0.                                             | 
 | Too long VRN                                                                                 | Line {}: VRN should have from 1 to 7 characters instead of {}.                                            | 
-| Invalid format of VRN                                                                        | Line {}: Invalid format of VRN (regex validation).                                                        | 
+| Invalid format of VRN                                                                        | Line {}: Invalid format of VRN.                                                                           | 
 | Invalid format of category                                                                   | Line {}: 'vehicleCategory' should have from 1 to 40 characters instead of {}.                             | 
 | Invalid format of model                                                                      | Line {}: 'model' should have from 1 to 30 characters instead of {}.                                       | 
 | Invalid format of date of retrofit installation                                              | Line {}: Invalid format of date of retrofit installation, should be ISO 8601.                             | 

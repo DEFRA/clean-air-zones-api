@@ -68,7 +68,7 @@ public class VehicleEntrantVrnValidator implements VehicleEntrantValidator<Strin
 
     @Override
     public Optional<ValidationError> validate(String vrn, String validatedVrn) {
-      if (vrn != null && vrn.length() <= 15) {
+      if (vrn != null && vrn.length() <= 15 && vrn.length() >= 2) {
         return Optional.empty();
       }
       return Optional.of(ValidationError.invalidVrnFormat(vrn));

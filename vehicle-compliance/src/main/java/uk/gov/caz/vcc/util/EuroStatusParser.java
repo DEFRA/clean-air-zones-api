@@ -7,6 +7,11 @@ import java.util.regex.Pattern;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
+/**
+ * Utility for parsing a euro status value for compliance assessment purposes
+ * from a string representation.
+ *
+ */
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class EuroStatusParser {
   

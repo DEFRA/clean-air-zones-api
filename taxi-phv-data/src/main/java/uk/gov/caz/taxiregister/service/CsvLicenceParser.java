@@ -1,17 +1,12 @@
 package uk.gov.caz.taxiregister.service;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Strings;
 import com.opencsv.ICSVParser;
 import java.util.regex.Pattern;
 import uk.gov.caz.csv.ForwardingCsvParser;
 import uk.gov.caz.csv.exception.CsvInvalidCharacterParseException;
 import uk.gov.caz.csv.exception.CsvInvalidFieldsCountException;
 import uk.gov.caz.csv.exception.CsvMaxLineLengthExceededException;
-import uk.gov.caz.taxiregister.service.exception.CsvInvalidBooleanValueException;
 
 /**
  * A taxi/phv licence parser. Apart from parsing the given line of an input file, it validates it by
@@ -24,8 +19,6 @@ public class CsvLicenceParser extends ForwardingCsvParser {
 
   private static final int EXPECTED_FIELDS_CNT = 7;
 
-  private static final String INVALID_BOOLEAN_VALUE_MESSAGE_TEMPLATE = "Invalid value of "
-      + "a boolean flag (\"true\" or \"false\" in any capitalization), actual: '%s'";
   private static final String MAX_LENGTH_MESSAGE_TEMPLATE =
       "Line is too long (max :" + CsvLicenceParser.MAX_LINE_LENGTH + ", current: %d)";
   private static final String LINE_INVALID_FIELDS_CNT_MESSAGE_TEMPLATE = "Line contains %d fields "
@@ -47,7 +40,6 @@ public class CsvLicenceParser extends ForwardingCsvParser {
   @Override
   protected final void afterParseLine(String[] result) {
     checkFieldsCountPostcondition(result);
-    checkBooleanFlagFormat(result);
   }
 
   /**
@@ -60,37 +52,6 @@ public class CsvLicenceParser extends ForwardingCsvParser {
   protected final void beforeParseLine(String nextLine) {
     checkMaxLineLengthPrecondition(nextLine);
     checkAllowableCharactersPrecondition(nextLine);
-  }
-
-  /**
-   * Verifies whether the format of the optional boolean value is correct.
-   *
-   * @param result A {@link String} array containing records of the parsed line.
-   * @throws CsvInvalidBooleanValueException if the format is incorrect.
-   */
-  private void checkBooleanFlagFormat(String[] result) {
-    String lastValue;
-    if ((lastValue = Strings.emptyToNull(lastValueOf(result))) == null) {
-      return;
-    }
-    boolean isTrueOrFalseInAnyCapitalization = lastValue.equalsIgnoreCase(TRUE.toString())
-        || lastValue.equalsIgnoreCase(FALSE.toString());
-
-    if (!isTrueOrFalseInAnyCapitalization) {
-      throw new CsvInvalidBooleanValueException(
-          String.format(INVALID_BOOLEAN_VALUE_MESSAGE_TEMPLATE, lastValue)
-      );
-    }
-  }
-
-  /**
-   * Returns the last value of the passed array. Precondition: the array must be non-empty.
-   *
-   * @param result An array whose last element is to be obtained.
-   * @return The last element of the input array.
-   */
-  private String lastValueOf(String[] result) {
-    return result[result.length - 1];
   }
 
   /**

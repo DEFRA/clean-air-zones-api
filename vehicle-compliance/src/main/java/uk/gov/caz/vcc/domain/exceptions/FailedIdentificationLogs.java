@@ -11,15 +11,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Entity for persisting UnidentifiableVehicleExceptions raised by the
- * VehicleIdentificationService.
+ * Entity for persisting UnidentifiableVehicleExceptions raised by the VehicleIdentificationService.
  * 
- * @author informed
  */
 @Getter
 @Setter
 @Entity
-@Table(name = "t_failed_identification_logs")
+@Table(name = "t_failed_identification_logs", schema = "CAZ_VEHICLE_ENTRANT")
 public class FailedIdentificationLogs {
 
   @Id

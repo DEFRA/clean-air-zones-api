@@ -45,8 +45,9 @@ public class DbSchemaMigrationControllerTest {
   @BeforeEach
   public void setup() throws LiquibaseException, SQLException {
     liquibaseWrapper = new LiquibaseWrapper(dataSource, liquibaseFactory, "db/changelog/db.changelog-master.yaml");
-    dbSchemaMigrationControllerApi = new DbSchemaMigrationControllerApi(liquibaseWrapper);
+    dbSchemaMigrationControllerApi = new DbSchemaMigrationControllerApi(liquibaseWrapper, "true", "true");
   }
+
   @Test
   public void shouldReturnOKWhenMigrateDbSchemaSucceeded() throws Exception {
     //given

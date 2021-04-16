@@ -33,7 +33,7 @@ class UserRepositoryTestIT {
     List<UserEntity> foundUsers = userRepository
         .findAllActiveUsersByAccountId(EXISTING_ACCOUNT_ID);
 
-    assertThat(foundUsers.size()).isEqualTo(4);
+    assertThat(foundUsers.size()).isEqualTo(5);
   }
 
   @Test

@@ -1,6 +1,10 @@
 package uk.gov.caz.vcc.domain;
 
-
+/**
+ * Enumeration of CAZ tariffs/classes that can be implemented by 
+ * a Local Authority against the national framework.
+ *
+ */
 public enum CazClass {
   A,
   B,

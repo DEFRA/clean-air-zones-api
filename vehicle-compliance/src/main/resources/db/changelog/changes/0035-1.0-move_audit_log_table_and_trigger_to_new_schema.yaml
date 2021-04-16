@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0035-1.0
+      author: informed
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/035-alter-audit-log-and-trigger.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

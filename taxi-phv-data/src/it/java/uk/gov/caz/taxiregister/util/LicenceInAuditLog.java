@@ -1,9 +1,11 @@
 package uk.gov.caz.taxiregister.util;
 
-import lombok.Value;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
-@Value
+@Data
+@AllArgsConstructor
 public class LicenceInAuditLog {
 
-  private String originalData;
+  String originalData;
 }

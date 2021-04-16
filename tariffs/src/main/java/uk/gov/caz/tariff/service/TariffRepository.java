@@ -1,5 +1,7 @@
 package uk.gov.caz.tariff.service;
 
+import static uk.gov.caz.tariff.service.RepositoryUtils.safelyGetActiveChargeStartDate;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -25,16 +27,14 @@ public class TariffRepository {
       + "charge.caz_name, "
       + "charge.caz_class, "
       + "charge.charge_identifier, "
-      + "link.emissions_url, "
+      + "charge.charging_disabled_vehicles, "
+      + "charge.active_charge_start_time, "
       + "link.main_info_url, "
-      + "link.pricing_url, "
-      + "link.operation_hours_url, "
       + "link.exemption_url, "
-      + "link.pay_caz_url, "
       + "link.become_compliant_url, "
-      + "link.financial_assistance_url, "
       + "link.boundary_url, "
       + "link.additional_info_url, "
+      + "link.public_transport_options_url, "
       + "tar.hgv_entrant_fee, "
       + "tar.minibus_entrant_fee, "
       + "tar.car_entrant_fee, "
@@ -43,8 +43,7 @@ public class TariffRepository {
       + "tar.bus_entrant_fee, "
       + "tar.motorcycle_ent_fee, "
       + "tar.coach_entrant_fee, "
-      + "tar.large_van_entrant_fee, "
-      + "tar.small_van_entrant_fee, "
+      + "tar.van_entrant_fee, "
       + "tar.moped_entrant_fee "
       + "FROM t_tariff_definition tar, t_charge_definition charge, t_caz_link_detail link "
       + "WHERE tar.charge_definition_id = charge.charge_definition_id "
@@ -88,17 +87,15 @@ public class TariffRepository {
           .name(rs.getString("caz_name"))
           .tariffClass(rs.getString("caz_class").charAt(0))
           .chargeIdentifier(rs.getString("charge_identifier"))
+          .chargingDisabledVehicles(rs.getBoolean("charging_disabled_vehicles"))
+          .activeChargeStartDate(safelyGetActiveChargeStartDate(rs))
           .informationUrls(InformationUrls.builder()
               .becomeCompliant(rs.getString("become_compliant_url"))
-              .hoursOfOperation(rs.getString("operation_hours_url"))
               .mainInfo(rs.getString("main_info_url"))
-              .pricing(rs.getString("pricing_url"))
               .exemptionOrDiscount(rs.getString("exemption_url"))
-              .payCaz(rs.getString("pay_caz_url"))
-              .financialAssistance(rs.getString("financial_assistance_url"))
               .boundary(rs.getString("boundary_url"))
               .additionalInfo(rs.getString("additional_info_url"))
-              .emissionsStandards(rs.getString("emissions_url"))
+              .publicTransportOptions(rs.getString("public_transport_options_url"))
               .build())
           .rates(Rates.builder()
               .bus(rs.getBigDecimal("bus_entrant_fee"))
@@ -108,8 +105,7 @@ public class TariffRepository {
               .taxi(rs.getBigDecimal("taxi_entrant_fee"))
               .phv(rs.getBigDecimal("phv_entrant_fee"))
               .hgv(rs.getBigDecimal("hgv_entrant_fee"))
-              .largeVan(rs.getBigDecimal("large_van_entrant_fee"))
-              .smallVan(rs.getBigDecimal("small_van_entrant_fee"))
+              .van(rs.getBigDecimal("van_entrant_fee"))
               .motorcycle(rs.getBigDecimal("motorcycle_ent_fee"))
               .moped(rs.getBigDecimal("moped_entrant_fee"))
               .build())

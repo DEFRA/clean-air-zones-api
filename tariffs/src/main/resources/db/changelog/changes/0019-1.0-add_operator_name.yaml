@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0019-1.0
+      author: dawid.ratka
+      changes:
+        - sql:
+            comment: Add CAZ_OPERATOR_NAME
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: ALTER TABLE public.T_CHARGE_DEFINITION ADD CAZ_OPERATOR_NAME VARCHAR(50);
+              UPDATE T_CHARGE_DEFINITION
+              SET CAZ_OPERATOR_NAME = 'Leeds City Council'
+              WHERE CAZ_NAME = 'Leeds';
+
+              UPDATE T_CHARGE_DEFINITION
+              SET CAZ_OPERATOR_NAME = 'Birmingham City Council'
+              WHERE CAZ_NAME = 'Birmingham';
+
+              UPDATE T_CHARGE_DEFINITION
+              SET CAZ_OPERATOR_NAME = 'Bath and North East Somerset Council'
+              WHERE CAZ_NAME = 'Bath';
+
+              ALTER TABLE public.T_CHARGE_DEFINITION ALTER COLUMN CAZ_OPERATOR_NAME SET NOT NULL;

@@ -1,16 +1,18 @@
 package uk.gov.caz.taxiregister;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import java.util.UUID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.annotation.Commit;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
 import org.springframework.test.jdbc.JdbcTestUtils;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.caz.taxiregister.annotation.IntegrationTest;
 
 @IntegrationTest
@@ -18,7 +20,6 @@ import uk.gov.caz.taxiregister.annotation.IntegrationTest;
     "classpath:data/sql/clear.sql",
     "classpath:data/sql/add-audit-log-data.sql"},
     executionPhase = ExecutionPhase.BEFORE_TEST_METHOD)
-@Sql(scripts = "classpath:data/sql/delete-audit-log-data.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
 public class AuditTrailTestIT {
 
   private static final String AUDIT_LOGGED_ACTIONS_TABLE = "audit.logged_actions";
@@ -30,6 +31,8 @@ public class AuditTrailTestIT {
   private JdbcTemplate jdbcTemplate;
 
   @Test
+  @Transactional
+  @Commit
   public void testInsertUpdateDeleteOperationsAgainstAuditTrailTable() {
     atTheBeginningAuditLoggedActionsTableShouldBeEmpty();
 
@@ -37,29 +40,40 @@ public class AuditTrailTestIT {
     whenWeInsertSomeSampleDataIntoTestTable("Initial Name", "AB123CD");
 
     thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(1);
+    andAllRowsArePopulatedWithModifierId(1);
     andThereShouldBeExactlyOneInsertActionLogged();
-    withNewData("Initial Name","AB123CD");
+    withNewData("Initial Name", "AB123CD");
 
     // UPDATE case
     whenWeUpdateTestTableTo("New Name", "Initial Name", "XZ567AB");
 
     thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(2);
+    andAllRowsArePopulatedWithModifierId(2);
     andThereShouldBeExactlyOneUpdateActionLogged();
-    withNewData("New Name","XZ567AB");
+    withNewData("New Name", "XZ567AB");
 
     // DELETE case
     whenWeDeleteRowFromTestTable("New Name");
 
     thenNumberOfRowsInAuditLoggedActionsTableForTestTableShouldBe(3);
+    andAllRowsArePopulatedWithModifierId(3);
     andThereShouldBeExactlyOneDeleteActionLogged();
     withNewDataEqualToNull();
   }
+  
+  private void andAllRowsArePopulatedWithModifierId(int expectedNumberOfRows) {
+    checkIfAuditTableContainsNumberOfRows(expectedNumberOfRows,
+        "modifier_id is not null");
+  }
+
 
   private void atTheBeginningAuditLoggedActionsTableShouldBeEmpty() {
     checkIfAuditTableContainsNumberOfRows(0);
   }
 
   private void whenWeInsertSomeSampleDataIntoTestTable(String name, String vrn) {
+    jdbcTemplate.update("INSERT INTO audit.transaction_to_modifier(modifier_id) VALUES (?)",
+        UUID.randomUUID().toString());
     jdbcTemplate.update(
         "INSERT INTO public.table_for_audit_test (name, vrn) VALUES (?, ?)", name, vrn);
   }

@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0046-1.0-upper-cased-index-to-test-harness
+      author: informed
+      changes:
+        - sql:
+            comment: Add upper-cased index to T_VEHICLE_TEST_HARNESS on registrationnumber column
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE INDEX IF NOT EXISTS idx_vehicle_upper_vrn ON caz_test_harness.t_vehicle (UPPER(registrationnumber)); 
+            stripComments: true

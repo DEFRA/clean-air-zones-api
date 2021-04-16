@@ -1,8 +1,12 @@
 package uk.gov.caz.vcc.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.Value;
+import uk.gov.caz.definitions.dto.InformationUrlsDto;
+import uk.gov.caz.definitions.dto.RatesDto;
+
 
 
 /**
@@ -25,7 +29,8 @@ public class TariffDto {
   InformationUrlsDto informationUrls;
 
   String chargeIdentifier;
-  
+
+  @JsonProperty("chargingDisabledVehicles")
   boolean disabledTaxClassChargeable;
 
 }

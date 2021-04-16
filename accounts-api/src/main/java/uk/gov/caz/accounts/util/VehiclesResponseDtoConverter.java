@@ -1,6 +1,8 @@
 package uk.gov.caz.accounts.util;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Page;
@@ -22,10 +24,10 @@ public class VehiclesResponseDtoConverter {
    * VehiclesResponseDto}.
    */
   public static VehiclesResponseDto toVehiclesResponseDto(
-      VehiclesWithAnyUndeterminedChargeabilityFlagData data) {
+      VehiclesWithAnyUndeterminedChargeabilityFlagData data, Optional<String> cazId) {
     Page<AccountVehicle> page = data.getVehicles();
     return VehiclesResponseDto.builder()
-        .vehicles(toVehiclesResponse(page))
+        .vehicles(toVehiclesResponse(page, cazId))
         .totalVehiclesCount(page.getTotalElements())
         .pageCount(page.getTotalPages())
         .anyUndeterminedVehicles(data.containsAnyUndeterminedVehicles())
@@ -35,30 +37,43 @@ public class VehiclesResponseDtoConverter {
   /**
    * Converts {@code Page<AccountVehicle>} to {@code List<VehicleWithCharges>}.
    */
-  private List<VehicleWithCharges> toVehiclesResponse(Page<AccountVehicle> page) {
+  private List<VehicleWithCharges> toVehiclesResponse(Page<AccountVehicle> page,
+      Optional<String> cazId) {
     return page.get()
-        .map(VehiclesResponseDtoConverter::toVehicleResponse)
+        .map(accountVehicle ->
+            VehiclesResponseDtoConverter.toVehicleResponse(accountVehicle, cazId))
         .collect(Collectors.toList());
   }
 
   /**
    * Converts {@link AccountVehicle} to {@link VehicleWithCharges}.
    */
-  public static VehicleWithCharges toVehicleResponse(AccountVehicle accountVehicle) {
+  public static VehicleWithCharges toVehicleResponse(AccountVehicle accountVehicle,
+      Optional<String> cazId) {
     List<VehicleChargeability> vehicleChargeability = accountVehicle.getVehicleChargeability();
     return VehicleWithCharges.builder()
         .vrn(accountVehicle.getVrn())
         .vehicleType(accountVehicle.getCazVehicleType())
         .exempt(isExempt(vehicleChargeability))
         .retrofitted(isRetrofitted(vehicleChargeability))
-        .cachedCharges(toCachedCharges(vehicleChargeability))
+        .cachedCharges(toCachedCharges(vehicleChargeability, cazId))
         .build();
   }
 
   /**
    * Converts {@code List<VehicleChargeability>} to {@code List<VehicleCharge>}.
    */
-  private List<VehicleCharge> toCachedCharges(List<VehicleChargeability> vehicleChargeability) {
+  private List<VehicleCharge> toCachedCharges(List<VehicleChargeability> vehicleChargeability,
+      Optional<String> cazId) {
+
+    if (cazId.isPresent()) {
+      UUID cazIdValue = UUID.fromString(cazId.get());
+      return vehicleChargeability.stream()
+          .filter(element -> element.getCazId().equals(cazIdValue))
+          .map(VehiclesResponseDtoConverter::toVehicleCharge)
+          .collect(Collectors.toList());
+    }
+
     return vehicleChargeability.stream()
         .map(VehiclesResponseDtoConverter::toVehicleCharge)
         .collect(Collectors.toList());

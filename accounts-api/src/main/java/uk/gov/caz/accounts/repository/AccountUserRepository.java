@@ -10,9 +10,6 @@ import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import uk.gov.caz.accounts.model.User;
 import uk.gov.caz.accounts.repository.exception.NotUniqueUserIdForAccountUserException;
@@ -39,20 +36,10 @@ public class AccountUserRepository {
       + "FROM caz_account.t_account_user "
       + "WHERE account_user_id = ?";
 
-  static final String SELECT_ALL_USERS_BY_ACCOUNT_ID_SQL = SELECT_ALL_COLUMNS
-      + "FROM caz_account.t_account_user "
-      + "WHERE account_id = ?";
-
-  static final String SET_LAST_SIGN_IN_TIMESTMP = "UPDATE caz_account.t_account_user "
-      + "SET LAST_SIGN_IN_TIMESTMP = CURRENT_TIMESTAMP "
-      + "WHERE account_user_id = ?";
-
-  public static final String DB_SCHEMA_NAME = "caz_account";
   private static final String NOT_UNIQUE_USER_ID_FOR_ACCOUNT_USER_MESSAGE =
       "More than one AccountUser with same userId found";
 
   private final JdbcTemplate jdbcTemplate;
-  private final SimpleJdbcInsert simpleJdbcInsert;
 
   /**
    * Creates an instance of {@link AccountUserRepository}.
@@ -61,34 +48,6 @@ public class AccountUserRepository {
    */
   public AccountUserRepository(JdbcTemplate jdbcTemplate) {
     this.jdbcTemplate = jdbcTemplate;
-    this.simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate)
-        .withTableName("t_account_user")
-        .withSchemaName(DB_SCHEMA_NAME)
-        .usingGeneratedKeyColumns(Columns.ACCOUNT_USER_ID)
-        .usingColumns(Columns.ACCOUNT_ID, Columns.USER_ID, Columns.IS_OWNER,
-            Columns.IS_ADMINISTRATED_BY);
-  }
-
-  /**
-   * Inserts {@code user} into database.
-   *
-   * @param user An entity object which is supposed to be saved in the database.
-   * @return An instance of {@link User} with its internal identifier set.
-   * @throws NullPointerException if {@code user} is null
-   * @throws NullPointerException if {@link User#getIdentityProviderUserId()} ()} is null
-   * @throws NullPointerException if {@link User#getAccountId()} ()} is null
-   * @throws IllegalArgumentException if {@link User#getId()} is not null
-   */
-  public User insert(User user) {
-    checkInsertPreconditions(user);
-
-    KeyHolder keyHolder = simpleJdbcInsert.executeAndReturnKeyHolder(
-        toSqlParametersForInsert(user));
-    UUID userId = (UUID) keyHolder.getKeys().get(Columns.ACCOUNT_USER_ID);
-
-    return user.toBuilder()
-        .id(userId)
-        .build();
   }
 
   /**
@@ -129,22 +88,6 @@ public class AccountUserRepository {
   }
 
   /**
-   * Finds list of {@link User} by its {@code accountId} property.
-   *
-   * @param accountId provided Id of Account assigned to User.
-   * @return List of {@link User} with identityProviderUserId set.
-   * @throws NullPointerException when {@code userId} is null
-   */
-  public List<User> findAllUsersByAccountId(UUID accountId) {
-    Preconditions.checkNotNull(accountId, "accountId cannot be null");
-
-    return jdbcTemplate.query(SELECT_ALL_USERS_BY_ACCOUNT_ID_SQL,
-        preparedStatement -> preparedStatement.setObject(1, accountId),
-        ROW_MAPPER
-    );
-  }
-
-  /**
    * A class that maps the row returned from the database to an instance of {@link User}.
    */
   static class UserRowMapper implements RowMapper<User> {
@@ -163,28 +106,6 @@ public class AccountUserRepository {
           .administeredBy(resultSet.getObject(Columns.IS_ADMINISTRATED_BY, UUID.class))
           .build();
     }
-  }
-
-  /**
-   * Converts {@code user} into a map of attributes which will be saved in the database.
-   */
-  private MapSqlParameterSource toSqlParametersForInsert(User user) {
-    return new MapSqlParameterSource()
-        .addValue(Columns.ACCOUNT_ID, user.getAccountId())
-        .addValue(Columns.USER_ID, user.getIdentityProviderUserId())
-        .addValue(Columns.IS_OWNER, user.isOwner())
-        .addValue(Columns.IS_ADMINISTRATED_BY, user.getAdministeredBy());
-  }
-
-  /**
-   * Checks if provided user details are valid to be inserted to DB.
-   */
-  private void checkInsertPreconditions(User user) {
-    Preconditions.checkNotNull(user, "User cannot be null");
-    Preconditions.checkArgument(user.getId() == null, "User cannot have ID");
-    Preconditions.checkNotNull(user.getIdentityProviderUserId(),
-        "User need to have identity provider account created");
-    Preconditions.checkNotNull(user.getAccountId(), "User need to be assigned to Account");
   }
 
   /**

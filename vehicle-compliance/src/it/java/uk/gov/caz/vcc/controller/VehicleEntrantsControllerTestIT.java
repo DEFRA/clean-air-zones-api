@@ -1,6 +1,7 @@
 package uk.gov.caz.vcc.controller;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -24,7 +25,6 @@ import static uk.gov.caz.vcc.controller.VehicleEntrantsController.CAZ_ID;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.nio.file.Files;
 import java.util.Collections;
-import java.util.UUID;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,7 +35,6 @@ import org.springframework.util.ResourceUtils;
 import uk.gov.caz.vcc.annotation.MockedMvcIntegrationTest;
 import uk.gov.caz.vcc.dto.VehicleEntrantDto;
 import uk.gov.caz.vcc.dto.VehicleEntrantsDto;
-import uk.gov.caz.vcc.dto.VehicleEntrantsSaveRequestDto;
 import uk.gov.caz.vcc.dto.VehicleResultDto;
 import uk.gov.caz.vcc.service.VehicleEntrantsService;
 
@@ -80,12 +79,7 @@ public class VehicleEntrantsControllerTestIT {
 
   @Test
   public void shouldReturnOneResultForGivenPayload() throws Exception {
-    given(vehicleEntrantsService.save(
-        new VehicleEntrantsSaveRequestDto(
-            UUID.fromString(SOME_CAZ_ID), SOME_CORRELATION_ID,
-            createSingleVehicleEntrant().getVehicleEntrants()
-        )
-    )).willReturn(Collections.singletonList(GOLF));
+    given(vehicleEntrantsService.save(any())).willReturn(Collections.singletonList(GOLF));
 
     mockMvc.perform(post(VehicleEntrantsController.VEHICLE_ENTRANT_PATH)
         .content(createPayloadWithSingleVehicleEntrant())
@@ -94,7 +88,7 @@ public class VehicleEntrantsControllerTestIT {
         .header(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID)
         .header(CAZ_ID, SOME_CAZ_ID))
         .andExpect(status().isOk())
-        .andExpect(content().json(readJson("classpath:data/json/single-result.json")))
+        .andExpect(content().json(readJson("classpath:data/json/single-result.json"), true))
         .andExpect(header().string(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID))
         .andExpect(
             header().string(STRICT_TRANSPORT_SECURITY_HEADER, STRICT_TRANSPORT_SECURITY_VALUE))
@@ -112,12 +106,7 @@ public class VehicleEntrantsControllerTestIT {
 
   @Test
   public void shouldReturnTwoResultsForPayload() throws Exception {
-    given(vehicleEntrantsService.save(
-        new VehicleEntrantsSaveRequestDto(
-            UUID.fromString(SOME_CAZ_ID), SOME_CORRELATION_ID,
-            createMultipleVehicleEntrants().getVehicleEntrants()
-        )
-    )).willReturn(newArrayList(GOLF, FORD));
+    given(vehicleEntrantsService.save(any())).willReturn(newArrayList(GOLF, FORD));
 
     mockMvc.perform(post(VehicleEntrantsController.VEHICLE_ENTRANT_PATH)
         .content(createPayloadWithMultipleVehicleEntrants())
@@ -141,6 +130,31 @@ public class VehicleEntrantsControllerTestIT {
         .andExpect(status().isBadRequest())
         .andExpect(content().json(readJson("classpath:data/json/invalid-vehicles.json")))
         .andExpect(header().string(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID));
+  }
+
+  @Test
+  public void shouldReturnVrnLenghtValidationError() throws Exception {
+    mockMvc.perform(post(VehicleEntrantsController.VEHICLE_ENTRANT_PATH)
+        .content(createPayloadWithMultipleVehicleEntrantsWithVrnValidationErrors())
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
+        .header(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID)
+        .header(CAZ_ID, SOME_CAZ_ID))
+        .andExpect(status().isBadRequest())
+        .andExpect(
+            content()
+                .json(readJson("classpath:data/json/validation-vrn-error.json")))
+        .andExpect(header().string(X_CORRELATION_ID_HEADER, SOME_CORRELATION_ID));
+  }
+
+  private String createPayloadWithMultipleVehicleEntrantsWithVrnValidationErrors() {
+    return writeAsString(createMultipleVehicleEntrantsWithVrnValidationErrors());
+  }
+
+  private VehicleEntrantsDto createMultipleVehicleEntrantsWithVrnValidationErrors() {
+    return new VehicleEntrantsDto(
+        newArrayList(new VehicleEntrantDto("S", "2017-10-01T155300Z"),
+            new VehicleEntrantDto("16charssssssssss", "2017-10-01T155300Z")));
   }
 
   private String createPayloadWithSingleVehicleEntrant() {

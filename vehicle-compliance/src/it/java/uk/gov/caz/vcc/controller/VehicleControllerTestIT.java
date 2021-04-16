@@ -1,322 +1,644 @@
 package uk.gov.caz.vcc.controller;
 
-import static java.lang.String.format;
 import static java.util.Collections.emptyList;
-import static org.assertj.core.util.Lists.newArrayList;
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.equalTo;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
-import lombok.extern.slf4j.Slf4j;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.CsvFileSource;
-import org.mockito.Mockito;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
-import org.springframework.test.web.servlet.MockMvc;
-import uk.gov.caz.vcc.annotation.MockedMvcIntegrationTest;
-import uk.gov.caz.vcc.domain.CazClass;
-import uk.gov.caz.vcc.domain.TariffDetails;
-import uk.gov.caz.vcc.domain.VehicleType;
-import uk.gov.caz.vcc.domain.VehicleTypeCharge;
-import uk.gov.caz.vcc.dto.ChargeDto;
-import uk.gov.caz.vcc.dto.InformationUrlsDto;
-import uk.gov.caz.vcc.dto.TaxiPhvLicenseInformationResponse;
-import uk.gov.caz.vcc.dto.VehicleTypeCazChargesDto;
-import uk.gov.caz.vcc.repository.TariffDetailsRepository;
-import uk.gov.caz.vcc.service.CazTariffService;
-import uk.gov.caz.vcc.service.NationalTaxiRegisterService;
-import uk.gov.caz.vcc.service.UnrecognizedVehicleChargeCalculationService;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.test.context.jdbc.Sql;
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase;
+import uk.gov.caz.vcc.annotation.FullyRunningServerIntegrationTest;
+import uk.gov.caz.vcc.domain.GeneralWhitelistVehicle;
+import uk.gov.caz.vcc.domain.RetrofittedVehicle;
+import uk.gov.caz.vcc.repository.GeneralWhitelistRepository;
+import uk.gov.caz.vcc.repository.LocalVehicleDetailsRepository;
+import uk.gov.caz.vcc.repository.NationalTaxiRegisterRepository;
+import uk.gov.caz.vcc.repository.RetrofitRepository;
+import uk.gov.caz.vcc.util.MockServerTestIT;
+import uk.gov.caz.vcc.util.TestFixturesLoader;
 
 /**
  * Integration tests for the VehicleController layer: https://spring.io/guides/gs/testing-web/
  */
-@MockedMvcIntegrationTest
-@Slf4j
-public class VehicleControllerTestIT {
+@TestInstance(Lifecycle.PER_CLASS)
+@FullyRunningServerIntegrationTest
+@Sql(scripts = "classpath:data/sql/clear-registered-details.sql", executionPhase = ExecutionPhase.AFTER_TEST_METHOD)
+public class VehicleControllerTestIT extends MockServerTestIT {
 
-  @MockBean
-  private NationalTaxiRegisterService ntrService;
-
-  @MockBean
-  private CazTariffService tariffService;
-
-  @MockBean
-  private TariffDetailsRepository tariffDetailsRepository;
-
-  @MockBean
-  private UnrecognizedVehicleChargeCalculationService unrecognizedVehicleChargeCalculationService;
+  private static final String IMAGINARY_CAZ = "0d7ab5c4-5fff-4935-8c4e-56267c0c9493";
+  
+  private static final String IMAGINARY_CAZ_TWO = "131af03c-f7f4-4aef-81ee-aae4f56dbeb5";
+  
+  private static final String BOTH_IMAGINARY_CAZ = String.format("%s,%s", IMAGINARY_CAZ, IMAGINARY_CAZ_TWO);
 
   @Autowired
-  private MockMvc mockMvc;
+  private LocalVehicleDetailsRepository localVehicleDetailsRepository;
 
-  private HttpHeaders headers;
-  private InformationUrlsDto informationUrls;
-  private String leedsCaz = "39e54ed8-3ed2-441d-be3f-38fc9b70c8d3";
-  private String birminghamCaz = "5cd7441d-766f-48ff-b8ad-1809586fea37";
+  @Autowired
+  private TestFixturesLoader testFixturesLoader;
+
+  @Autowired
+  private CacheInvalidationsController cacheInvalidationsController;
+
+  @Autowired
+  private NationalTaxiRegisterRepository nationalTaxiRegisterRepository;
+
+  @Autowired
+  private GeneralWhitelistRepository generalWhitelistRepository;
+
+  @Autowired
+  private RetrofitRepository retrofitRepository;
+
+  private static ObjectMapper objectMapper = new ObjectMapper();
+  
+  private static final List<String> VALID_TYPE_APPROVALS = Arrays.asList("M1", "M2", "M3", "N1", "N2", "N3",
+      "L1", "L2", "L3", "L4", "L5", "L6", "L7", "T1", "T2", "T3", "T4", "T5");
+
+  @LocalServerPort
+  int randomServerPort;
+
+  @BeforeAll
+  public void before() throws IOException {
+    testFixturesLoader.loadTestVehiclesIntoDb();
+  }
 
   @BeforeEach
   public void setup() {
-    this.headers = new HttpHeaders();
-    this.headers.add("X-Correlation-ID", "test");
+    RestAssured.port = randomServerPort;
+    RestAssured.baseURI = "http://localhost";
   }
 
-  public boolean csvToBoolean(String bool) {
-    if (bool.equals("f")) {
-      return false;
-    } else if (bool.equals("t")) {
-      return true;
-    } else {
-      throw new UnsupportedOperationException(
-          format("Could not interpret boolean value %s from CSV.", bool));
-    }
+  @AfterEach
+  public void cleanup() {
+    VehicleControllerTestIT.mockServer.reset();
+    nationalTaxiRegisterRepository.cacheEvictLicenseInfo();
+    cacheInvalidationsController.cacheEvictVehicles();
+    cacheInvalidationsController.cacheEvictCleanAirZones();
   }
+
+  @AfterAll
+  public void after() {
+    localVehicleDetailsRepository.deleteAll();
+  }
+
 
   @ParameterizedTest
-  @CsvFileSource(resources = "/test_data.csv", numLinesToSkip = 1)
-  public void vehicleDetails(String registrationnumber, String vehicletype,
-      String iswav, String colour, String dateoffirstregistration,
-      String eurostatus, String typeapproval, String massinservice,
-      String bodytype, String make, String model, String grossweight,
-      String seatingcapacity, String standingcapacity, String taxclass,
-      String fueltype, String secondarycolour, String expectedexempt,
-      String expectedcompliant, String expectedtype) throws Exception {
-
-    String testVrn = registrationnumber;
-    String expectedType = (expectedtype == null) ? "null" : expectedtype;
-    String typeApproval = (typeapproval == null || typeapproval.equals("null")) ? "" : typeapproval;
-    String testUrl = "/v1/compliance-checker/vehicles/{vrn}/details";
-
-    when(ntrService.getLicenseInformation(testVrn)).thenReturn(Optional.empty());
+  @MethodSource("streamVehicleArguments")
+  void testVehicleDetails(VehicleWithExpectedValues v) {
+    whenVehicleIsNotInTaxiDb(v.registrationNumber);
 
     try {
-      if (csvToBoolean(expectedexempt)) {
-        mockMvc.perform(get(testUrl, testVrn).headers(this.headers))
-        .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.registrationNumber", is(registrationnumber)))
-        .andExpect(jsonPath("$.typeApproval", is(typeApproval)))
-        .andExpect(jsonPath("$.make", is(make)))
-        .andExpect(jsonPath("$.model", is(model)))
-        .andExpect(jsonPath("$.colour", is(colour)))
-        .andExpect(jsonPath("$.fuelType", is(fueltype)))
-        .andExpect(jsonPath("$.exempt", is(csvToBoolean(expectedexempt))));
-      } else {
-        mockMvc.perform(get(testUrl, testVrn).headers(this.headers))
-        .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.registrationNumber", is(registrationnumber)))
-        .andExpect(jsonPath("$.typeApproval", is(typeApproval)))
-        .andExpect(jsonPath("$.type", is(expectedType)))
-        .andExpect(jsonPath("$.make", is(make)))
-        .andExpect(jsonPath("$.model", is(model)))
-        .andExpect(jsonPath("$.colour", is(colour)))
-        .andExpect(jsonPath("$.fuelType", is(fueltype)))
-        .andExpect(jsonPath("$.taxiOrPhv", is(false)))
-        .andExpect(jsonPath("$.exempt", is(csvToBoolean(expectedexempt))));
-    }
-  } catch (AssertionError e) {
-      log.error("Assertion error for test case with VRN: {}", testVrn);
-      throw e;
+      RestAssured.
+          given()
+          .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda").
+          when()
+          .get("/v1/compliance-checker/vehicles/{vrn}/details", v.registrationNumber).
+          then()
+          .statusCode(200)
+          .body("registrationNumber", equalTo(v.registrationNumber))
+          .body("typeApproval", VALID_TYPE_APPROVALS.contains(v.typeApprovalCategory)? 
+              equalTo(v.typeApprovalCategory):equalTo(""))
+          .body("type", equalTo(v.expectedOutcomes.type))
+          .body("make", equalTo(v.make))
+          .body("model", equalTo(v.model))
+          .body("colour", equalTo(v.colour))
+          .body("fuelType", equalTo(v.fuelType))
+          .body("exempt", equalTo(v.expectedOutcomes.exempt));
+    } catch (AssertionError e) {
+      throw new AssertionError(
+          "AssertionError encountered whilst testing vehicle details with vrn: "
+              + v.registrationNumber, e);
+    } catch (Exception e) {
+      throw new RuntimeException(
+          "Exception encountered whilst testing vehicle details with vrn: " + v.registrationNumber,
+          e);
     }
   }
 
   @ParameterizedTest
-  @CsvFileSource(resources = "/test_compliance_data.csv", numLinesToSkip = 1)
-  public void vehicleCompliance(String registrationNumber, String expectedType,
-      String expectedExempt) throws Exception {
-    String vrn = registrationNumber;
-    String zones = leedsCaz + "," + birminghamCaz;
-    String testUrl = "/v1/compliance-checker/vehicles/{vrn}/compliance";
-    boolean exempt = csvToBoolean(expectedExempt);
+  @MethodSource("streamVehicleArguments")
+  void testVehicleCompliance(VehicleWithExpectedValues v) {
+    whenVehicleIsNotInTaxiDb(v.registrationNumber);
+    mockTariffCall(IMAGINARY_CAZ, "tariff-rates-imaginary-caz.json");
+    mockCazListCall("caz-first-response.json");
 
-    this.informationUrls = InformationUrlsDto
-        .builder()
-        .additionalInfo("www.test.uk")
-        .build();
+    Response complianceResponse =
+        RestAssured.
+            given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda").
+            when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/compliance?zones={zone}",
+                v.registrationNumber, IMAGINARY_CAZ);
 
-    if (expectedType != null) {
-      VehicleTypeCharge vehicleTypeCharge = new VehicleTypeCharge() {
-        {
-          setVehicleType(VehicleType.valueOf(expectedType));
-          setCharge(0.0f);
-        }
-      };
-
-      List<VehicleTypeCharge> rates = new ArrayList<VehicleTypeCharge>();
-      rates.add(vehicleTypeCharge);
-
-      when(ntrService.getLicenseInformation(vrn)).thenReturn(Optional.empty());
-      when(tariffDetailsRepository.getTariffDetails(Mockito.any()))
-          .thenReturn(Optional.of(new TariffDetails() {
-            {
-              setCazId(UUID.fromString(leedsCaz));
-              setName("TEST");
-              setTariff(CazClass.D);
-              setInformationUrls(informationUrls);
-              setRates(rates);
-            }
-          }));
-
-      if (exempt) {
-        mockMvc.perform(get(testUrl, vrn).param("zones", zones).headers(this.headers))
-            .andExpect(status().is2xxSuccessful())
-            .andExpect(jsonPath("$.registrationNumber", is(registrationNumber)))
-            .andExpect(jsonPath("$.isExempt", is(exempt)))
-            .andExpect(jsonPath("$.complianceOutcomes", is(hasSize(0))));
+    try {
+      if (v.expectedOutcomes.exempt) {
+        complianceResponse.
+            then()
+            .statusCode(200)
+            .body("isExempt", equalTo(true))
+            .body("complianceOutomes", equalTo(null));
+      } else if (v.expectedOutcomes.compliant == null || v.expectedOutcomes.type.equals("null")) {
+        complianceResponse.
+            then()
+            .statusCode(422);
       } else {
-        mockMvc.perform(get(testUrl, vrn).param("zones", zones).headers(this.headers))
-            .andExpect(status().is2xxSuccessful())
-            .andExpect(jsonPath("$.registrationNumber", is(registrationNumber)))
-            .andExpect(jsonPath("$.isExempt", is(exempt)))
-            .andExpect(jsonPath("$.complianceOutcomes[0].cleanAirZoneId",
-                is(leedsCaz)))
-            .andExpect(jsonPath("$.complianceOutcomes[1].cleanAirZoneId",
-                is(birminghamCaz)))
-            .andExpect(jsonPath("$.complianceOutcomes[1].informationUrls.additionalInfo",
-                is("www.test.uk")));
+        complianceResponse.
+            then()
+            .statusCode(200)
+            .body("registrationNumber", equalTo(v.registrationNumber))
+            .body("complianceOutcomes[0].charge", is(v.expectedOutcomes.compliant ? 0.0f : 10.0f));
       }
-
-    } else {
-      mockMvc.perform(get(testUrl, vrn).headers(this.headers))
-          .andExpect(status().is4xxClientError());
+    } catch (AssertionError e) {
+      throw new AssertionError(
+          "AssertionError encountered whilst testing vehicle details with vrn: "
+              + v.registrationNumber, e);
     }
   }
 
   @Test
-  public void shouldReturnVehicleDetails() throws Exception {
-    // given
-    String vrn = "CAS310";
-    mockNtrResponseWithLicensingAuthoritiesNames(vrn);
+  void testVehicleComplianceWhenNoZonesParameterPassed() {
+    String vrn = "CAS300";
+    whenVehicleIsNotInTaxiDb(vrn);
+    mockCazListCall("caz-first-response.json");
+    mockTariffCall(IMAGINARY_CAZ, "tariff-rates-imaginary-caz.json");
 
-    // then
-    mockMvc.perform(get("/v1/compliance-checker/vehicles/{vrn}/details", vrn).headers(this.headers))
-        .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.registrationNumber", is("CAS310")))
-        .andExpect(jsonPath("$.taxiOrPhv", is(true)))
-        .andExpect(jsonPath("$.licensingAuthoritiesNames[0]", is("la-1")))
-        .andExpect(jsonPath("$.licensingAuthoritiesNames[1]", is("la-2")));
+    RestAssured.
+        given()
+        .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda").
+        when()
+        .get("/v1/compliance-checker/vehicles/{vrn}/compliance", vrn)
+        .then()
+        .statusCode(200)
+        .body("registrationNumber", equalTo(vrn))
+        .body("complianceOutcomes[0].charge", is(10.0f));
+  }
+  
+  @Test
+  public void testVehicleComplianceTaxiNullEuroStatus() {
+    mockCazListCall("caz-first-response.json");
+    mockTariffCall(IMAGINARY_CAZ, "tariff-rates-imaginary-caz.json");
+    mockTariffCall(IMAGINARY_CAZ_TWO, "tariff-rates-imaginary-caz.json");
+    String vrn = "JA07PCB";
+    whenVehicleIsInTaxiDb(vrn, "ntr-bath-response.json");
+    Response complianceResponse =
+        RestAssured.
+            given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda").
+            when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/compliance?zones={zone}",
+                vrn, BOTH_IMAGINARY_CAZ);
+    
+    complianceResponse.
+    then()
+    .statusCode(200)
+    .body("registrationNumber", equalTo(vrn))
+    .body("complianceOutcomes[0].charge", is(0.0f));
+    
   }
 
   @Test
-  public void shouldReturnStatusCode422() throws Exception {
-    // given
-    String vrn = "ERR422";
-    String zones = leedsCaz + "," + birminghamCaz;
-    when(ntrService.getLicenseInformation(vrn)).thenReturn(Optional.empty());
-    
-    VehicleTypeCharge vehicleTypeCharge = new VehicleTypeCharge() {
-      {
-        setVehicleType(VehicleType.PRIVATE_CAR);
-        setCharge(0.0f);
-      }
-    };
+  public void testBulkVehicleComplianceWithStatedZoneId() throws IOException {
+    whenCazInfoIsInTariffService("/v1/clean-air-zones","caz-imaginary-caz-response.json");
+    whenEachCazHasTariffInfo(IMAGINARY_CAZ, "tariff-rates-imaginary-caz.json");
+    whenEachCazHasTariffInfo(IMAGINARY_CAZ_TWO, "tariff-rates-imaginary-caz.json");
+    String vrn = "CAS310";
+    List<String> vrns = Arrays.asList(vrn);
+    whenVehicleIsNotInTaxiDb(vrn);
 
-    List<VehicleTypeCharge> rates = new ArrayList<VehicleTypeCharge>();
-    rates.add(vehicleTypeCharge);
+    Response complianceResponse =
+        RestAssured.
+            given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .body(objectMapper.writeValueAsString(vrns))
+            .post("/v1/compliance-checker/vehicles/bulk-compliance?zones={zone}", IMAGINARY_CAZ);
+    complianceResponse.then()
+        .statusCode(200)
+        .body("[0].isRetrofitted", equalTo(false))
+        .body("[0].isExempt", equalTo(false))
+        .body("[0].registrationNumber", equalTo(vrn))
+        .body("[0].complianceOutcomes[0].cleanAirZoneId", equalTo(IMAGINARY_CAZ))
+        .body("[0].complianceOutcomes[0].charge", is(10.0f))
+        .body("[0].complianceOutcomes[0].size()", is(6)); //The value 6 accounts for the VRN, vehicle type, 2 CAZ charges and notes
+  }
 
-    when(tariffDetailsRepository.getTariffDetails(Mockito.any()))
-          .thenReturn(Optional.of(new TariffDetails() {
-            {
-              setCazId(UUID.fromString(leedsCaz));
-              setName("TEST");
-              setTariff(CazClass.D);
-              setInformationUrls(informationUrls);
-              setRates(rates);
-            }
-          }));
-    // then
-    mockMvc.perform(get("/v1/compliance-checker/vehicles/{vrn}/compliance", vrn).param("zones", zones).headers(this.headers))
-        .andExpect(status().isUnprocessableEntity());
+  @Test
+  public void testBulkVehicleComplianceWithoutZones() throws IOException {
+    whenCazInfoIsInTariffService("/v1/clean-air-zones","caz-imaginary-caz-response.json");
+    whenEachCazHasTariffInfo(IMAGINARY_CAZ, "tariff-rates-imaginary-caz.json");
+    whenEachCazHasTariffInfo(IMAGINARY_CAZ_TWO, "tariff-rates-imaginary-caz.json");
+    String vrn = "CAS310";
+    List<String> vrns = Arrays.asList(vrn);
+    whenVehicleIsNotInTaxiDb(vrn);
+
+    Response complianceResponse =
+        RestAssured.
+            given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .contentType(ContentType.JSON)
+            .accept(ContentType.JSON)
+            .when()
+            .body(objectMapper.writeValueAsString(vrns))
+            .post("/v1/compliance-checker/vehicles/bulk-compliance");
+    complianceResponse.then()
+        .statusCode(200)
+        .body("[0].isRetrofitted", equalTo(false))
+        .body("[0].isExempt", equalTo(false))
+        .body("[0].registrationNumber", equalTo(vrn))
+        .body("[0].complianceOutcomes[0].cleanAirZoneId", equalTo(IMAGINARY_CAZ))
+        .body("[0].complianceOutcomes[0].charge", is(10.0f))
+        .body("[0].complianceOutcomes[0].size()", is(6))
+        .body("[0].complianceOutcomes[1].size()", is(6));
+  }
+  
+  
+  @Test
+  public void shouldReturn404IfDetailsNotFound() throws Exception {
+    whenVehicleIsNotInTaxiDb("VEH404");
+
+    RestAssured.
+        given()
+        .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda").
+        when()
+        .get("/v1/compliance-checker/vehicles/VEH404/details").
+        then()
+        .statusCode(404);
   }
 
   @Test
   public void shouldReturnVehicleDetailsWithoutLicensingAuthoritiesNames() throws Exception {
-    // given
-    String vrn = "CAS310";
-    mockNtrResponseWithoutLicensingAuthoritiesNames(vrn);
+    String vrn = "CAS300";
+    whenVehicleIsNotInTaxiDb(vrn);
 
-    // then
-    mockMvc.perform(get("/v1/compliance-checker/vehicles/{vrn}/details", vrn)
-        .headers(this.headers))
-        .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.registrationNumber", is("CAS310")))
-        .andExpect(jsonPath("$.taxiOrPhv", is(false)))
-        .andExpect(jsonPath("$.licensingAuthoritiesNames", is(emptyList())));
+    RestAssured.
+        given()
+        .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda").
+        when()
+        .get("/v1/compliance-checker/vehicles/{vrn}/details", vrn).
+        then()
+        .statusCode(200)
+        .body("registrationNumber", equalTo(vrn))
+        .body("taxiOrPhv", equalTo(false))
+        .body("licensingAuthoritiesNames", equalTo(emptyList()));
   }
 
   @Test
-  public void shouldTestUnrecognisedVehicleEndpoint() throws Exception {
-    //given
-    String vehicleType = "buS";
-    String cazId = "8023312c-a9e7-11e9-a2a3-2a2ae2dbcce4";
-    float chargeValue = 5.0f;
-    String chargeName = "Bus";
-    mockServiceCall(vehicleType, cazId, chargeValue, chargeName);
+  public void taxiQueryParamTrueTreatsVehicleAsTaxi() throws Exception {
+    // If isTaxiOrPhv is true, that should be used instead of referring to the NTR and
+    // the vehicle treated as being a taxi for compliance calculation purposes.
+    String vrn = "CAS300";
+    boolean isTaxiOrPhv = true;
 
-    //then
-    mockMvc
-        .perform(get("/v1/compliance-checker/vehicles/unrecognised/{type}/compliance", vehicleType)
-            .headers(this.headers)
-            .param("zones", cazId))
-        .andExpect(status().is2xxSuccessful())
-        .andExpect(jsonPath("$.charges[0].cleanAirZoneId", is(cazId)))
-        .andExpect(jsonPath("$.charges[0].name", is(chargeName)))
-        .andExpect(jsonPath("$.charges[0].charge", is((double) chargeValue)));
+    whenVehicleIsNotInTaxiDb(vrn);
+    mockTariffCall(IMAGINARY_CAZ, "tariff-rates-imaginary-caz.json");
+    mockCazListCall("caz-first-response.json");
+
+    RestAssured.
+        given()
+        .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda").
+        when()
+        .get(
+            "/v1/compliance-checker/vehicles/{vrn}/compliance?zones={bathCaz}&isTaxiOrPhv={isTaxiOrPhv}",
+            vrn, IMAGINARY_CAZ, isTaxiOrPhv).
+        then()
+        .statusCode(200)
+        .body("registrationNumber", equalTo(vrn))
+        .body("isExempt", equalTo(false))
+        .body("complianceOutcomes[0].cleanAirZoneId", equalTo(IMAGINARY_CAZ))
+        .body("complianceOutcomes[0].charge", is(10.0f));
   }
 
-  private void mockServiceCall(String vehicleType,
-      String cazId, float chargeValue, String chargeName) {
-    when(unrecognizedVehicleChargeCalculationService.getCharges(
-        vehicleType, Collections.singletonList(UUID.fromString(cazId))
-    )).thenReturn(
-        new VehicleTypeCazChargesDto(
-            Collections.singletonList(
-                new ChargeDto(UUID.fromString(cazId), chargeName, chargeValue)
-            )
-        )
-    );
-  }
-  
   @Test
-  public void shouldReturn404IfDetailsNotFound() throws Exception {
-    String testUrl = "/v1/compliance-checker/vehicles/CAS404/details";
+  public void dvlaDataShouldBeFetchedIfFoundInDVLA() {
+    String vrn = "CAS300";
 
-    when(ntrService.getLicenseInformation("CAS404")).thenReturn(Optional.empty());
-
-    mockMvc.perform(get(testUrl).headers(this.headers))
-      .andExpect(status().isNotFound());
+    RestAssured.
+        given()
+        .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda").
+        when()
+        .get(
+            "/v1/compliance-checker/vehicles/{vrn}/external-details",
+            vrn).
+        then()
+        .statusCode(200)
+        .body("colour", equalTo("Grey"))
+        .body("typeApproval", equalTo("M1"))
+        .body("make", equalTo("Hyundai"))
+        .body("model", equalTo("i20"))
+        .body("fuelType", equalTo("Petrol"))
+        .body("euroStatus", equalTo("EURO 3"))
+    ;
   }
 
-  private void mockNtrResponseWithLicensingAuthoritiesNames(String vrn) {
-    Optional<TaxiPhvLicenseInformationResponse> licenseInfo = Optional
-        .of(TaxiPhvLicenseInformationResponse
-            .builder()
-            .active(true)
-            .wheelchairAccessible(false)
-            .licensingAuthoritiesNames(newArrayList("la-1", "la-2"))
-            .build());
+  @Nested
+  class RegisterDetails {
 
-    when(ntrService.getLicenseInformation(vrn)).thenReturn(licenseInfo);
+    @Nested
+    class ShouldBeExempt{
+
+      @Test
+      void shouldBeInGpw() {
+        String vrn = "PMS310";
+        mockWhitelistVehicle(vrn, false, true);
+
+        RestAssured
+            .given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/register-details", vrn)
+            .then()
+            .statusCode(200)
+            .body("registerCompliant", is(false))
+            .body("registerExempt", is(true))
+            .body("registeredMOD", is(false))
+            .body("registeredGPW", is(true))
+            .body("registeredNTR", is(false))
+            .body("registeredRetrofit", is(false));
+      }
+
+      @Test
+      void shouldBeInMod() {
+        String vrn = "PMS311";
+        mockMilitaryVehicle(vrn);
+
+        RestAssured
+            .given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/register-details", vrn)
+            .then()
+            .statusCode(200)
+            .body("registerCompliant", is(false))
+            .body("registerExempt", is(true))
+            .body("registeredMOD", is(true))
+            .body("registeredGPW", is(false))
+            .body("registeredNTR", is(false))
+            .body("registeredRetrofit", is(false));
+      }
+    }
+
+    @Nested
+    class ShouldBeCompliant{
+
+      @Test
+      void shouldBeInGpw() {
+        String vrn = "PMS312";
+        mockWhitelistVehicle(vrn, true, false);
+
+        RestAssured
+            .given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/register-details", vrn)
+            .then()
+            .statusCode(200)
+            .body("registerCompliant", is(true))
+            .body("registerExempt", is(false))
+            .body("registeredMOD", is(false))
+            .body("registeredGPW", is(true))
+            .body("registeredNTR", is(false))
+            .body("registeredRetrofit", is(false));
+      }
+
+      @Test
+      void shouldBeInRetrofit() {
+        String vrn = "PMS313";
+        mockRetrofitVehicle(vrn);
+
+        RestAssured
+            .given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/register-details", vrn)
+            .then()
+            .statusCode(200)
+            .body("registerCompliant", is(true))
+            .body("registerExempt", is(false))
+            .body("registeredMOD", is(false))
+            .body("registeredGPW", is(false))
+            .body("registeredNTR", is(false))
+            .body("registeredRetrofit", is(true));
+      }
+    }
+
+    @Test
+    void shouldBeInNtr() {
+      String vrn = "PMS314";
+      whenVehicleIsInTaxiDb(vrn);
+
+      RestAssured
+          .given()
+          .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+          .when()
+          .get("/v1/compliance-checker/vehicles/{vrn}/register-details", vrn)
+          .then()
+          .statusCode(200)
+          .body("registerCompliant", is(false))
+          .body("registerExempt", is(false))
+          .body("registeredMOD", is(false))
+          .body("registeredGPW", is(false))
+          .body("registeredNTR", is(true))
+          .body("registeredRetrofit", is(false));
+    }
+
+    @Test
+    void shouldBeCompliantAndExemptInGpw() {
+      String vrn = "PMS315";
+      mockWhitelistVehicle(vrn, true, true);
+
+      RestAssured
+          .given()
+          .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+          .when()
+          .get("/v1/compliance-checker/vehicles/{vrn}/register-details", vrn)
+          .then()
+          .statusCode(200)
+          .body("registerCompliant", is(true))
+          .body("registerExempt", is(true))
+          .body("registeredMOD", is(false))
+          .body("registeredGPW", is(true))
+          .body("registeredNTR", is(false))
+          .body("registeredRetrofit", is(false));
+    }
   }
 
-  private void mockNtrResponseWithoutLicensingAuthoritiesNames(String vrn) {
-    Optional<TaxiPhvLicenseInformationResponse> licenseInfo = Optional
-        .of(TaxiPhvLicenseInformationResponse
-            .builder()
-            .active(false)
-            .wheelchairAccessible(false)
-            .build());
+  @Nested
+  class PhgvDiscountAvailability {
 
-    when(ntrService.getLicenseInformation(vrn)).thenReturn(licenseInfo);
+    @Nested
+    class ForCompliantVehicles {
+
+      @Test
+      void shouldReturnPhgvDiscountAvailabilityFlag() {
+        String vrn = "IS20ABH";
+        mockTariffsCalls();
+
+        RestAssured
+            .given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/compliance", vrn)
+            .then()
+            .statusCode(200)
+            .body("phgvDiscountAvailable", equalTo(true));
+      }
+    }
+
+    @Nested
+    class ForNonCompliantVehicles {
+
+      @ParameterizedTest
+      @ValueSource(strings = {"IS20ABA", "IS20ABB", "IS20ABC", "IS20ABD"})
+      void shouldReturnPhgvDiscountAvailabilityFlagSetToTrue(String vrn) {
+        mockTariffsCalls();
+
+        RestAssured
+            .given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/compliance", vrn)
+            .then()
+            .statusCode(200)
+            .body("phgvDiscountAvailable", equalTo(true));
+      }
+
+      @ParameterizedTest
+      @ValueSource(strings = {"IS20ABE", "IS20ABF"})
+      void shouldReturnPhgvDiscountAvailabilityFlagSetToFalse(String vrn) {
+        mockTariffsCalls();
+
+        RestAssured
+            .given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/compliance", vrn)
+            .then()
+            .statusCode(200)
+            .body("phgvDiscountAvailable", equalTo(false));
+      }
+      
+      @Test
+      void shouldReturnPhgvDiscountAvailabilityFlagAsFalseWhenNotApplicableToVehicleType() {
+        String vrn = "IS20ABG";
+        mockTariffsCalls();
+
+        RestAssured
+            .given()
+            .header("X-Correlation-Id", "05fe5e4c-a798-4994-a3dd-6f0fb7fbfbda")
+            .when()
+            .get("/v1/compliance-checker/vehicles/{vrn}/compliance", vrn)
+            .then()
+            .statusCode(200)
+            .body("phgvDiscountAvailable", equalTo(false));
+      }
+    }
+
+    private void mockTariffsCalls() {
+      invalidateTariffsCache();
+      mockTariffCall(IMAGINARY_CAZ, "tariff-rates-imaginary-caz.json");
+      mockCazListCall("caz-first-response.json");
+    }
+
+    private void invalidateTariffsCache() {
+      cacheInvalidationsController.cacheEvictCleanAirZones();
+    }
   }
+
+  public static Stream<Arguments> streamVehicleArguments() throws IOException {
+    VehicleWithExpectedValues[] testVehicles = loadTestVehicles();
+    return Arrays.stream(testVehicles).map(v -> Arguments.of(v));
+  }
+
+  private static VehicleWithExpectedValues[] loadTestVehicles() throws IOException {
+    File vehicleDetailsJson = new ClassPathResource("/db/fixtures/vehicle-details.json").getFile();
+
+    VehicleWithExpectedValues[] testVehicles =
+        objectMapper.readValue(vehicleDetailsJson, VehicleWithExpectedValues[].class);
+
+    return testVehicles;
+  }
+
+  public void mockWhitelistVehicle(String vrn, boolean compliant, boolean exempt) {
+    GeneralWhitelistVehicle whitelistVehicle = GeneralWhitelistVehicle.builder()
+        .vrn(vrn)
+        .category("Early Adopter")
+        .exempt(exempt)
+        .compliant(compliant)
+        .reasonUpdated("test")
+        .updateTimestamp(LocalDateTime.now())
+        .uploaderId(UUID.fromString("23a84d23-a45a-4ce1-aa74-df2058c93289"))
+        .build();
+    generalWhitelistRepository.save(whitelistVehicle);
+  }
+
+  public void mockMilitaryVehicle(String vrn) {
+    mockServer.when(requestGet("/v1/mod/" + vrn))
+        .respond(response("mod-vehicle-response.json"));
+  }
+
+  private void mockRetrofitVehicle(String vrn) {
+    RetrofittedVehicle r = new RetrofittedVehicle();
+    r.setVrn(vrn);
+    r.setWhitelistDiscountCode("Sample retrofit code.");
+    r.setDateOfRetrofit(new java.sql.Date(Calendar.getInstance().getTime().getTime()));
+
+    retrofitRepository.save(r);
+  }
+
+  private static class VehicleWithExpectedValues {
+
+    public String description;
+    public String registrationNumber;
+    public String colour;
+    public Date dateOfFirstRegistration;
+    public String euroStatus;
+    public String typeApprovalCategory;
+    public Integer massInService;
+    public String bodyType;
+    public String make;
+    public String model;
+    public Integer revenueWeight;
+    public Integer seatingCapacity;
+    public Integer standingCapacity;
+    public String taxClass;
+    public String fuelType;
+    public ExpectedOutcomes expectedOutcomes;
+  }
+
+  private static class ExpectedOutcomes {
+
+    public String type;
+    public Boolean exempt;
+    public Boolean compliant;
+  }
+
 }

@@ -9,7 +9,6 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
 import io.swagger.annotations.ApiResponses;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,8 +23,8 @@ import uk.gov.caz.taxiregister.dto.Vehicles;
 @Api(value = RegisterController.PATH, tags = {SwaggerConfiguration.TAG_REGISTER_CONTROLLER})
 @RequestMapping(
     value = RegisterController.PATH,
-    produces = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_XML_VALUE},
-    consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE, MediaType.APPLICATION_XML_VALUE}
+    produces = {MediaType.APPLICATION_JSON_VALUE},
+    consumes = {MediaType.APPLICATION_JSON_VALUE}
 )
 public interface RegisterControllerApiSpec {
 
@@ -68,6 +67,6 @@ public interface RegisterControllerApiSpec {
   @PostMapping("taxiphvdatabase")
   @ResponseStatus(value = HttpStatus.CREATED)
   ResponseEntity register(@RequestBody Vehicles vehicles,
-      @RequestHeader(CORRELATION_ID_HEADER) String correlationId, 
+      @RequestHeader(CORRELATION_ID_HEADER) String correlationId,
       @RequestHeader(API_KEY_HEADER) String apiKey);
 }

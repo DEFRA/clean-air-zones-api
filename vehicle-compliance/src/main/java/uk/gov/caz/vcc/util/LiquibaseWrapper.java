@@ -18,6 +18,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+/**
+ * Wrapper utility to invoke liquibase migrations. This permits the migration of
+ * DB schemas to be attached to a controller endpoint such that it can be
+ * invoked via deployment pipelines.
+ *
+ */
 @Component
 @Slf4j
 public class LiquibaseWrapper {
@@ -80,6 +86,10 @@ public class LiquibaseWrapper {
     }  
   }
 
+  /**
+   * Factory pattern implementation for creating a Liquibase managed database connection.
+   *
+   */
   @Component
   public static class LiquibaseFactory {
 

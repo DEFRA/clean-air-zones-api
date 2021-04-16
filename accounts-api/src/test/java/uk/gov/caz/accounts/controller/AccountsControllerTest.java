@@ -26,18 +26,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import uk.gov.caz.GlobalExceptionHandlerConfiguration;
-import uk.gov.caz.accounts.dto.AccountUpdateRequestDto;
-import uk.gov.caz.accounts.dto.CreateAndInviteUserRequestDto;
-import uk.gov.caz.accounts.dto.UserForAccountCreationRequestDto;
-import uk.gov.caz.accounts.dto.UserVerificationEmailResendRequest;
+import uk.gov.caz.accounts.dto.*;
 import uk.gov.caz.accounts.model.Account;
 import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.service.AccountAdminUserCreatorService;
 import uk.gov.caz.accounts.service.AccountCreatorService;
+import uk.gov.caz.accounts.service.AccountCloseService;
 import uk.gov.caz.accounts.service.AccountFetcherService;
 import uk.gov.caz.accounts.service.AccountStandardUserCreatorService;
+import uk.gov.caz.accounts.service.AccountStandardUserValidatorService;
 import uk.gov.caz.accounts.service.AccountUpdateService;
-import uk.gov.caz.accounts.service.UserService;
 import uk.gov.caz.accounts.service.VerificationEmailConfirmationService;
 import uk.gov.caz.accounts.service.VerificationEmailResendService;
 import uk.gov.caz.accounts.service.exception.AccountNotFoundException;
@@ -53,13 +51,13 @@ import uk.gov.caz.correlationid.Constants;
 class AccountsControllerTest {
 
   @MockBean
-  private UserService userService;
-
-  @MockBean
   private AccountCreatorService accountCreatorService;
 
   @MockBean
-  private VerificationEmailConfirmationService verificationEmailConfirmationService;
+  private AccountCloseService accountCloseService;
+
+  @MockBean
+  private AccountUpdateService accountUpdateService;
 
   @MockBean
   private AccountAdminUserCreatorService accountAdminUserCreatorService;
@@ -68,13 +66,16 @@ class AccountsControllerTest {
   private AccountStandardUserCreatorService accountStandardUserCreatorService;
 
   @MockBean
+  private AccountStandardUserValidatorService accountStandardUserValidatorService;
+
+  @MockBean
+  private VerificationEmailConfirmationService verificationEmailConfirmationService;
+
+  @MockBean
   private VerificationEmailResendService verificationEmailResendService;
 
   @MockBean
   private AccountFetcherService accountFetcherService;
-
-  @MockBean
-  private AccountUpdateService accountUpdateService;
 
   @Autowired
   private MockMvc mockMvc;
@@ -87,6 +88,7 @@ class AccountsControllerTest {
       AccountsController.ACCOUNTS_PATH + "/{accountId}";
   private static final String ACCOUNTS_USER_PATH = ACCOUNTS_PATH + "/{accountId}/users";
   private static final String INVITE_USER_PATH = ACCOUNTS_PATH + "/{accountId}/user-invitations";
+  private static final String INACTIVATE_ACCOUNT_PATH = ACCOUNTS_PATH + "/{accountId}/cancellation";
   private static final String RESEND_PATH = ACCOUNTS_PATH +
       "/{accountId}/users/{accountUserId}/verifications";
 
@@ -438,5 +440,57 @@ class AccountsControllerTest {
   @SneakyThrows
   private String toJson(Object request) {
     return objectMapper.writeValueAsString(request);
+  }
+
+  @Nested
+  public class InactivateAccount {
+
+    @Test
+    public void shouldReturn400WhenReasonIsBlank() throws Exception {
+      String payload = requestWithPayload("");
+
+      performRequestWithPayload(payload)
+          .andExpect(header().string(Constants.X_CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
+          .andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.message").value(
+              "Reason cannot be null or empty."
+          ));
+    }
+
+    @Test
+    public void shouldReturn204WhenPayloadIsValid() throws Exception {
+      String payload = requestWithPayload("OTHER");
+
+      performRequestWithPayload(payload)
+          .andExpect(header().string(Constants.X_CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
+          .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void shouldReturn400WhenClosureReasonIsNotValid() throws Exception {
+      String payload = requestWithPayload("INVALID");
+
+      performRequestWithPayload(payload)
+          .andExpect(header().string(Constants.X_CORRELATION_ID_HEADER, ANY_CORRELATION_ID))
+          .andExpect(status().isBadRequest())
+          .andExpect(jsonPath("$.message").value(
+              "Reason value is not on the list."
+          ));
+    }
+
+    private String requestWithPayload(String reason) {
+      CloseAccountRequestDto request = CloseAccountRequestDto.builder()
+          .reason(reason)
+          .build();
+
+      return toJson(request);
+    }
+
+    private ResultActions performRequestWithPayload(String payload) throws Exception {
+      return mockMvc.perform(post(INACTIVATE_ACCOUNT_PATH, ANY_ACCOUNT_ID).content(payload)
+          .header(Constants.X_CORRELATION_ID_HEADER, ANY_CORRELATION_ID)
+          .contentType(MediaType.APPLICATION_JSON)
+          .accept(MediaType.APPLICATION_JSON));
+    }
   }
 }

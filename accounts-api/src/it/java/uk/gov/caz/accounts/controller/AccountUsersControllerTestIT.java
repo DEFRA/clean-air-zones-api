@@ -44,6 +44,7 @@ import uk.gov.caz.accounts.annotation.MockedMvcIntegrationTest;
 import uk.gov.caz.accounts.dto.UpdateUserRequestDto;
 import uk.gov.caz.accounts.model.Permission;
 import uk.gov.caz.accounts.model.User;
+import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.AccountUserRepository;
 import uk.gov.caz.accounts.repository.IdentityProvider;
 import uk.gov.caz.correlationid.Constants;
@@ -130,7 +131,7 @@ class AccountUsersControllerTestIT {
     void shouldDeleteUser() throws Exception {
       UUID accountUserIdForExistingUser = UUID.fromString("f54554b1-d582-43da-9899-ee33b679e49f");
 
-      identityProvider.createStandardUser(User.builder()
+      identityProvider.createStandardUser(UserEntity.builder()
           .id(accountUserIdForExistingUser)
           .email("someemailhere")
           .name("name")
@@ -146,7 +147,7 @@ class AccountUsersControllerTestIT {
     void shouldDeleteUserTwiceAndGetTheSameResults() throws Exception {
       UUID accountUserIdForExistingUser = UUID.fromString("f54554b1-d582-43da-9899-ee33b679e49f");
 
-      identityProvider.createStandardUser(User.builder()
+      identityProvider.createStandardUser(UserEntity.builder()
           .id(accountUserIdForExistingUser)
           .email("someemailhere")
           .name("name")
@@ -233,7 +234,7 @@ class AccountUsersControllerTestIT {
   private UUID userIsDeleted() throws Exception {
     UUID accountUserIdForExistingUser = UUID.fromString("f54554b1-d582-43da-9899-ee33b679e49f");
 
-    identityProvider.createStandardUser(User.builder()
+    identityProvider.createStandardUser(UserEntity.builder()
         .id(accountUserIdForExistingUser)
         .email("someemailhere")
         .name("name")
@@ -271,13 +272,14 @@ class AccountUsersControllerTestIT {
     Stream.of(
         createUser("54f04990-fea5-4ca2-9c60-834a5d9ba411", "example1@email.com"),
         createUser("08d84742-b196-481e-b2d2-1bb0d7324d0d", "example2@email.com"),
+        createUser("5d5e79d8-6055-4d0f-a841-829b97b79279", "example3@email.com"),
         createUser("d2b55341-551e-498d-a7be-a6e7f8639161", "owner1@email.com"),
         createUser("1b93e6e3-cff8-45b9-bcda-f7245defaeb5", "owner2@email.com")
     ).forEach(identityProvider::createStandardUser);
   }
 
-  private User createUser(String identityProviderUserId, String email) {
-    return User.builder()
+  private UserEntity createUser(String identityProviderUserId, String email) {
+    return UserEntity.builder()
         .email(email)
         .name("Test Name")
         .identityProviderUserId(UUID.fromString(identityProviderUserId))
@@ -294,7 +296,7 @@ class AccountUsersControllerTestIT {
       String accountUserId = "49401c98-2141-4cf4-8cec-2ab9635806a9";
       String identityProviderId = "54f04990-fea5-4ca2-9c60-834a5d9ba411";
 
-      User user = createUser(identityProviderId, email);
+      UserEntity user = createUser(identityProviderId, email);
       identityProvider.createStandardUser(user);
       String oldUsername = user.getName();
 
@@ -314,7 +316,7 @@ class AccountUsersControllerTestIT {
       String nonExistingAccountUserId = "088063af-5e19-4266-9aae-c7a2226139da";
       String identityProviderId = "54f04990-fea5-4ca2-9c60-834a5d9ba411";
 
-      User user = createUser(identityProviderId, email);
+      UserEntity user = createUser(identityProviderId, email);
       identityProvider.createStandardUser(user);
       String oldUsername = user.getName();
 

@@ -33,17 +33,13 @@ public class Rates {
   @JsonSerialize(using = RateSerializer.class)
   BigDecimal hgv;
 
-  @ApiModelProperty(value = "${swagger.model.descriptions.rate.largeVan}")
-  @JsonSerialize(using = RateSerializer.class)
-  BigDecimal largeVan;
-
   @ApiModelProperty(value = "${swagger.model.descriptions.rate.miniBus}")
   @JsonSerialize(using = RateSerializer.class)
   BigDecimal miniBus;
 
-  @ApiModelProperty(value = "${swagger.model.descriptions.rate.smallVan}")
+  @ApiModelProperty(value = "${swagger.model.descriptions.rate.van}")
   @JsonSerialize(using = RateSerializer.class)
-  BigDecimal smallVan;
+  BigDecimal van;
 
   @ApiModelProperty(value = "${swagger.model.descriptions.rate.car}")
   @JsonSerialize(using = RateSerializer.class)

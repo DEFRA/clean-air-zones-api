@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0005.1-whitelist-1.0
+      author: jennifer.brown
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0005-whitelist-1.0-create_index_on_vrn.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

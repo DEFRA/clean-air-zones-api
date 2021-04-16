@@ -1,9 +1,8 @@
 package uk.gov.caz.vcc.domain.service.vehicleidentifiers;
 
 import java.util.function.Predicate;
-
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
 
 /**
  * Abstract class for any class which performs an identification for a vehicle
@@ -12,7 +11,6 @@ import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
  * implementing this interface is _typeApproval_VehicleIdentifier, where
  * _typeApproval_ is the typeApproval handled by that VehicleIdentifier.
  * 
- * @author informed
  */
 public abstract class VehicleIdentifier {
 

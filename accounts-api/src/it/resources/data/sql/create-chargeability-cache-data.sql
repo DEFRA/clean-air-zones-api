@@ -1,6 +1,6 @@
 -- There are 2 CAZes:
 -- CAZ1 with ID 53e03a28-0627-11ea-9511-ffaaee87e375 - Birmingham
--- CAZ2 with ID 39e54ed8-3ed2-441d-be3f-38fc9b70c8d3 - Leeds
+-- CAZ2 with ID 742b343f-6ce6-42d3-8324-df689ad4c515 - Bath
 
 -- Create 2 Accounts/Fleets/Companies: "Fleet 1" and "Fleet 2"
 INSERT INTO caz_account.t_account(account_id, account_name)
@@ -69,7 +69,7 @@ VALUES ('ccbc6bea-4b0f-45ec-bbf2-021451823441', '53e03a28-0627-11ea-9511-ffaaee8
         'false', 'false', 'Tariff 1');
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code)
-VALUES ('ccbc6bea-4b0f-45ec-bbf2-021451823441', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', '15',
+VALUES ('ccbc6bea-4b0f-45ec-bbf2-021451823441', '742b343f-6ce6-42d3-8324-df689ad4c515', '15',
         'false', 'false', 'Tariff 2');
 -- VRN2 has cache in first CAZ
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
@@ -79,7 +79,7 @@ VALUES ('13c52f66-fdc1-43e2-b6af-a67d04987776', '53e03a28-0627-11ea-9511-ffaaee8
 -- VRN3 has cache in second CAZ
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code)
-VALUES ('6d3c83de-2c89-443c-be17-662bdde3841a', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', '25',
+VALUES ('6d3c83de-2c89-443c-be17-662bdde3841a', '742b343f-6ce6-42d3-8324-df689ad4c515', '25',
         'false', 'false', 'Tariff 4');
 -- VRN4 and VRN5 do not have chargeability cache calculated at all
 
@@ -92,7 +92,7 @@ VALUES ('63a744b3-7ece-4246-849c-9267005a710a', '53e03a28-0627-11ea-9511-ffaaee8
         'false', 'false', 'Tariff 1');
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code)
-VALUES ('63a744b3-7ece-4246-849c-9267005a710a', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', '15',
+VALUES ('63a744b3-7ece-4246-849c-9267005a710a', '742b343f-6ce6-42d3-8324-df689ad4c515', '15',
         'false', 'false', 'Tariff 2');
 
 -- For Fleet 3:
@@ -103,7 +103,7 @@ VALUES ('e0e8eea6-cd51-4b65-ae03-ec6cbd9ec9d1', '53e03a28-0627-11ea-9511-ffaaee8
         'false', 'false', 'Tariff 1');
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code)
-VALUES ('e0e8eea6-cd51-4b65-ae03-ec6cbd9ec9d1', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', '15',
+VALUES ('e0e8eea6-cd51-4b65-ae03-ec6cbd9ec9d1', '742b343f-6ce6-42d3-8324-df689ad4c515', '15',
         'false', 'false', 'Tariff 2');
 -- EST122 has cache in first CAZ
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
@@ -113,7 +113,7 @@ VALUES ('2ac2ee5e-0fc6-429f-affc-eec7ec9ee51b', '53e03a28-0627-11ea-9511-ffaaee8
 -- EST123 has cache in second CAZ
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code)
-VALUES ('a2aa5422-8a9b-4f47-be8b-6fab6529d25a', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', '25',
+VALUES ('a2aa5422-8a9b-4f47-be8b-6fab6529d25a', '742b343f-6ce6-42d3-8324-df689ad4c515', '25',
         'false', 'false', 'Tariff 4');
 -- EST124 has expired cache in both CAZes
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
@@ -122,7 +122,7 @@ VALUES ('7b896ddf-424e-4bdb-bbb3-67fce4c154a2', '53e03a28-0627-11ea-9511-ffaaee8
         'false', 'false', 'Tariff 4', now() - INTERVAL '10 DAYS');
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code, refresh_timestmp)
-VALUES ('7b896ddf-424e-4bdb-bbb3-67fce4c154a2', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', '15',
+VALUES ('7b896ddf-424e-4bdb-bbb3-67fce4c154a2', '742b343f-6ce6-42d3-8324-df689ad4c515', '15',
         'false', 'false', 'Tariff 2', now() - INTERVAL '10 DAYS');
 -- EST125 has expired cache in one CAZ
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
@@ -131,6 +131,6 @@ VALUES ('86076c35-8e1c-47e0-9def-881749528b00', '53e03a28-0627-11ea-9511-ffaaee8
         'false', 'false', 'Tariff 4');
 INSERT INTO caz_account.t_vehicle_chargeability(account_vehicle_id, caz_id, charge, is_exempt,
                                                 is_retrofitted, tariff_code, refresh_timestmp)
-VALUES ('86076c35-8e1c-47e0-9def-881749528b00', '39e54ed8-3ed2-441d-be3f-38fc9b70c8d3', '15',
+VALUES ('86076c35-8e1c-47e0-9def-881749528b00', '742b343f-6ce6-42d3-8324-df689ad4c515', '15',
         'false', 'false', 'Tariff 2', now() - INTERVAL '10 DAYS');
 -- EST126 does not have chargeability cache calculated at all

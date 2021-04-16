@@ -1,0 +1,30 @@
+[
+  {
+    "vrn": "IS05YBB",
+    "category": "Exemption",
+    "reasonUpdated": "Reason1",
+    "manufacturer": "Manufacturer1",
+    "action": "C"
+  },
+  {
+    "vrn": "IS14DBB",
+    "category": "Other",
+    "reasonUpdated": "Reason2",
+    "manufacturer": "Manufacturer2",
+    "action": "C"
+  },
+  {
+    "vrn": "IS05YHC",
+    "category": "Non-UK Vehicle",
+    "reasonUpdated": "Reason3",
+    "manufacturer": "Manufacturer3",
+    "action": "C"
+  },
+  {
+    "vrn": "IS19DHC",
+    "category": "Early Adopter",
+    "reasonUpdated": "Reason4",
+    "manufacturer": "Manufacturer4",
+    "action": "C"
+  }
+]

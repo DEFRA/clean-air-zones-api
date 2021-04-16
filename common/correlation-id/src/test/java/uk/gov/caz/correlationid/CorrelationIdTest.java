@@ -39,7 +39,8 @@ class CorrelationIdTest {
 
   @ParameterizedTest
   @ValueSource(strings = {"/test", "/test-with-response-body"})
-  void shouldGet200IfXCorrelationIdHeaderIsPresentAndInterceptorIsNotConfiguredOnThisPath(String url)
+  void shouldGet200IfXCorrelationIdHeaderIsPresentAndInterceptorIsNotConfiguredOnThisPath(
+      String url)
       throws Exception {
     String correlationId = UUID.randomUUID().toString();
     mockMvc.perform(get(url)
@@ -70,6 +71,15 @@ class CorrelationIdTest {
     mockMvc.perform(get(url))
         .andExpect(status().isBadRequest())
         .andExpect(header().doesNotExist(X_CORRELATION_ID_HEADER));
+  }
+
+  @ParameterizedTest
+  @ValueSource(strings = {"/v1/test-without-response-body", "/v1/test-with-response-body"})
+  void shouldGet400IfXCorrelationIdHeaderHasWrongFormat(String url)
+      throws Exception {
+    mockMvc.perform(get(url)
+        .header(X_CORRELATION_ID_HEADER, "not uuid format"))
+        .andExpect(status().isBadRequest());
   }
 
   @Test

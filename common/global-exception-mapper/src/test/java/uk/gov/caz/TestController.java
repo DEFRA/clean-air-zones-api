@@ -4,9 +4,12 @@ package uk.gov.caz;
 import static org.springframework.http.HttpStatus.ACCEPTED;
 
 import java.util.ArrayList;
+import java.util.UUID;
 import org.junit.platform.commons.util.Preconditions;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
@@ -52,6 +55,10 @@ public class TestController {
     throw new TestExceptionWithReason("this is not default error message");
   }
 
+  @PostMapping("/springConversionException")
+  public void springConversionException(@RequestBody SomeDto dto) {
+  }
+
   @ResponseStatus(ACCEPTED)
   public static class ExceptionWithCustomResponseStatusWithoutReason extends RuntimeException {
 
@@ -66,5 +73,9 @@ public class TestController {
     ExceptionWithCustomResponseStatusAndReason(String message) {
       super(message);
     }
+  }
+
+  public static class SomeDto {
+    UUID uuid;
   }
 }

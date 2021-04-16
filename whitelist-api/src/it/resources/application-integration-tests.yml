@@ -1,0 +1,23 @@
+### Integration tests configuration
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${postgres.url:localhost:9999}/vehicle_compliance
+    #    url: jdbc:postgresql://${postgres.url:localhost:5432}/vehicle_compliance
+    hikari:
+      maximum-pool-size: 10
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master-test.yaml
+    enabled: true
+
+application:
+  validation:
+    max-errors-count: 12
+  test-fixtures-location: /data/json/test-fixtures-vehicles.json
+
+csv-export:
+  bucket: test-bucket-for-csv-export
+
+aws:
+  s3:
+    endpoint: http://${aws.s3.url:localhost:4572}

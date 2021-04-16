@@ -66,6 +66,15 @@ public class VehicleResultDtoAssert extends
     return this;
   }
 
+  public VehicleResultDtoAssert hasPaymentMethod(String expectedPaymentMethod) {
+    if (expectedPaymentMethod == null) {
+      Assertions.assertThat(actual.getPaymentMethod()).isNull();
+    } else {
+      Assertions.assertThat(actual.getPaymentMethod()).isEqualTo(expectedPaymentMethod);
+    }
+    return this;
+  }
+
   public VehicleResultDtoAssert hasTariffCode(String expectedTariffCode) {
     Assertions.assertThat(actual.getTariffCode()).isEqualTo(expectedTariffCode);
     return this;

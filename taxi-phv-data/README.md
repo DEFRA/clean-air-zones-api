@@ -1,7 +1,19 @@
 # JAQU-CAZ-National-Taxi-Register
 JAQU CAZ National Taxi Register
 
+[![Build Status](http://drone-1587293244.eu-west-2.elb.amazonaws.com/api/badges/InformedSolutions/JAQU-CAZ-National-Taxi-Register/status.svg?ref=refs/heads/develop)](http://drone-1587293244.eu-west-2.elb.amazonaws.com/InformedSolutions/JAQU-CAZ-National-Taxi-Register)
+
 ## First steps in National Taxi Register
+
+### Provisioning a development environment
+
+In the root of this repository a vagrantfile can be found. To deploy a local development environment, the following pre-requisites must be present on your host;
+
+1. Vagrant
+1. Powershell
+1. VirtualBox
+
+Once these above 3 items are installed, simply clone this repository and from the root directory issue the command `vagrant up`. This will then proceed to download a virtual machine image and launch it on your machine. The username and password for the VM is vagrant/vagrant. Once your environment has been provisioned please follow the remaining steps detailed below to run the codebase.
 
 ### Configuring code style formatter
 There are style guides for _Eclipse_ and _Intellij IDEA_ located in `developer-resources`.
@@ -279,6 +291,18 @@ Sample output:
 }
 ```
 
+#### Getting events related to active licences during specified reporting window
+
+This reporting query is implemented as a task (see Tasks section below) because it needs to 
+traverse complete audit log history which takes a lot of time. To run the query you need to build the 
+project and use final jar file: `./target/national-taxi-register-1.1-SNAPSHOT-spring-boot-executable.jar`.
+To run reporting execute: `java -jar target/national-taxi-register-1.1-SNAPSHOT-spring-boot-executable.jar 2020-05-01 2020-07-01 report.csv --spring.profiles.active=development --tasks.active-licences-in-reporting-window.enabled=true --spring.main.web-application-type=none`
+
+Reporting takes 2 date parameters: start and end date of desired reporting window.
+What you get is a stream of events, sorted by date, that happened to licences during reporting window. 
+Additionally you see what was the licence state before reporting window, so even if nothing happened
+during the window you will know that licence was active and with what parameters.
+
 ## Database management
 
 Liquibase is being used as database migrations tool.
@@ -356,55 +380,56 @@ The `develop`  and `master` branches are protected branches. Polices are enforce
 
 ### Common API/CSV validation rules
 
-| Rule description                          | Trigger | Error message                                                                                                               |
-|-------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------------------------| 
-| Missing/empty VRM field                   | API     | ```{"vrm":null,"title":"Mandatory field missing","detail":"Missing VRM value","status":400}```                              |
-| Missing/empty VRM field                   | CSV     | Line {}: Missing VRM value                                                                                                  | 
-| VRM field too long                        | API     | ```{"vrm":"{VRM}","title":"Value error","detail":"Too long VRM. VRM should should have from 1-7 characters","status":400}```|
-| VRM field too long                        | CSV     | Line {}: Too long VRM. VRM should should have from 1-7 characters.                                                          | 
-| Invalid format of VRM                     | API     | ```{"vrm":"{VRM}","title":"Value error","detail":"Invalid format of VRM","status":400}```                                   |
-| Invalid format of VRM                     | CSV     | Line {}: Invalid format of VRM                                                                                              | 
-| Missing licence start date                | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing start date","status":400}```                        |
-| Missing licence start date                | CSV     | Line {}: Missing start date                                                                                                 | 
-| Missing licence end date                  | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing end date","status":400}```                          |
-| Missing licence end date                  | CSV     | Line {}: Missing end date                                                                                                   | 
-| Invalid format of licence start date      | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Invalid start date format","status":400}```                             |
-| Invalid format of licence start date      | CSV     | Line {}: Invalid start date format                                                                                          | 
-| Invalid format of licence end date        | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Invalid end date format","status":400}```                               |
-| Invalid format of licence end date        | CSV     | Line {}: Invalid end date format                                                                                            | 
-| Invalid licence dates order               | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Start date must be before end date","status":400}```                    |
-| Invalid licence dates order               | CSV     | Line {}: Start date must be before end date                                                                                 | 
-| Missing licence type                      | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing taxi/PHV value","status":400}```                    |
-| Missing licence type                      | CSV     | Line {}: Missing taxi/PHV value                                                                                             | 
-| Licence type too long                     | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Taxi/PHV value must be less than 100 characters","status":400}```       |
-| Licence type too long                     | CSV     | Line {}:  Taxi/PHV value must be less than 100 characters                                                                   | 
-| Missing licence plate number              | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing license plate number","status":400}```              |
-| Missing licence plate number              | CSV     | Line {}: Missing license plate number                                                                                       | 
-| Invalid format of licence plate number    | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Invalid format of license plate number","status":400}```                |
-| Invalid format of licence plate number    | CSV     | Line {}: Invalid format of license plate number                                                                             | 
-| Missing licensing authority name          | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing licensing authority name","status":400}```          |
-| Missing licensing authority name          | CSV     | Line {}: Missing licensing authority name                                                                                   | 
-| Invalid format of licensing authority name| API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Invalid licensing authority name","status":400}```                      |
-| Invalid format of licensing authority name| CSV     | Line {}: Invalid licensing authority name                                                                                   |
-| License start date too far in past        | CSV     | Line {}: Start date cannot be more than 20 years in the past                                                                                   | 
-| License start date too far in past        | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Start date cannot be more than 20 years in the past","status":400}``` | 
-| License end date too far in future        | CSV     | Line {}: End date cannot be more than 20 years in the future                                                                                   | 
-| License end date too far in future        | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"End date cannot be more than 20 years in the future","status":400}``` | 
+| Rule description                                                                          | Trigger | Error message                                                                                                                          |
+|-------------------------------------------------------------------------------------------|---------|----------------------------------------------------------------------------------------------------------------------------------------| 
+| Missing/empty VRM field                                                                   | API     | ```{"vrm":null,"title":"Mandatory field missing","detail":"Missing VRM value","status":400}```                                         |
+| Missing/empty VRM field                                                                   | CSV     | Line {}: Missing VRM value                                                                                                             | 
+| VRM field too long                                                                        | API     | ```{"vrm":"{VRM}","title":"Value error","detail":"Too long VRM. VRM should should have from 1-7 characters","status":400}```           |
+| VRM field too long                                                                        | CSV     | Line {}: Too long VRM. VRM should should have from 1-7 characters.                                                                     | 
+| Invalid format of VRM                                                                     | API     | ```{"vrm":"{VRM}","title":"Value error","detail":"Invalid format of VRM","status":400}```                                              |
+| Invalid format of VRM                                                                     | CSV     | Line {}: Invalid format of VRM                                                                                                         | 
+| Missing licence start date                                                                | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing start date","status":400}```                                   |
+| Missing licence start date                                                                | CSV     | Line {}: Missing start date                                                                                                            | 
+| Missing licence end date                                                                  | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing end date","status":400}```                                     |
+| Missing licence end date                                                                  | CSV     | Line {}: Missing end date                                                                                                              | 
+| Invalid format of licence start date                                                      | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Invalid start date format","status":400}```                                        |
+| Invalid format of licence start date                                                      | CSV     | Line {}: Invalid start date format                                                                                                     | 
+| Invalid format of licence end date                                                        | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Invalid end date format","status":400}```                                          |
+| Invalid format of licence end date                                                        | CSV     | Line {}: Invalid end date format                                                                                                       | 
+| Invalid licence dates order                                                               | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Start date must be before end date","status":400}```                               |
+| Invalid licence dates order                                                               | CSV     | Line {}: Start date must be before end date                                                                                            | 
+| Missing licence type                                                                      | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing taxi/PHV value","status":400}```                               |
+| Missing licence type                                                                      | CSV     | Line {}: Missing taxi/PHV value                                                                                                        | 
+| Licence type too long                                                                     | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Taxi/PHV value must be less than 100 characters","status":400}```                  |
+| Licence type too long                                                                     | CSV     | Line {}:  Taxi/PHV value must be less than 100 characters                                                                              | 
+| Missing licence plate number                                                              | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing licence plate number","status":400}```                         |
+| Missing licence plate number                                                              | CSV     | Line {}: Missing licence plate number                                                                                                  | 
+| Invalid format of licence plate number                                                    | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Invalid format of licence plate number","status":400}```                           |
+| Invalid format of licence plate number                                                    | CSV     | Line {}: Invalid format of licence plate number                                                                                        | 
+| Missing licensing authority name                                                          | API     | ```{"vrm":"AAA999A","title":"Mandatory field missing","detail":"Missing licensing authority name","status":400}```                     |
+| Missing licensing authority name                                                          | CSV     | Line {}: Missing licensing authority name                                                                                              | 
+| Invalid format of licensing authority name                                                | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Invalid licensing authority name","status":400}```                                 |
+| Invalid format of licensing authority name                                                | CSV     | Line {}: Invalid licensing authority name                                                                                              |
+| License start date too far in past                                                        | CSV     | Line {}: Start date cannot be more than 20 years in the past                                                                           | 
+| License start date too far in past                                                        | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Start date cannot be more than 20 years in the past","status":400}```              | 
+| License end date too far in future                                                        | CSV     | Line {}: End date cannot be more than 20 years in the future                                                                           | 
+| License end date too far in future                                                        | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"End date cannot be more than 20 years in the future","status":400}```              | 
+| Wheelchair accessible boolean is not "true" or "false" (any capitalization)               | CSV     | Line {}: Invalid wheelchair accessible value. Can only be True or False                                                                | 
+| Wheelchair accessible boolean is not "true" or "false" (any capitalization)               | API     | ```{"vrm":"AAA999A","title":"Value error","detail":"Invalid wheelchair accessible value. Can only be True or False","status":400}```   | 
 
 
 ### Validation rules applicable only to CSV upload
 
-| Rule description                                                                                               | Trigger | Error message                                                                                             |
-|----------------------------------------------------------------------------------------------------------------|---------|-----------------------------------------------------------------------------------------------------------|  
-| NTR microservice cannot connect to S3 bucket/filename. Bucket or filename does not exist or is not accessible. | CSV     | S3 bucket or file not found or not accessible                                                             | 
-| Lack of 'uploader-id' metadata                                                                                 | CSV     | 'uploader-id' not found in file's metadata                                                                | 
-| Invalid format of 'uploader-id'                                                                                | CSV     | Malformed ID of an entity which want to register vehicles by CSV file. Expected a unique identifier (UUID)| 
-| Too large CSV file                                                                                             | CSV     | Uploaded file size exceeded "Max size: 500MB"                                                             | 
-| Invalid fields number in CSV                                                                                   | CSV     | Line {}: Invalid record "Missing data"                                                                    | 
-| Maximum line length exceeded                                                                                   | CSV     | Line {}: Line is too long (actual value: {}, allowed value: 110)                                          | 
-| Invalid format of a line (e.g. it contains invalid characters)                                                 | CSV     | Line {}: Invalid character or empty row detected                                                          | 
-| Invalid format of the boolean field (should be 'false' or 'true')                                              | CSV     | Line {}: Invalid wheelchair accessible value. Can only be True or False                                   | 
-| Potentially included header row                                                                                | CSV     | Line 1: Header information should not be included                                                         | 
+| Rule description                                                                                               | Trigger | Error message                                                                                                  |
+|----------------------------------------------------------------------------------------------------------------|---------|----------------------------------------------------------------------------------------------------------------|  
+| NTR microservice cannot connect to S3 bucket/filename. Bucket or filename does not exist or is not accessible. | CSV     | S3 bucket or file not found or not accessible                                                                  | 
+| Lack of 'uploader-id' metadata                                                                                 | CSV     | 'uploader-id' not found in file's metadata                                                                     | 
+| Invalid format of 'uploader-id'                                                                                | CSV     | Malformed ID of an entity which want to register vehicles by CSV file. Expected a unique identifier (UUID)     | 
+| Too large CSV file                                                                                             | CSV     | Uploaded file size exceeded "Max size: 500MB"                                                                  | 
+| Invalid fields number in CSV                                                                                   | CSV     | Line {}: Invalid record "Missing data"                                                                         | 
+| Maximum line length exceeded                                                                                   | CSV     | Line {}: Line is too long (actual value: {}, allowed value: 110)                                               | 
+| Invalid format of a line (e.g. it contains invalid characters)                                                 | CSV     | Line {}: Invalid character or empty row detected                                                               | 
+| Potentially included header row                                                                                | CSV     | Line 1: Header information should not be included                                                              | 
 
 ### Validation rules applicable only to API upload
 
@@ -419,3 +444,6 @@ The `develop`  and `master` branches are protected branches. Polices are enforce
 | Wrong HTTP method                                      | API     | ```{"timestamp":1565101671868,"status":405,"error":"Method Not Allowed","message":"Request method {METHOD} not supported","path":"/v1/scheme-management/taxiphvdatabase"}```                      | 
 | Missing 'X-Correlation-ID' header                      | API     | ```Missing request header 'X-Correlation-ID' for method parameter of type String```                                                                                                               | 
 | Missing 'x-api-key' header                             | API     | ```Missing request header 'x-api-key' for method parameter of type String```                                                                                                                      | 
+
+## Tasks
+For more details about what are tasks and how to define and use see [TASKS_HOWTO](./src/main/java/uk/gov/caz/taxiregister/tasks/TASKS_HOWTO.md)

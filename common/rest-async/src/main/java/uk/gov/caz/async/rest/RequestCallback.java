@@ -21,23 +21,21 @@ class RequestCallback<V> implements Callback<V> {
 
   @Override
   public void onResponse(Call<V> call, Response<V> response) {
-    log.info("Got response for async op with id: {} ", asyncOp.getIdentifier());
+    log.info("Got response for async operation");
     HttpStatus httpStatus = HttpStatus.resolve(response.code());
     if (response.isSuccessful()) {
-      log.info("Response is successful for id {} with HTTP status {}", asyncOp.getIdentifier(),
-          httpStatus);
+      log.info("Response is successful with HTTP status {}", httpStatus);
       asyncOp.markCompletedAsSuccessful(httpStatus, response.body());
     } else {
       String errorBody = extractErrorMessage(response);
-      log.warn("Failure response with id: {}: code: {}, error: {}", asyncOp.getIdentifier(),
-          response.code(), errorBody);
+      log.warn("Failure response: code: {}, error: {}", response.code(), errorBody);
       asyncOp.markCompletedAsFailed(httpStatus, errorBody);
     }
   }
 
   @Override
   public void onFailure(Call<V> call, Throwable throwable) {
-    log.warn("Unable to make HTTP call for async operation with id: {}", asyncOp.getIdentifier());
+    log.warn("Unable to make HTTP call for async operation");
     asyncOp.markCompletedAsFailed(HttpStatus.INTERNAL_SERVER_ERROR, throwable.getMessage());
   }
 

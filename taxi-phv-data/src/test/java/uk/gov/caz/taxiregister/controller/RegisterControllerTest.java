@@ -1,8 +1,13 @@
 package uk.gov.caz.taxiregister.controller;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
+import static org.springframework.http.HttpStatus.NOT_ACCEPTABLE;
+import static org.springframework.http.HttpStatus.UNSUPPORTED_MEDIA_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_XML_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -50,6 +55,7 @@ import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.StartParams;
 import uk.gov.caz.taxiregister.service.SourceAwareRegisterService;
+import uk.gov.caz.taxiregister.service.XssPreventionService;
 import uk.gov.caz.taxiregister.service.exception.JobNameDuplicateException;
 
 @WebMvcTest(RegisterController.class)
@@ -70,6 +76,9 @@ class RegisterControllerTest {
 
   @Autowired
   private ObjectMapper objectMapper;
+
+  @MockBean
+  private XssPreventionService xssPreventionService;
 
   @MockBean
   private RegisterJobSupervisor registerJobSupervisor;
@@ -172,6 +181,26 @@ class RegisterControllerTest {
         .andExpect(jsonPath("$.errors[0].detail").value("There is already job with given name"));
   }
 
+  @Test
+  public void shouldReturn406WhenNotAcceptable() throws Exception {
+    performCallWith(APPLICATION_JSON_VALUE, APPLICATION_XML_VALUE, NOT_ACCEPTABLE);
+  }
+
+  private void performCallWith(String applicationJsonValue,
+      String applicationXmlValue, HttpStatus status) throws Exception {
+    String validVrm = "1289J";
+    String payload = buildPayloadWith(validVrm);
+    mockValidationErrorWithException(
+        new JobNameDuplicateException("There is already job with given name"));
+    mockMvc.perform(post(RegisterController.PATH + "/taxiphvdatabase")
+        .content(payload)
+        .contentType(applicationJsonValue)
+        .accept(applicationXmlValue)
+        .header(CORRELATION_ID_HEADER, TYPICAL_CORRELATION_ID)
+        .header(API_KEY_HEADER, VALID_API_KEY))
+        .andExpect(status().is(status.value()));
+  }
+
   private void mockAlreadyRunningOrStartingJob() {
     given(registerJobSupervisor.hasActiveJobs(any())).willReturn(true);
   }
@@ -264,8 +293,8 @@ class RegisterControllerTest {
   private ResultActions performCallWith(String payload, String xApiKey) throws Exception {
     return mockMvc.perform(post(RegisterController.PATH + "/taxiphvdatabase")
         .content(payload)
-        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
         .header(CORRELATION_ID_HEADER, TYPICAL_CORRELATION_ID)
         .header(API_KEY_HEADER, xApiKey));
   }
@@ -274,8 +303,8 @@ class RegisterControllerTest {
       String xApiKey) throws Exception {
     return mockMvc.perform(post(RegisterController.PATH + "/taxiphvdatabase")
         .content(payload)
-        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
         .header(API_KEY_HEADER, xApiKey));
   }
 
@@ -283,8 +312,8 @@ class RegisterControllerTest {
       throws Exception {
     return mockMvc.perform(post(RegisterController.PATH + "/taxiphvdatabase")
         .content(payload)
-        .contentType(MediaType.APPLICATION_JSON_UTF8_VALUE)
-        .accept(MediaType.APPLICATION_JSON_UTF8_VALUE)
+        .contentType(MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON_VALUE)
         .header(CORRELATION_ID_HEADER, TYPICAL_CORRELATION_ID));
   }
 
@@ -349,7 +378,7 @@ class RegisterControllerTest {
         .description("PHV")
         .licensingAuthorityName("la-name-1")
         .licensePlateNumber("la-plate-1")
-        .wheelchairAccessibleVehicle(true)
+        .wheelchairAccessibleVehicle("true")
         .build();
   }
 

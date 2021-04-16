@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0009.1-whitelist-1.0
+      author: exlabs
+      changes:
+        - addColumn:
+            schemaName: CAZ_WHITELIST_VEHICLES
+            tableName: T_WHITELIST_VEHICLES
+            columns:
+              - column:
+                  name: INSERT_TIMESTAMP
+                  type: timestamp

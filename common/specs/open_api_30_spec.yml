@@ -1,10 +1,10 @@
 openapi: 3.0.0
 info:
   description: Frontend - Backend contract in JAQU-CAZ project
-  version: "1.12.6"
+  version: 1.58.8
   title: JAQU-CAZ Frontend - Backend Contract
 paths:
-  "/v1/compliance-checker/vehicles/:vrn/details":
+  "/v1/compliance-checker/vehicles/{vrn}/details":
     get:
       summary: returns vehicle registation details
       tags:
@@ -65,7 +65,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/correlationId'
         - $ref: '#/components/parameters/vrn'
-        - $ref: '#/components/parameters/zones'
+        - $ref: '#/components/parameters/zonesOptional'
       responses:
         200:
           description: compliance details in selected zones
@@ -100,6 +100,50 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/compliance-checker/vehicles/bulk-compliance":
+    post:
+      summary: returns vehicle compliance details in bulk
+      tags:
+        - VCC
+      operationId: bulkComplianceUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/zones'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              description: page of VRNs
+              items:
+                $ref: '#/components/schemas/VRN'
+      responses:
+        200:
+          description: compliance details for given vrns in selected zones
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComplianceResults'
+        400:
+          description: correlation ID or zones missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
         500:
           description: internal error
           headers:
@@ -144,6 +188,84 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VehicleError'
+  "/v1/compliance-checker/vehicles/:vrn/register-details":
+    get:
+      summary: returns information about registers on which the provided vrn is stored
+      tags:
+        - VCC
+      operationId: getRegisterDetails
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      responses:
+        200:
+          description: vehicle information from registers
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleRegisterDetails'
+        400:
+          description: correlation Id missing or registration number is missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+
+  "/v1/compliance-checker/vehicles/:vrn/external-details":
+    get:
+      summary: returns vehicle details from DVLA
+      tags:
+        - VCC
+      operationId: dvlaData
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      responses:
+        200:
+          description: vehicle details
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleFromDvlaDto'
+        400:
+          description: correlation Id missing or registration number is missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
   "/v1/compliance-checker/clean-air-zones":
     get:
       summary: returns list of available CAZs
@@ -161,7 +283,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CAZList'
+                $ref: '#/components/schemas/CleanAirZoneList'
         400:
           description: correlation ID missing
           content:
@@ -186,9 +308,54 @@ paths:
       parameters:
         - $ref: '#/components/parameters/correlationId'
         - $ref: '#/components/parameters/xApiKey'
+        - $ref: '#/components/parameters/timestamp'
       requestBody:
         content:
-          application/json;charset=UTF-8:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleEntrants"
+        required: true
+      responses:
+        200:
+          description: vehicleResult list
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleResults'
+        400:
+          description: validation error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleEntrantsValidationError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v2/vehicle-entrants":
+    post:
+      summary: returns list of vehicle result
+      tags:
+        - VCC
+      operationId: VehicleEntrantsV2
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/xApiKey'
+        - $ref: '#/components/parameters/timestamp'
+      requestBody:
+        content:
+          application/json:
             schema:
               $ref: "#/components/schemas/VehicleEntrants"
         required: true
@@ -258,7 +425,7 @@ paths:
         - $ref: '#/components/parameters/correlationId'
       requestBody:
         content:
-          application/json;charset=UTF-8:
+          application/json:
             schema:
               $ref: "#/components/schemas/Vrms"
         required: true
@@ -371,7 +538,38 @@ paths:
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
-  "/v1/vehicles/:vrm/licence-info":
+  "/v1/vehicles/licences-info/search":
+    post:
+      summary: Looks up vehicles' information about their active licences and wheelchair accessibility by VRMs
+      tags:
+        - NTR
+      operationId: licencesInfo
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GetLicencesInfoRequest'
+        required: true
+      responses:
+        200:
+          description: Details of requested taxi/phv licences
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetLicencesInfoResponse'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  "/v1/vehicles/{vrm}/licence-info":
     get:
       summary: Looks up vehicle's information about its active licences and wheelchair accessibility by VRM
       tags:
@@ -390,6 +588,77 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LicenceDetails'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/vehicles/:vrm/licence-info-historical":
+    get:
+      summary: Looks up vehicle's information about its historical data for given VRM inside provided date range
+      tags:
+        - NTR
+      operationId: licenceInfoHistorical
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrm'
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+            example: '2020-03-10'
+          required: true
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+            example: '2020-03-15'
+          required: true
+        - in: query
+          name: pageNumber
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the number of the page to be retrieved
+        - in: query
+          name: pageSize
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the size of the page to be retrieved
+      responses:
+        200:
+          description: Historical data for given VRM inside provided date range
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/licenceInfoHistoricalResponse'
         400:
           description: correlation Id missing
           content:
@@ -440,7 +709,7 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/LicensingAuthoritiesAuditInfo'
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: '#/components/schemas/LicensingAuthoritiesAuditInfo'
         400:
@@ -449,7 +718,7 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/BasicError'
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
         405:
@@ -463,40 +732,53 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/BasicError'
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  "/v1/licensing-authorities/:licensingAuthorityId:/vrm-audit":
+  "/v1/licences/active-in-reporting-window":
     get:
-      summary: For a given licensing authority (represented by its database identifier) returns a list of VRMs which had at least one active licence in the given licensing authority on the given date. When the given licensing authority id does not exist in the database, an empty list is returned with 200 status code
+      summary: Gets events related to licences that were active during specified reporting window and outputs them into CSV file. This operation is not suitable to run in AWS Lambda runtime!
       tags:
         - NTR
-      operationId: getActiveLicencesForLicensingAuthorityOnUsingGET
+      operationId: getEventsOfActiveLicencesInReportingWindowUsingGET
       parameters:
         - $ref: '#/components/parameters/correlationId'
-        - in: path
+        - in: query
+          name: startDate
+          description: Reporting window start date
           required: true
-          name: licensingAuthorityId
           schema:
-            type: integer
-            example: 1
+            type: string
+            format: date
+            example: "2019-09-09"
+        - in: query
+          name: endDate
+          description: Reporting window end date
+          schema:
+            type: string
+            format: date
+            example: "2020-09-09"
+          required: true
+        - in: query
+          name: csvFileName
+          description: Name of the output CSV file
+          schema:
+            type: string
+            example: "report.csv"
+          required: true
       responses:
         200:
-          description: VRMs which had at least one active licence for a given licensing authority on a given date
+          description: Returns "Started" and 200 OK when report generation operation started successfully
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
-          content:
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/ActiveLicencesAuditInfo'
-            application/json;charset=UTF-8:
-              schema:
-                $ref: '#/components/schemas/ActiveLicencesAuditInfo'
         400:
           description: Missing 'X-Correlation-Id' header
           content:
-            application/json;charset=UTF-8:
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+            application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
         405:
@@ -510,7 +792,7 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/BasicError'
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
   "/v1/scheme-management/register-csv-from-s3/jobs":
@@ -526,7 +808,7 @@ paths:
           application/xml:
             schema:
               $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
-          application/json;charset=UTF-8:
+          application/json:
             schema:
               $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
         description: startRegisterCsvFromS3JobCommand
@@ -541,7 +823,7 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
         "400":
@@ -552,7 +834,7 @@ paths:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
       deprecated: false
-  "/v1/scheme-management/register-csv-from-s3/jobs/:registerJobName":
+  "/v1/scheme-management/register-csv-from-s3/jobs/{registerJobName}":
     get:
       summary: Gets status of register job identified by name
       tags:
@@ -571,7 +853,7 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
         "400":
@@ -661,7 +943,7 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
         "400":
@@ -695,7 +977,7 @@ paths:
           application/xml:
             schema:
               $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
-          application/json;charset=UTF-8:
+          application/json:
             schema:
               $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
         description: startRegisterCsvFromS3JobCommand
@@ -710,7 +992,7 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
         "400":
@@ -721,6 +1003,59 @@ paths:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
       deprecated: false
+  "/v1/retrofit/vehicles/{vrn}":
+    get:
+      summary: Gets retrofit status for vehicle with given VRN
+      tags:
+        - Retrofit
+      operationId: getRetrofitStatus
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      responses:
+        200:
+          description: retrofit details
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrofitStatus'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        422:
+          description: invalid vrn - not valid according to business logic
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+
   "/v1/mod/register-csv-from-s3/jobs/:registerJobName":
     get:
       summary: Gets status of register job identified by name
@@ -740,7 +1075,7 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
         "400":
@@ -774,7 +1109,7 @@ paths:
           application/xml:
             schema:
               $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
-          application/json;charset=UTF-8:
+          application/json:
             schema:
               $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
         description: startRegisterCsvFromS3JobCommand
@@ -789,7 +1124,7 @@ paths:
             application/xml:
               schema:
                 $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
         "400":
@@ -800,6 +1135,207 @@ paths:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
       deprecated: false
+  "/v1/mod/vehicles":
+    post:
+      summary: Adds a single vehicle to MOD database
+      tags:
+        - MOD
+      operationId: modAddVehicleUsingPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SingleModVehicleRequest"
+      responses:
+        201:
+          description: Vehicle has been successfully added to the database
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+        400:
+          description: Missing X-Correlation-ID header
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+  "/v1/mod/search":
+    post:
+      summary: Retrieves MOD vehicles details
+      tags:
+        - MOD
+      operationId: modVehiclesDetailsUsingPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GetModVehiclesRequest"
+        required: true
+      responses:
+        200:
+          description: MOD vehicles details
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModVehiclesDetails'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  "/v1/mod/:vrn":
+    get:
+      summary: Retrieves MOD vehicle details
+      description: >
+        It doesn't matter if VRN in request is put in upper or lower case or if
+        it contains spaces as they will be removed before running the search.
+      tags:
+        - MOD
+      operationId: modVehicleDetailsUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      responses:
+        200:
+          description: MOD vehicle details
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModVehicleDetails'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: MOD vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/{accountId}/chargeable-vehicles":
+    get:
+      summary: Retrieves pages of chargeable vehicles and any entrant payments already made for them.
+      tags:
+        - PSR
+      operationId: getChargeableAccountVehiclesUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+        - in: query
+          name: cleanAirZoneId
+          schema:
+            type: string
+          required: true
+          description: a Clean Air Zone identifier to check chargeability and entrant payments against
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: false
+          description: Part of the VRN used to partial search
+        - in: query
+          name: pageSize
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the size of the page to be retrieved
+        - in: query
+          name: pageNumber
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the number of the page to be retrieved, non-negative, 0 if absent
+      responses:
+        200:
+          description: Success response for chargeable account vehicle retrieval
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChargeableAccountVehiclesResponse'
+        400:
+          description: The request is missing a mandatory element
+        404:
+          description: Specified account has not been found
+        429:
+          description: Too many requests
+        500:
+          description: System error message will be populated
+  "/v1/accounts/:accountId/payments":
+    get:
+      summary: Retrieves successful payments information for all users associated with the provided account or a single user.
+      tags:
+        - PSR
+      operationId: retrieveSuccessfulPayments
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+        - in: query
+          name: accountUserId
+          schema:
+            type: string
+          required: false
+          description: An account user id of the user assiociated with the provided account
+        - in: query
+          name: pageNumber
+          schema:
+            type: integer
+          required: true
+          description: page number for the response
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+          required: true
+          description: maximum quantity of returned payments information
+      responses:
+        200:
+          description: Success response for successful payments.
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessfulPaymentsResponse'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: System error message will be populated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
   "/v1/charge-settlement/payment-info":
     get:
       summary: Allows LAs to query and retrieve data about a payment that has been made via GOV.UK Pay in relation to a vehicle that has entered their CAZ (a 'vehicle entrant')
@@ -840,6 +1376,13 @@ paths:
             maxLength: 15
           required: false
           description: Identifies a vehicle for the purpose of obtaining information about associated payments that have been made to travel in to a CAZ (identified by the x-api-key header parameter). Attribute must exclude whitespace and is case insensitive. Typical usage of this attribute would be to specify it in combination with fromDatePaidFor and toDatePaidFor to obtain information about the payments associated with a specific vehicle that has paid to travel in to a CAZ (identified by the x-api-key header parameter) within a specific date range. If no fromDatePaidFor or toDatePaidFor is specified, information about all payments associated with the specified VRN and CAZ (identified by the x-api-key header parameter) will be returned.
+        - in: query
+          name: paymentMadeDate
+          schema:
+            type: string
+            format: date
+          required: false
+          description: ISO 8601 formatted date string that can be used to obtain information about payments which were made on the provided date in the specific CAZ (identified by the x-api-key header parameter).
       responses:
         200:
           description: Success response for a payment info query
@@ -850,6 +1393,85 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/PaymentInfoResponse'
+        400:
+          description: The request is missing a mandatory element
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInfoErrorsResponse'
+        401:
+          description: Unauthorised
+        405:
+          description: Method not allowed
+        429:
+          description: Too many requests
+        500:
+          description: System error message will be populated
+  "/v2/charge-settlement/payment-info":
+    get:
+      summary: Allows LAs to query and retrieve data about a payment that has been made via GOV.UK Pay in relation to a vehicle that has entered their CAZ (a 'vehicle entrant')
+      tags:
+        - PSR
+      operationId: getPaymentInfoV2UsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/xApiKey'
+        - $ref: '#/components/parameters/authorization'
+        - $ref: '#/components/parameters/timestamp'
+        - in: query
+          name: fromDatePaidFor
+          schema:
+            type: string
+            format: date
+          required: false
+          description: ISO 8601 formatted date string that can be used to obtain information about payments that have been made to travel in to a CAZ (identified by the x-api-key header parameter) on the specified date. This date is inclusive. If no VRN is specified, payment information for all vehicles that have paid to travel in to a CAZ (identified by the x-api-key header parameter) on the specified date will be returned. If no toDatePaidFor is specified, all settled charges for the 24 hour period corresponding to the specified date will be returned.
+        - in: query
+          name: paymentProviderId
+          schema:
+            type: string
+            maxLength: 255
+          required: false
+          description: GOV.UK Pay unique payment identifier. Can be used to obtain data associated with a specific GOV.UK Pay payment transaction. Can be specified as an alternative to vrn, fromDatePaidFor and toDatePaidFor to obtain information about a specific payment that a vehicle has made to travel in to a CAZ (identified by the x-api-key header parameter).
+        - in: query
+          name: toDatePaidFor
+          schema:
+            type: string
+            format: date
+          required: false
+          description: ISO 8601 formatted date string that can be used to determine what vehicles have paid to travel in to a CAZ (identified by the x-api-key header parameter) during a specified date range. This date is inclusive. If no VRN is specified, all settled charges for all vehicles that have paid a charge to enter the CAZ (identified by the x-api-key header parameter) during the specified date range will be returned. If no fromDatePaidFor is specified, all settled charges for the prior 24 hour period corresponding to the specified date will be returned.
+        - in: query
+          name: vrn
+          schema:
+            type: string
+            minLength: 1
+            maxLength: 15
+          required: false
+          description: Identifies a vehicle for the purpose of obtaining information about associated payments that have been made to travel in to a CAZ (identified by the x-api-key header parameter). Attribute must exclude whitespace and is case insensitive. Typical usage of this attribute would be to specify it in combination with fromDatePaidFor and toDatePaidFor to obtain information about the payments associated with a specific vehicle that has paid to travel in to a CAZ (identified by the x-api-key header parameter) within a specific date range. If no fromDatePaidFor or toDatePaidFor is specified, information about all payments associated with the specified VRN and CAZ (identified by the x-api-key header parameter) will be returned.
+        - in: query
+          name: paymentMadeDate
+          schema:
+            type: string
+            format: date
+          required: false
+          description: ISO 8601 formatted date string that can be used to obtain information about payments which were made on the provided date in the specific CAZ (identified by the x-api-key header parameter).
+        - in: query
+          name: page
+          schema:
+            type: number
+            minLength: 1
+            maxLength: 3
+          required: false
+          description: Page number, can't be negative or above 999.
+      responses:
+        200:
+          description: Success response for a payment info query
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentInfoResponseV2'
         400:
           description: The request is missing a mandatory element
           content:
@@ -936,13 +1558,13 @@ paths:
             X-Correlation-ID:
               $ref: '#/components/headers/X-Correlation-ID'
           content:
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: '#/components/schemas/PaymentUpdateSuccessResponse'
         400:
           description: The request is missing a mandatory element
           content:
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: '#/components/schemas/PaymentStatusErrorsResponse'
         401:
@@ -953,19 +1575,204 @@ paths:
           description: Too many requests
         500:
           description: System error message will be populated
-  "/v1/payments/vehicle-entrants":
-    post:
-      summary: Creates (unless it exists) an entry in the database that represents an entrance of a vehicle into a CAZ. Upon completion of this operation the status of the payment associated with the entry is returned
-      operationId: createVehicleEntranceAndGetPaymentDetailsUsingPOST
+  "/v1/payments/clean-air-zones":
+    get:
+      summary: returns list of CAZs
+      tags:
+        - PSR
+      operationId: payment-cazs
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        "200":
+          description: CAZ list
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CleanAirZoneList'
+            application/xml:
+              schema:
+                $ref: '#/components/schemas/CleanAirZoneList'
+        "400":
+          description: correlation ID missing
+        "500":
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+  "/v1/payments/vehicles/:vrn/details":
+    get:
+      summary: returns vehicle registation details from VCCS
+      tags:
+        - PSR
+      operationId: paymentsVehicleDetails
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      responses:
+        200:
+          description: vehicle details
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleDetails'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        422:
+          description: invalid vrn - not valid according to business logic
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/payments/vehicles/:vrn/compliance":
+    get:
+      summary: returns vehicle compliance details
+      tags:
+        - PSR
+      operationId: paymentsComplianceUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+        - $ref: '#/components/parameters/zones'
+      responses:
+        200:
+          description: compliance details in selected zones
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceResults'
+        400:
+          description: correlation ID or zones missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        422:
+          description: invalid registation number (according to business logic ) or zone (eg. not valid uuid)
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/payments/vehicles/:vrn/register-details":
+    get:
+      summary: returns information about registers on which the provided vrn is stored
+      tags:
+        - PSR
+      operationId: paymentRegisterDetailsGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+      responses:
+        200:
+          description: vehicle information from registers
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleRegisterDetails'
+        400:
+          description: correlation Id missing or registration number is missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/payments/operators-history/{operator-id}":
+    get:
+      summary: Gets information about payments made by the given operator represented by their identifier
+      operationId: getPaymentsByOperatorIdUsingGET
       tags:
         - PSR
       parameters:
-        - $ref: '#/components/headers/X-Correlation-ID'
-      requestBody:
-        content:
-          application/json;charset=UTF-8:
-            schema:
-              $ref: '#/components/schemas/VehicleEntranceRequest'
+        - $ref: '#/components/parameters/correlationId'
+        - in: path
+          name: operator-id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Identifier of the operator against which the search is made
+        - in: query
+          name: pageNumber
+          schema:
+            type: string
+            format: int
+            example: 0
+          required: false
+          description: the number of the page to be retrieved, non-negative, 0 if absent
+        - in: query
+          name: pageSize
+          schema:
+            type: string
+            format: int
+            example: 10
+          required: false
+          description: the size of the page to be retrieved, positive, 10 if absent
       responses:
         200:
           description: Success response for the vehicle entrants endpoint
@@ -973,15 +1780,44 @@ paths:
             X-Correlation-ID:
               $ref: '#/components/headers/X-Correlation-ID'
           content:
-            application/json;charset=UTF-8:
+            application/json:
               schema:
-                $ref: '#/components/schemas/VehicleEntranceResponse'
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentsInfoByOperatorResponse'
+        400:
+          description: Request syntax validation error
+        500:
+          description: Internal server error
+  "/v1/payments/vehicle-entrants":
+    post:
+      summary: Creates (unless it exists) a collection of entries in the database that represents an entrances of a vehicles into a CAZ. Upon completion of this operation the collection of caz entrant payments is returned
+      operationId: createVehicleEntranceAndGetPaymentDetailsUsingPOST
+      tags:
+        - PSR
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/VehicleEntranceRequest'
+      responses:
+        200:
+          description: Success response for the vehicle entrants endpoint
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VehicleEntranceResponse'
         400:
           description: The request is missing a mandatory element
-          content:
-            application/json;charset=UTF-8:
-              schema:
-                $ref: '#/components/schemas/ErrorsResponse'
         401:
           description: Unauthorised
         405:
@@ -990,6 +1826,34 @@ paths:
           description: Too many requests
         500:
           description: System error message will be populated
+  "/v1/payments/whitelisted-vehicles/:vrn":
+    get:
+      summary: Gets details of a whitelisted vehicle. It is a proxy to the whitelist service
+      tags:
+        - PSR
+      operationId: getWhitelistVehicleDetailsUsingGET
+      parameters:
+        - $ref: '#/components/parameters/vrn'
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        200:
+          description: Vehicle is present in whitelisting
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WLVehicleResponse'
+        404:
+          description: Vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
   "/v1/payments":
     post:
       summary: Request to create Payment
@@ -1000,7 +1864,7 @@ paths:
         - $ref: '#/components/parameters/correlationId'
       requestBody:
         content:
-          application/json;charset=UTF-8:
+          application/json:
             schema:
               $ref: "#/components/schemas/PaymentRequest"
         required: true
@@ -1038,12 +1902,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  "/v1/payments/:paymentId":
-    get:
+  "/v1/payments/{paymentId}":
+    put:
       summary: returns payment details (with status)
       tags:
         - PSR
-      operationId: paymentDetailsGET
+      operationId: paymentDetailsPUT
       parameters:
         - $ref: '#/components/parameters/correlationId'
         - $ref: '#/components/parameters/paymentId'
@@ -1081,31 +1945,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  "/v1/payments/billable-days":
+  "/v1/payments/{payment_id}":
     get:
-      summary: returns days which can be paid
+      summary: returns payment details
       tags:
         - PSR
-      operationId: paymentDetails
+      operationId: paymentDetailsGET
       parameters:
         - $ref: '#/components/parameters/correlationId'
-        - $ref: '#/components/parameters/cleanAirZoneId'
+        - $ref: '#/components/parameters/payment_id'
       responses:
         200:
-          description: return array of days
+          description: payment details
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BillableDaysResponse'
+                $ref: '#/components/schemas/PaymentDetailsResponse'
         400:
           description: correlation Id missing
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        404:
+          description: payment not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
         500:
           description: internal error
           headers:
@@ -1115,38 +1983,376 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  "/v1/accounts":
+  "/v1/payments/paid":
     post:
-      summary: Creates admin account (is_administrator = true)
+      summary: Returns data about already paid charges
       tags:
-        - Accounts
-      operationId: createAdminAccountPOST
+        - PSR
+      operationId: paidPaymentsPOST
       parameters:
         - $ref: '#/components/parameters/correlationId'
       requestBody:
         content:
-          application/json;charset=UTF-8:
+          application/json:
             schema:
-              $ref: "#/components/schemas/AccountCreation"
-        required: true
+              $ref: "#/components/schemas/PaidPaymentsRequest"
       responses:
-        201:
-          description: admin created
+        200:
+          description: paid charges
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/PaidCharges'
         400:
-          description: Invalid parameters or correlation id missing
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/payments/{paymentReference}/receipts":
+    post:
+      summary: Resends payments receipt to the provided email
+      tags:
+        - PSR
+      operationId: paymentReceiptResend
+      parameters:
+        - $ref: '#/components/schemas/ResendReceiptEmailRequest'
+        - $ref: '#/components/parameters/paymentReference'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PaidPaymentsRequest"
+      responses:
+        200:
+          description: email successfully sent
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: correlation Id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        404:
+          description: payment with the provided reference number not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+  "/v1/payments/references-history/{paymentReference}":
+    get:
+      summary: returns references history
+      tags:
+        - PSR
+      operationId: referencesHistoryGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/paymentReference'
+      responses:
+        200:
+          description: references history
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReferencesHistoryResponse'
+        400:
+          description: correlation Id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        404:
+          description: references history not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/payments/accounts/:accountId/direct-debit-mandates":
+    get:
+      summary: Returns a list of clean air zones with the associated direct debit mandates
+      operationId: getDirectDebitMandatesUsingGET
+      tags:
+        - PSR
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+      responses:
+        200:
+          description: Clean air zones with associated direct debit mandates
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectDebitMandatesResponse'
+        400:
+          description: X-Correlation-Id header is missing
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+        500:
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+        503:
+          description: Internal server error - external service call failure
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+    post:
+      summary: Create direct debit mandates assigned to the account
+      operationId: createDirectDebitMandateUsingPOST
+      tags:
+        - PSR
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDirectDebitMandateRequest"
+      responses:
+        201:
+          description: Direct debit mandate created.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDirectDebitMandatesResponse'
+        400:
+          description: X-Correlation-Id header is missing
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+        500:
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+        503:
+          description: Internal server error - external service call failure
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+  "/v1/direct-debit-payments":
+    post:
+      summary: Request to create Payment via DirectDebit payment method.
+      tags:
+        - PSR
+      operationId: createDirectDebitPaymentPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateDirectDebitPaymentRequest"
+        required: true
+      responses:
+        201:
+          description: payment created
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateDirectDebitPaymentResponse'
+        400:
+          description: correlation Id missing
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
         422:
-          description: admin creation error
+          description: payment creation error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/payments/accounts/{accountId}/direct-debit-mandates/{cleanAirZoneId}":
+    get:
+      summary: Returns a list of account's direct debit mandates assigned to selected Clean air zone.
+      operationId: getDirectDebitMandatesForCazUsingGET
+      tags:
+        - PSR
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+        - $ref: '#/components/parameters/cleanAirZoneId'
+      responses:
+        200:
+          description: Account's direct debit mandates for Clean Air Zone
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectDebitMandatesForCazResponse'
+        400:
+          description: X-Correlation-Id header is missing
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+        500:
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+        503:
+          description: Internal server error - external service call failure
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+  "/v1/payments/vehicles-history/:vrn":
+    get:
+      summary: Fetches history of payments per vehicle
+      operationId: getVehiclePaymentHistoryGET
+      tags:
+        - PSR
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+        - in: query
+          name: pageNumber
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the non-negative number of the page to be retrieved
+        - in: query
+          name: pageSize
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the size of the page to be retrieved
+      responses:
+        200:
+          description: Page of payment history for a vehicle
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehiclePaymentHistoryResponse'
+        400:
+          description: X-Correlation-Id header is missing or parameters have wrong format
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+        500:
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+  "/v1/payments/direct_debit_redirect_flows/{flowId}/complete":
+    post:
+      summary: Completes the process of the mandate creation.
+      operationId: completeMandateCreation
+      tags:
+        - PSR
+      parameters:
+        - in: path
+          name: flowId
+          schema:
+            type: string
+          description: Identifier of a flow which is to be completed
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompleteDirectDebitPaymentRequest"
+      responses:
+        200:
+          description: Successfully completed mandate's creation
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+        400:
+          description: X-Correlation-Id header is missing or parameters have wrong format or there was an error in a request to goCardless
+          headers:
+            X-Correlation-ID:
+              $ref: '#/components/headers/X-Correlation-ID'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts":
+    post:
+      summary: Creates an account (the user is NOT created)
+      tags:
+        - Accounts
+      operationId: creatAccountPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountCreation"
+        required: true
+      responses:
+        201:
+          description: account created
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountCreationResponse'
+        400:
+          description: invalid parameters or correlation id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: account creation error
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
@@ -1172,24 +2378,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  "/v1/accounts/:accountId/users/:accountUserId/verify":
+  "/v1/accounts/:accountId/cancellation":
     post:
-      summary: Verify account email address
+      summary: Closing an account
       tags:
         - Accounts
-      operationId: verifyAccountPOST
+      operationId: closeAccount
       parameters:
-        - $ref: '#/components/parameters/correlationId'
-        - $ref: '#/components/parameters/accountId'
-        - $ref: '#/components/parameters/accountUserId'
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CloseAccountRequest"
+        required: true
       responses:
-        200:
-          description: Account email verified successfully
+        204:
+          description: Account was successfully closed
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
         400:
-          description: Email already confirmed
+          description: Invalid parameters or correlation id missing
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
@@ -1199,6 +2410,494 @@ paths:
                 $ref: '#/components/schemas/BasicError'
         404:
           description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: Internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/{accountId}/user-invitations":
+    post:
+      summary: Creates a user and sends an invitation email.
+      tags:
+        - Accounts
+      operationId: createAndInviteStandardUserForAccountUsingPOST
+      parameters:
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateAndInviteUserRequest"
+        required: true
+      responses:
+        201:
+          description: User has been successfully invited and email has been sent
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        404:
+          description: Account or user not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        422:
+          description: User with the given email already exists
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        503:
+          description: External service failure
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+  "/v1/accounts/{accountId}/users/{accountUserId}/verifications":
+    post:
+      summary: Re-sends verification email with new verification token
+      tags:
+        - Accounts
+      operationId: resendVerificationEmail
+      parameters:
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountId"
+        - $ref: "#/components/parameters/accountUserId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResendVerificationEmailRequest"
+        required: true
+      responses:
+        200:
+          description: Verification email was successfully sent
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResendVerificationEmailResponse"
+        400:
+          description: Invalid parameters or correlation id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: Verification email could not be resend, invalid amount of verification codes
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/:accountId/users":
+    post:
+      summary: Creates a new user for specified account
+      tags:
+        - Accounts
+      operationId: createUserForAccount
+      parameters:
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreationForAccount"
+        required: true
+      responses:
+        201:
+          description: User for the account was successfully created
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Invalid parameters or correlation id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    get:
+      summary: Get all users for specified account
+      tags:
+        - Accounts
+      operationId: getUsersForAccount
+      parameters:
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountId"
+      responses:
+        200:
+          description: Users returned successfully
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountUsers'
+        400:
+          description: Invalid parameters or correlation id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/:accountId/users/:accountUserId":
+    patch:
+      summary: Updates user's data - permissions or name
+      tags:
+        - Accounts
+      operationId: updateUsersData
+      parameters:
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountId"
+        - $ref: "#/components/parameters/accountUserId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+        required: true
+      responses:
+        204:
+          description: User's data was successfully updated
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Invalid parameters or correlation id is missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    delete:
+      summary: Deletes an user for given parameters
+      tags:
+        - Accounts
+      operationId: deleteUserForAccount
+      parameters:
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountId"
+        - $ref: "#/components/parameters/accountUserId"
+      responses:
+        204:
+          description: User was successfully deleted
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        422:
+          description: User for given accountUserId doesn't exist in the database.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        403:
+          description: User is an owner and cannot be deleted.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Invalid parameters or correlation id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    get:
+      summary: Get a specified non owner user for the account
+      tags:
+        - Accounts
+      operationId: getUserForAccount
+      parameters:
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountId"
+        - $ref: "#/components/parameters/accountUserId"
+      responses:
+        200:
+          description: User returned successfully
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SingleAccountUsers'
+        400:
+          description: Invalid parameters or correlation id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: User not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/verify":
+    post:
+      summary: Verify account email address
+      tags:
+        - Accounts
+      operationId: verifyAccountPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountVerificationRequest"
+      responses:
+        200:
+          description: Account email verified successfully
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Missing or invalid verification token
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: Verification process failed
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/users/:accountUserId":
+    get:
+      summary: Get a specified user
+      tags:
+        - Accounts
+      operationId: getUserDetails
+      parameters:
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountUserId"
+      responses:
+        200:
+          description: User returned successfully
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserDetails'
+        400:
+          description: Invalid parameters or correlation id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: User not found
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
@@ -1234,20 +2933,20 @@ paths:
         - $ref: '#/components/parameters/correlationId'
       requestBody:
         content:
-          application/json;charset=UTF-8:
+          application/json:
             schema:
               $ref: "#/components/schemas/LoginParams"
         required: true
       responses:
         200:
-          description: Successfull login
+          description: Successful login
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
+                $ref: '#/components/schemas/LoggedInUser'
         400:
           description: Invalid parameters or missing correlation ID
           headers:
@@ -1265,7 +2964,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/BasicError'
+                $ref: '#/components/schemas/LoginError'
         422:
           description: User not confirmed
           headers:
@@ -1293,17 +2992,801 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
-  "/v1/whitelisting/vehicles":
+  "/v1/auth/password/reset":
     post:
-      summary: Adds given vehicle to the whitelisting
-      tags: [WL]
+      summary: Endpoint used to initiate password reset
+      tags:
+        - Accounts
+      operationId: PasswordResetPOST
       parameters:
         - $ref: '#/components/parameters/correlationId'
       requestBody:
         content:
-          application/json;charset=UTF-8:
+          application/json:
             schema:
-              $ref: "#/components/schemas/WLNewVehicle"
+              $ref: "#/components/schemas/PasswordResetParams"
+        required: true
+      responses:
+        204:
+          description: Successfully received password reset request.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Invalid parameters or missing correlation ID
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: Internal exception
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/auth/password/reset/validation":
+    post:
+      summary: Validates reset password token
+      tags:
+        - Accounts
+      operationId: PasswordResetValidationPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordResetValidationParams"
+        required: true
+      responses:
+        204:
+          description: Token is valid
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Token is invalid or expired
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/auth/password/set":
+    put:
+      summary: Sets password for the user
+      tags:
+        - Accounts
+      operationId: PasswordSetPUT
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordSetParams"
+        required: true
+      responses:
+        204:
+          description: The new password is set
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Token is invalid or expired
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: Password is missing or not complex enough
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/auth/password/update":
+    post:
+      summary: Updates password of an user
+      tags:
+        - Accounts
+      operationId: PasswordUpdatePOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PasswordUpdateParam"
+        required: true
+      responses:
+        204:
+          description: The password is updated
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        422:
+          description: Wrong old password, new is not complex enough or was used recently
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: Account user id is wrong
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/auth/email/change-request":
+    put:
+      summary: Initiates the process of changing the user's email address.
+      tags:
+        - Accounts
+      operationId: InitEmailChangePUT
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InitiateEmailChangeRequest'
+      responses:
+        200:
+          description: The process of changing the user's email address has been successfully initiated.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Invalid parameters or missing correlation ID.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: User not found.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: New email is not unique.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/auth/email/change-confirm":
+    put:
+      summary: Confirms the new email and finalizes the email change process.
+      tags:
+        - Accounts
+      operationId: ConfirmEmailChangePUT
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmEmailChangeRequest'
+      responses:
+        200:
+          description: The process of changing the user's email has been successfully finished.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Invalid parameters or missing correlation ID.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: User not found.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        422:
+          description: New password validation failed.
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountError'
+
+  "/v1/accounts/:accountId/vehicles":
+    get:
+      summary: Returns pages of vehicles with charges associated with an account.
+      tags:
+        - Accounts
+      operationId: AccountVehicleRetrievalGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+        - in: query
+          name: pageNumber
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the number of the page to be retrieved
+        - in: query
+          name: pageSize
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the size of the page to be retrieved
+        - in: query
+          name: onlyChargeable
+          schema:
+            type: string
+            format: boolean
+          required: false
+          description: Flag used to filter only chargeable vehicles
+        - in: query
+          name: onlyDetermined
+          schema:
+            type: string
+            format: boolean
+          required: false
+          description: Flag used to filter only determined vehicles
+        - in: query
+          name: cazId
+          schema:
+            type: string
+            format: uuid
+          required: false
+          description: When parameter is present, only charges associated with the provided cazId are being returned.
+        - in: query
+          name: query
+          schema:
+            type: string
+          required: false
+          description: Query string to filter out vehicles vrn partial matching.
+      responses:
+        200:
+          description: Vehicles returned successfully
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountVehiclesRetrievalResponse'
+        400:
+          description: Invalid parameters or missing correlation ID
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: Internal exception
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    post:
+      summary: Creates a single vehicle for a given Account
+      tags:
+        - Accounts
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountVehicleRequest"
+        required: true
+      responses:
+        201:
+          description: Account vehicle created successfully
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountVehicleResponse'
+        400:
+          description: Invalid parameters or correlation id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/:accountId/vehicles/csv-exports":
+    post:
+      summary: Export csv with all vehicles with chargeability for given accountId
+      tags:
+        - Accounts
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+        - in: query
+          name: betaTester
+          schema:
+            type: boolean
+          required: true
+          example: false
+          description: Returns true for the user how belongs to Beta testers group
+      responses:
+        200:
+          description: CsvExported
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountsCsvExportResponse'
+        400:
+          description: Invalid parameters or correlation id missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/:accountId":
+    get:
+      summary: Fetches an account details for given ID
+      tags:
+        - Accounts
+      operationId: fetchAccountGET
+      parameters:
+        - $ref: '#/components/parameters/accountId'
+      responses:
+        200:
+          description: Successfully fetched account's details
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountListing'
+        404:
+          description: Account doesn't exist
+        400:
+          description: invalid parameters or correlation id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        503:
+          description: Cognito exception eg. unavailable
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    patch:
+      summary: Updates Account
+      tags:
+        - Accounts
+      operationId: updateAccountData
+      parameters:
+        - $ref: "#/components/parameters/correlationId"
+        - $ref: "#/components/parameters/accountId"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AccountUpdateRequest"
+        required: true
+      responses:
+        204:
+          description: Account was successfully updated
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        400:
+          description: Invalid parameters or correlation id is missing
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/:accountId/vehicles/:vrn":
+    delete:
+      summary: Request to remove vehicle from the fleet
+      tags:
+        - Accounts
+      operationId: removeVehicleFromFleetDELETE
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+        - $ref: '#/components/parameters/accountId'
+      responses:
+        "204":
+          description: Removing was successful. Returns this status even if the vehicle was not present in the fleet
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "400":
+          description: Correlation Id missing
+        "404":
+          description: Account not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    get:
+      summary: Retrieves a single vehicle from an account
+      tags:
+        - Accounts
+      operationId: getVehicleFromFleetGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+        - $ref: '#/components/parameters/accountId'
+      responses:
+        "200":
+          description: Account vehicle found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleWithCharges'
+        "400":
+          description: Correlation Id missing
+        "404":
+          description: Vehicle for the given account ID was not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/register-csv-from-s3/jobs":
+    post:
+      summary: Request to start register job. Source will be CSV file located on AWS S3
+      tags:
+        - Accounts
+      operationId: startRegisterJobUsingPOST
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
+      responses:
+        201:
+          description: Returns a 'jobName', which is a handle that uniquely identifies register job that has been started
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
+        400:
+          description: Correlation Id missing
+        406:
+          description: Previous job has not finished yet
+        500:
+          description: Internal Server Error / No message available
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+  "/v1/accounts/register-csv-from-s3/jobs/:registerJobName":
+    get:
+      summary: Gets status of register job identified by name
+      tags:
+        - Accounts
+      operationId: accountsQueryForStatusOfRegisterJobUsingGET
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/registerJobName'
+      responses:
+        "200":
+          description: Status of register job identified by register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
+        "400":
+          description: Correlation Id missing
+        "404":
+          description: Register job not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "422":
+          description: Incorrect format of register job name
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+  "/v1/accounts/:accountId/direct-debit-mandates":
+    get:
+      summary: Get all direct debit mandates associated with a given account.
+      tags:
+        - Accounts
+      operationId: getAccountsDirectDebitMandates
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+      responses:
+        "200":
+          description: Gets all DirectDebitMandates assigned to Account
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetAccountDirectDebitMandatesResponse'
+        "400":
+          description: Correlation Id missing or missing parameters
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+
+    post:
+      summary: Creates new direct debit mandate
+      tags:
+        - Accounts
+      operationId: postAccountsDirectDebitsMandate
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PostAccountDirectDebitMandateRequest'
+        required: true
+      responses:
+        "201":
+          description: Creates a single DirectDebitMandate for Account
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDirectDebitMandateDto'
+        "400":
+          description: Correlation Id missing or missing parameters
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        "404":
+          description: Account with provided accountId was not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+    patch:
+      summary: Updates a list of provided direct debit mandates
+      tags:
+        - Accounts
+      operationId: patchAccountsDirectDebitMandate
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchAccountsDirectDebitMandatesUpdateRequest'
+      responses:
+        "200":
+          description: Updates statuses of provided direct debit mandates
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountDirectDebitMandateUpdateResponse'
+        "400":
+          description: Correlation Id missing, missing parameters or invalid parameters
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DirectDebitMandatesUpdateErrorResponse'
+        "404":
+          description: Account with provided accountId was not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/accounts/{accountId}/direct-debit-mandates/{mandateId}":
+    delete:
+      summary: Removes a single DirectDebitMandate which belongs to Account
+      tags:
+        - Accounts
+      operationId: deleteDirectDebitMandate
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/accountId'
+        - $ref: '#/components/parameters/mandateId'
+      responses:
+        "204":
+          description:  Removes a single DirectDebitMandate which belongs to Account
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        "400":
+          description: DirectDebitMandate does not belongs to provided Account
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        "404":
+          description: Account/DirectDebitMandate was not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+  "/v1/whitelisting/vehicles":
+    post:
+      summary: Adds given vehicle to the whitelisting or if VRN already existing, it will be updated
+      tags:
+        - WL
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/WLVehicle"
         required: true
       responses:
         201:
@@ -1314,7 +3797,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WLVehicle'
+                $ref: '#/components/schemas/WLVehicleResponse'
         400:
           description: Invalid parameters
           headers:
@@ -1333,10 +3816,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/BasicError'
+  "/v1/whitelisting/vehicles/csv-exports":
+    post:
+      summary: Generate CSV file and save it on S3
+      tags:
+        - WL
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        201:
+          description: File saved on S3
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WLCsvExportResponse'
+        400:
+          description: Invalid parameters
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
   "/v1/whitelisting/vehicles/:vrn":
     get:
       summary: Returns whitelisted vehicle data
-      tags: [WL]
+      tags:
+        - WL
       parameters:
         - $ref: '#/components/parameters/correlationId'
         - $ref: '#/components/parameters/vrn'
@@ -1349,7 +3868,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WLVehicle'
+                $ref: '#/components/schemas/WLVehicleDetailsResponse'
         404:
           description: Vehicle not found
           headers:
@@ -1359,50 +3878,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/VehicleError'
-    patch:
-      summary: Update the whitelisted vehicle
-      tags: [WL]
-      parameters:
-        - $ref: '#/components/parameters/correlationId'
-        - $ref: '#/components/parameters/vrn'
-      requestBody:
-        content:
-          application/json;charset=UTF-8:
-            schema:
-              $ref: "#/components/schemas/WLUpdateVehicle"
-      responses:
-        200:
-          description: Vehicle updated successfully
-          headers:
-            X-Correlation-ID:
-              $ref: "#/components/headers/X-Correlation-ID"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/WLVehicle'
-        404:
-          description: Vehicle not found
-          headers:
-            X-Correlation-ID:
-              $ref: "#/components/headers/X-Correlation-ID"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/VehicleError'
-        422:
-          description: Invalid parameters
-          headers:
-            X-Correlation-ID:
-              $ref: "#/components/headers/X-Correlation-ID"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BasicError'
     delete:
       summary: Remove the whitelisted vehicle
-      tags: [WL]
+      tags:
+        - WL
       parameters:
         - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/xModifierId'
+        - $ref: '#/components/parameters/xModifierEmail'
         - $ref: '#/components/parameters/vrn'
       responses:
         200:
@@ -1413,9 +3896,80 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WLVehicle'
+                $ref: '#/components/schemas/WLVehicleResponse'
         404:
           description: Vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+  "/v1/whitelisting/vehicles/:vrn/whitelist-info-historical":
+    get:
+      summary: Looks up vehicle's information about its historical data for given VRN inside provided date range
+      tags:
+        - WL
+      operationId: whitelistInfoHistorical
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+        - $ref: '#/components/parameters/vrn'
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+            example: '2020-03-10'
+          required: true
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+            example: '2020-03-15'
+          required: true
+        - in: query
+          name: pageNumber
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the number of the page to be retrieved
+        - in: query
+          name: pageSize
+          schema:
+            type: string
+            format: int
+          required: true
+          description: the size of the page to be retrieved
+      responses:
+        200:
+          description: Historical data for given VRN inside provided date range
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/whitelistInfoHistoricalResponse'
+        400:
+          description: correlation Id missing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BasicError'
+        404:
+          description: vehicle not found
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VehicleError'
+        500:
+          description: internal error
           headers:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
@@ -1426,13 +3980,14 @@ paths:
   "/v1/whitelisting/register-csv-from-s3/jobs":
     post:
       summary: Request to start register job. Source will be CSV file located on AWS S3
-      tags: [WL]
+      tags:
+        - WL
       operationId: WLStartRegisteringJobUsingPOST
       parameters:
         - $ref: '#/components/parameters/correlationId'
       requestBody:
         content:
-          application/json;charset=UTF-8:
+          application/json:
             schema:
               $ref: "#/components/schemas/StartRegisterCsvFromS3JobCommand"
         description: startRegisterCsvFromS3JobCommand
@@ -1444,7 +3999,7 @@ paths:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
           content:
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: "#/components/schemas/RegisterCsvFromS3JobHandle"
         "400":
@@ -1452,7 +4007,8 @@ paths:
   "/v1/whitelisting/register-csv-from-s3/jobs/:registerJobName":
     get:
       summary: Gets status of register job identified by name
-      tags: [WL]
+      tags:
+        - WL
       operationId: WLQueryForStatusOfRegisterJobUsingGET
       parameters:
         - $ref: '#/components/parameters/correlationId'
@@ -1464,7 +4020,7 @@ paths:
             X-Correlation-ID:
               $ref: "#/components/headers/X-Correlation-ID"
           content:
-            application/json;charset=UTF-8:
+            application/json:
               schema:
                 $ref: "#/components/schemas/StatusOfRegisterCsvFromS3JobQueryResult"
         "400":
@@ -1495,13 +4051,38 @@ paths:
       responses:
         "200":
           description: Json with Swagger 2.0 Api specification
+  "/v1/load-test-data":
+    post:
+      summary: Imports a predefined data into the database. Available only in DEV and ST environments.
+      tags:
+        - NTR
+        - MOD
+        - WL
+        - Retrofit
+      operationId: loadTestData
+      parameters:
+        - $ref: '#/components/parameters/correlationId'
+      responses:
+        204:
+          description: Successfully imported test fixture data
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
+        500:
+          description: internal error
+          headers:
+            X-Correlation-ID:
+              $ref: "#/components/headers/X-Correlation-ID"
   "/v1/migrate-db":
     post:
-      summary: This endpoint will be used by VCCS, Tariff and NTR
+      summary: This endpoint will be used by all services that manage DB schema
       tags:
         - VCC
         - Tariff
         - NTR
+        - MOD
+        - PSR
+        - Accounts
       operationId: Migrate db
       parameters:
         - $ref: '#/components/parameters/correlationId'
@@ -1522,11 +4103,13 @@ components:
       in: path
       name: vrn
       required: true
+      description: Vehicle registation number
       schema:
         $ref: "#/components/schemas/VRN"
     vrm:
       in: path
       name: vrm
+      example: 'CU12345'
       required: true
       schema:
         type: string
@@ -1546,6 +4129,22 @@ components:
       schema:
         type: string
         format: uuid
+    xModifierId:
+      in: header
+      name: X-Modifier-ID
+      description: "UUID with identifier/sub of user making a modification"
+      required: true
+      schema:
+        type: string
+        format: uuid
+    xModifierEmail:
+      in: header
+      name: X-Modifier-Email
+      description: "Email of a user making a modification"
+      required: true
+      schema:
+        type: string
+        format: email
     zones:
       in: query
       name: zones
@@ -1554,6 +4153,22 @@ components:
         type: string
       required: true
       example: "zones=b4974ef2-145a-46de-b696-7bfe3a8a0e85,b4974ef2-145a-46de-b696-7bfe3a8a0e85"
+    zonesOptional:
+      in: query
+      name: zones
+      description: The identifiers of the clean air zones to be queried against for compliance checking purposes. Can be empty and if so all clean air zones will be queried.
+      schema:
+        type: string
+      required: false
+      example: "zones=b4974ef2-145a-46de-b696-7bfe3a8a0e85,b4974ef2-145a-46de-b696-7bfe3a8a0e85"
+    isTaxiOrPhv:
+      in: query
+      name: isTaxiOrPhv
+      description: A value of 'true' indicates that the VRN should be registered to a vehicle that operates as a licensed taxi or Private Hire Vehicle.
+      schema:
+        type: boolean
+      required: false
+      example: true
     vehicleType:
       in: query
       name: vehicleType
@@ -1587,6 +4202,20 @@ components:
       schema:
         type: string
       description: ID of internal Payment
+    payment_id:
+      in: path
+      name: payment_id
+      required: true
+      schema:
+        type: string
+      description: ID of internal Payment
+    paymentReference:
+      in: path
+      name: paymentReference
+      required: true
+      schema:
+        type: number
+      description: central reference number
     cleanAirZoneId:
       in: path
       name: cleanAirZoneId
@@ -1602,6 +4231,14 @@ components:
         type: string
         format: uuid
       description: Account id, should match the primary key of Account table
+    mandateId:
+      in: path
+      name: mandateId
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: internal ID of DirectDebitMandate
     accountUserId:
       in: path
       name: accountUserId
@@ -1619,11 +4256,26 @@ components:
       required: true
     timestamp:
       in: header
-      name: Timestamp
+      name: timestamp
       description: ISO 8601 formatted datetime string indicating the time that the request was made
       schema:
         type: string
         format: date-time
+      required: true
+    pageSize:
+      in: query
+      name: pageSize
+      description: numerical value specifying how many elements should be returned
+      schema:
+        type: string
+      required: true
+    chargeableCazId:
+      in: query
+      name: ChargeableCazId
+      description: identifier of the caz from which the chargeable vehicles are going to be fetched
+      schema:
+        type: string
+        format: uuid
       required: true
   headers:
     X-Correlation-ID:
@@ -1658,9 +4310,6 @@ components:
           description: ISO 8601 formatted date string. Used in combination with the vrn attribute to uniquely identify a payment whose status requires updating
           type: string
           format: date
-        paymentProviderId:
-          description: GOV.UK Pay unique payment identifier returned by the payment-status GET method
-          type: string
         paymentStatus:
           description: Status of the payment. Can be either 'paid', 'notPaid','refunded' or 'chargeback'
           type: string
@@ -1669,6 +4318,17 @@ components:
     PaymentInfoResponse:
       type: object
       properties:
+        results:
+          type: array
+          description: An array containig details about payments of queried VRNs
+          items:
+            $ref: '#/components/schemas/PaymentsInfo'
+    PaymentInfoResponseV2:
+      type: object
+      properties:
+        pages:
+          type: number
+          example: 3
         results:
           type: array
           description: An array containig details about payments of queried VRNs
@@ -1689,6 +4349,9 @@ components:
     SinglePaymentInfo:
       type: object
       properties:
+        centralPaymentReference:
+          type: integer
+          description: A numeric payment reference generated by the CAZ service set on GOV.UK Pay transactions (as the “reference” value). This value can be used to search for a given transaction using the GOV.UK Pay dashboard “Reference” field.
         paymentDate:
           type: string
           format: date
@@ -1701,6 +4364,10 @@ components:
           format: double
           example: 8.46
           description: The total GBP value of the payment linked to the paymentProviderId. If the motorist paid in advance to travel in to the CAZ on multiple dates, then the payment amount will be a multiple of the daily charge due (e.g. if the daily charge for a car entering a CAZ is £8.00, but the motorist paid in advance for 3 days of travel, then the chargePaid would be equal to £24.00). Expressed in pounds and pence format to 2 decimal places
+        telephonePayment:
+          type: boolean
+          example: false
+          description: Indicates whether payment was done over phone.
         lineItems:
           description: >-
             Array containing objects that specify the: (1) date(s) for which the vehicle has paid to journey in to the CAZ (identified by the x-api-key header parameter); (2) the charge associated with the journey; (3) the payment status of the charge (i.e. whether it has been paid or refunded); and, (4) any Local Authority case reference associated with the charge (e.g. that may be linked to a customer query relating to the charge). 1 object will be returned for each date of travel associated with the payment.
@@ -1732,16 +4399,31 @@ components:
     PaymentStatusResponse:
       type: object
       properties:
-        caseReference:
-          description: A unique identifier that provides traceability between the central CAZ Service and Local Authority case management systems in the event that a payment is subject to some form of customer support query (e.g. a refund or chargeback)
-          type: string
-        paymentProviderId:
-          description: GOV.UK Pay unique payment identifier
-          type: string
         paymentStatus:
           description: Status of the payment. Can be either 'paid', 'notPaid', 'refunded' or 'chargeback'
           enum: ["paid", "notPaid", "refunded", "chargeback"]
           example: refunded
+        cazPaymentReference:
+          description: A numeric payment reference generated by the CAZ service set on GOV.UK Pay transactions (as the “reference” value). This value can be used to search for a given transaction using the GOV.UK Pay dashboard “Reference” field.
+          type: integer
+        paymentProviderId:
+          description: GOV.UK Pay unique payment identifier
+          type: string
+        caseReference:
+          description: A unique identifier that provides traceability between the central CAZ Service and Local Authority case management systems in the event that a payment is subject to some form of customer support query (e.g. a refund or chargeback)
+          type: string
+        paymentMethod:
+          type: string
+          example: CARD
+          description: Method of the payment
+        paymentMandateId:
+          type: string
+          example: qwe12f1c11c12eqwe
+          description: Direct debit mandate identifier
+        telephonePayment:
+          type: boolean
+          example: false
+          description: Indicates whether payment was done over phone.
     PaymentUpdateSuccessResponse:
       type: object
       properties:
@@ -1764,10 +4446,93 @@ components:
     VehicleEntranceResponse:
       type: object
       properties:
-        status:
+        entrantPaymentId:
+          description: Primary key of the EntrantPayment record
           type: string
-          description: Payment status (PAID/NOT_PAID)
-          example: "PAID"
+          format: uuid
+        paymentStatus:
+          description: Status of the payment.
+          type: string
+          enum: ["paid", "notPaid", "refunded", "chargeback"]
+          example: refunded
+        paymentMethod:
+          description: Payment Method of related Payment record. Can be "card" | "direct_debit" | "null"
+          type: string
+          enum: ["card", "direct_debit", "null"]
+          example: card
+        vrn:
+          description: Vehicle registration number
+          type: string
+          example: AB11CDE
+        cazEntryTimestamp:
+          description: date and time string that specifies the date and time on which the vehicle entered the CAZ
+          type: string
+          format: dateTime
+          example: 2017-10-01 15:53:01
+        cleanAirZoneId:
+          type: string
+          format: uuid
+          description: Clean Air Zone identifier
+        tariffCode:
+          type: string
+          example: BCC01-private_car
+          description: A code that uniquely identifies the tariff that was determined to pay the charge.
+    PaymentsInfoByOperatorResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Current page number
+        pageCount:
+          type: integer
+          description: Total pages count
+        totalPaymentsCount:
+          type: integer
+          description: Total paginated items count
+        perPage:
+          type: integer
+          description: Requested page size or '10' if not provided
+        payments:
+          type: array
+          description: List of items on this page
+          items:
+            $ref: '#/components/schemas/SinglePaymentsInfoByOperator'
+    SinglePaymentsInfoByOperator:
+      type: object
+      properties:
+        paymentTimestamp:
+          description: Datetime that tells when the payment was inserted into the database, 'yyyy-MM-dd HH:mm:ss' format
+          type: string
+          format: datetime
+        cazName:
+          description: Clean Air Zone name
+          type: string
+        totalPaid:
+          description: The amount of money paid to enter the CAZ
+          format: integer
+        paymentId:
+          description: Internal identifier of this payment
+          type: string
+          format: uuid
+        paymentReference:
+          description: Customer-friendly payment reference number
+          type: integer
+        vrns:
+          description: Collection of VRNs against which the payment was made
+          type: array
+          items:
+            type: string
+        paymentProviderStatus:
+          description: External status of this payment
+          type: string
+        isRefunded:
+          type: boolean
+          example: true
+          description: Indicates if the payment was refunded.
+        isChargedback:
+          type: boolean
+          example: false
+          description: Indicates if the payment was charged back.
     ActiveLicencesAuditInfo:
       type: object
       properties:
@@ -1790,7 +4555,7 @@ components:
           type: array
           items:
             type: string
-          example: ["Leeds"]
+          example: ["Bath"]
     BasicError:
       type: object
       properties:
@@ -1903,7 +4668,7 @@ components:
           example: "b4974ef2-145a-46de-b696-7bfe3a8a0e85"
         name:
           type: string
-          example: "Leeds"
+          example: "Bath"
           description: CAZ name for given charge
         charge:
           type: number
@@ -1925,6 +4690,10 @@ components:
         isExempt:
           type: boolean
           description: Returns true if the vehicle is not to be charged
+        phgvDiscountAvailable:
+          type: boolean
+          example: false
+          description: True if the vehicle's tax class is equal to PRIVATE HGV and body type is equal to either MOTOR HOME/CARAVAN or LIVESTOCK CARRIER (letter case is ignored)
         complianceOutcomes:
           type: array
           items:
@@ -1938,7 +4707,7 @@ components:
           description: System ID of the clean air zone
         name:
           type: string
-          example: Leeds
+          example: Bath
           description: Official name of the zone
         charge:
           type: number
@@ -1950,59 +4719,47 @@ components:
           description: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay.
         informationUrls:
           $ref: '#/components/schemas/InformationUrls'
+        operatorName:
+          type: string
+          description: Name of Clean Air Zone Operator
     InformationUrls:
       type: object
       properties:
-        emissionsStandards:
-          type: string
-          format: url
-          description: A URL linking to emission standards guidance published by a given Clean Air Zone operator
-          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/5"
         mainInfo:
           type: string
           format: url
           description: A URL linking to the main information guidance published by a given Clean Air Zone operator
           example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham"
-        pricing:
-          type: string
-          format: url
-          description: A URL linking to pricing information guidance published by a given Clean Air Zone operator
-          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/5"
-        hoursOfOperation:
-          type: string
-          format: url
-          description: A URL linking to operating hours guidance published by a given Clean Air Zone operator
-          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/4"
         exemptionOrDiscount:
           type: string
           format: url
           description: A URL linking to exemptions or discounts guidance published by a given Clean Air Zone operator
           example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/7"
-        payCaz:
-          type: string
-          format: url
-          description: A URL linking to charge payment guidance published by a given Clean Air Zone operator
-          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham"
         becomeCompliant:
           type: string
           format: url
           description: A URL linking to vehicle compliance guidance published by a given Clean Air Zone operator
           example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/8"
-        financialAssistance:
-          type: string
-          format: url
-          description: A URL linking to financial assistance guidance published by a given Clean Air Zone operator
-          example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/7"
         boundary:
           type: string
           format: url
           description: A URL linking to geographic boundary guidance published by a given Clean Air Zone operator
           example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3"
-        additionalInfo:
+        paymentsCompliance:
           type: string
           format: url
-          description: A URL linking to additional info published by a given Clean Air Zone operator
-          example: "https://www.brumbreathes.co.uk/what-does-it-mean-for-me"
+          description: A URL linking to payment compliance guidance published by a given Clean Air Zone operator
+          example: "https://www.brumbreathes.co.uk/info/6/upgrading-car/5/upgrading-car-1"
+        privacyPolicy:
+          type: string
+          format: url
+          description: A URL linking to privacy policy page published by a given Clean Air Zone operator
+          example: "https://beta.bathnes.gov.uk/council-privacy-policy"
+        fleetsCompliance:
+          type: string
+          format: url
+          description: A URL linking to fleets compliance guidance published by a given Clean Air Zone operator
+          example: "https://businessbreathes.co.uk/fleet-operator"
         publicTransportOptions:
           type: string
           format: url
@@ -2028,9 +4785,9 @@ components:
         timestamp:
           type: string
           format: uuid
-          example: "2017-10-01T155300Z"
+          example: "2017-10-01T15:53:00Z"
           minLength: 18
-          maxLength: 18
+          maxLength: 25
           description: ISO-8601 formatted datetime indicating  when the vehicle was witnessed entering the CAZ
     VehicleResults:
       type: object
@@ -2067,6 +4824,11 @@ components:
           type: string
           example: "notCompliantNotPaid"
           description: Returns one of the following values (exempt, compliant, notCompliantPaid, notCompliantNotPaid, unrecognisedPaid, unrecognisedNotPaid).
+        paymentMethod:
+          type: string
+          example: "card"
+          nullable: true
+          description: Returns one of the following values (card, direct_debit). Will be present only if status is "notCompliantPaid" or "unrecognisedPaid"
         exemptionCode:
           type: string
           example: "NEC001"
@@ -2120,14 +4882,13 @@ components:
           description: Array contains clean air zone objects
           items:
             $ref: '#/components/schemas/CAZ'
-    CAZList:
-      type: object
-      properties:
-        cleanAirZones:
-          $ref: '#/components/schemas/CAZ'
     CAZ:
       type: object
       properties:
+        activeChargeStartDateText:
+          type: string
+          example: 1 June 2021
+          description: Text date when a CAZ becomes visible
         name:
           type: string
           example: Birmingham
@@ -2137,14 +4898,70 @@ components:
           format: uuid
           example: e59539bd-0ca0-4a08-844d-3365841b1868
           description: System ID of the clean air zone
+        displayFrom:
+          type: string
+          format: date
+          example: '2020-01-01'
+          description: ISO-8601 formatted date of the textual content displayed on the VCCS compliance page in the “Zone live” column
+        displayOrder:
+          type: integer
+          example: 0
+          description: The ordering of Clean Air Zones in display components
         boundaryUrl:
           type: string
           format: url
           description: URL provided by zone operators, boundary
           example: "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3"
+        exemptionUrl:
+          type: string
+          format: url
+          description: URL provided by zone operators, exemption
+          example: "https://www.brumbreathes.co.uk/exemptions-and-additional-support"
+        mainInfoUrl:
+          type: string
+          format: url
+          description: URL provided by zone operators, main info
+          example: "https://www.brumbreathes.co.uk/"
+        paymentsComplianceUrl:
+          type: string
+          format: url
+          description: URL provided by zone operators, payments compliance
+          example: "https://www.brumbreathes.co.uk/homepage/7/financial-incentive"
+        privacyPolicyUrl:
+          type: string
+          format: url
+          description: URL linking to privacy policy page published by a given Clean Air Zone operator
+          example: "https://beta.bathnes.gov.uk/council-privacy-policy"
+        fleetsComplianceUrl:
+          type: string
+          format: url
+          description: URL provided by zone operators, fleets compliance
+          example: "https://businessbreathes.co.uk/"
+        activeChargeStartDate:
+          type: string
+          format: date
+          example: '2020-01-01'
+          description: ISO-8601 formatted date of when CAZ has effectively started to charge (empty string if no date found)
+        operatorName:
+          type: string
+          format: date
+          example: Birmingham City Council
+          description: Name of Clean Air Zone Operator
+        directDebitEnabled:
+          type: boolean
+          example: true
+          description: status of direct debit for given caz
+        directDebitStartDateText:
+          type: string
+          example: Q1 2022
+          description: Text date when payments with direct debits are going to be enabled
     Tariff:
       type: object
       properties:
+        activeChargeStartDateText:
+          type: string
+          example: 1 June 2021
+          description: Text date when a CAZ becomes visible
         name:
           type: string
           example: Birmingham
@@ -2154,6 +4971,15 @@ components:
           format: uuid
           example: e59539bd-0ca0-4a08-844d-3365841b1868
           description: ID of the clean air zone
+        displayFrom:
+          type: string
+          format: date
+          example: '2020-01-01'
+          description: ISO-8601 formatted date of the textual content displayed on the VCCS compliance page in the “Zone live” column
+        displayOrder:
+          type: integer
+          example: 0
+          description: The ordering of Clean Air Zones in display components
         tariffClass:
           type: string
           format: char
@@ -2163,6 +4989,15 @@ components:
           type: string
           example: BCC01
           description: Charge identifier
+        activeChargeStartDate:
+          type: string
+          format: date
+          example: '2020-01-01'
+          description: ISO-8601 formatted date of when CAZ has effectively started to charge (empty string if no date found)
+        directDebitStartDateText:
+          type: string
+          example: Q1 2022
+          description: Text date when payments with direct debits are going to be enabled
         rates:
           type: object
           description: Rates for every vehicle
@@ -2224,12 +5059,32 @@ components:
               example: 50.00
         informationUrls:
           $ref: '#/components/schemas/InformationUrls'
+    GetLicencesInfoRequest:
+      type: object
+      properties:
+        vrms:
+          type: array
+          items:
+            type: string
+            example: ND84VSA
+    GetLicencesInfoResponse:
+      type: object
+      properties:
+        licencesInformation:
+          type: object
+          description: Object whose keys are VRMs and values are licence details
+          additionalProperties:
+            $ref: '#/components/schemas/LicenceDetails'
     LicenceDetails:
       type: object
       properties:
         active:
           type: boolean
           description: Boolean to indicate whether a given vehicle has any active operating licence
+        description:
+          type: string
+          example: taxi
+          description: Indicates the type of the licence
         wheelchairAccessible:
           type: boolean
           description: Boolean to indicate whether a given vehicle is wheelchair accessible by any active operating licence
@@ -2240,6 +5095,124 @@ components:
             type: string
             example: Birmingham
             description: Licensing Authority Name
+        licensedStatusExpires:
+          type: string
+          description: The furthest date when one of the active licences expires
+          format: date
+          example: "2019-12-21"
+        addedTimestamp:
+          type: string
+          description: DateTime when the licence has been added
+          format: dateTime
+          example: "2020-09-22 11:26:30"
+    licenceInfoHistoricalResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 0
+          description: Page that has been retrieved.
+        pageCount:
+          type: integer
+          example: 3
+          description: Total number of pages available (with current page size).
+        perPage:
+          type: integer
+          example: 10
+          description: The current page size.
+        totalChangesCount:
+          type: integer
+          example: 30
+          description: The total number of changes associated with this vehicle
+        changes:
+          type: array
+          description: A list of changes associated with this vehicle
+          items:
+            $ref: '#/components/schemas/licenceInfoHistoricalResults'
+    licenceInfoHistoricalResults:
+      type: object
+      properties:
+        modifyDate:
+          type: string
+          format: date
+          example: '2020-03-01'
+        action:
+          type: string
+          example: Updated
+          description: Status of current VRM for a specific date range
+        licensingAuthorityName:
+          type: string
+          example: Bath
+          description: CAZ name
+        plateNumber:
+          type: string
+          example: CU12345
+          description: A vehicle registration plate
+        licenceStartDate:
+          type: string
+          format: date
+          example: '2020-03-10'
+        licenceEndDate:
+          type: string
+          format: date
+          example: '2020-03-15'
+        wheelchairAccessible:
+          type: boolean
+          description: Boolean to indicate whether a given vehicle is wheelchair accessible
+    whitelistInfoHistoricalResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 0
+          description: Page that has been retrieved.
+        pageCount:
+          type: integer
+          example: 3
+          description: Total number of pages available (with current page size).
+        perPage:
+          type: integer
+          example: 10
+          description: The current page size.
+        totalChangesCount:
+          type: integer
+          example: 30
+          description: The total number of changes associated with this vehicle
+        changes:
+          type: array
+          description: A list of changes associated with this vehicle
+          items:
+            $ref: '#/components/schemas/whitelistInfoHistoricalResults'
+    whitelistInfoHistoricalResults:
+      type: object
+      properties:
+        modifyDate:
+          type: string
+          format: date
+          example: '2020-03-01'
+        action:
+          type: string
+          example: Updated
+          description: Status of current VRM for a specific date range
+        category:
+          type: string
+          enum: [Early Adopter, Non-UK Vehicle, Problematic VRN, Exemption, Other]
+          example: Early Adopter
+        manufacturer:
+          type: string
+          example: Mercedes
+        reasonUpdated:
+          type: string
+          example: It is compliant
+        uploaderId:
+          type: string
+          format: uuid
+          description: User's sub
+        uploaderEmail:
+          type: string
+          description: User's email
+          format: email
+          example: test@example.com
     Vehicles:
       type: object
       properties:
@@ -2284,6 +5257,62 @@ components:
         wheelchairAccessibleVehicle:
           type: boolean
           description: Boolean to indicate if the vehicle is wheelchair accessible or not
+    VehicleFromDvlaDto:
+      type: object
+      properties:
+        colour:
+          type: string
+          example: red
+          description: Vehicle Colour
+        dateOfFirstRegistration:
+          type: string
+          format: date
+          example: 2020-03
+          description: Year and month of First Registration in YYYY-MM format
+        euroStatus:
+          type: string
+          example: EURO 3
+          description: Euro Status (Dealer / Customer provided)
+        fuelType:
+          type: string
+          example: DIESEL
+          description: Fuel Type (Method of Propulsion)
+        make:
+          type: string
+          example: Audi
+          description: Vehicle Make
+        typeApproval:
+          type: string
+          example: M1
+          description: Vehicle Type Approval Category
+        revenueWeight:
+          type: integer
+          example: 3000
+          description: Revenue weight in kilograms
+        bodyType:
+          type: string
+          example: car
+          description: Body type of vehicle
+        model:
+          type: string
+          example: golf
+          description: Vehicle model
+        unladenWeight:
+          type: integer
+          example: 3000
+          description: Unladen weight in kilograms
+        seatingCapacity:
+          type: integer
+          example: 5
+          description: Seating capacity of vehicle
+        standingCapacity:
+          type: integer
+          example: 40
+          description: Standing capacity of vehicle
+        taxClass:
+          type: string
+          example: SPECIAL VEHICLE
+          description: Tax class of vehicle
     VehicleDetails:
       type: object
       properties:
@@ -2320,6 +5349,57 @@ components:
             type: string
             example: Birmingham
             description: Licensing Authority Name
+    GetModVehiclesRequest:
+      type: object
+      description: List of VRNs against which the search is made
+      properties:
+        vrns:
+          type: array
+          items:
+            type: string
+            example: ND84VSA
+    ModVehiclesDetails:
+      type: object
+      properties:
+        vehicles:
+          type: object
+          description: Object whose keys are VRNs and values are vehicles' details
+          additionalProperties:
+            $ref: '#/components/schemas/ModVehicleDetails'
+    ModVehicleDetails:
+      type: object
+      properties:
+        vrn:
+          type: string
+          description: registration number of MOD vehicle
+          example: "CAS123"
+        isWhiteVehicle:
+          description: true if this vehicle is on the White MOD list
+          type: boolean
+        isGreenVehicle:
+          description: true if this vehicle is on the Green MOD list
+          type: boolean
+        whitelistDiscountCode:
+          description: Discount code - WDC001 (National Exemption), WDC002 (Retrofit), WDC003 (Others)
+          type: string
+          enum: ["WDC001", "WDC002", "WDC003"]
+          example: WDC002
+    SingleModVehicleRequest:
+      type: object
+      properties:
+        dvlaVrn:
+          type: string
+        listType:
+          type: string
+        militaryVrn:
+          type: string
+          enum:
+            - GREEN
+            - WHITE
+        modifierId:
+          type: string
+          format: uuid
+          description: An external identifier of a user who adds or deletes a vehicle
     RegisterCsvFromS3JobHandle:
       type: object
       properties:
@@ -2354,26 +5434,146 @@ components:
             - SUCCESS
             - FAILURE
       title: StatusOfRegisterCsvFromS3JobQueryResult
-    PaymentRequest:
+    ChargeableAccountVehiclesResponse:
       type: object
       properties:
-        days:
+        chargeableAccountVehicles:
+          $ref: '#/components/schemas/PaidCharges'
+        pageCount:
+          type: integer
+          example: 3
+          description: Total number of pages available (with current page size).
+        totalVehiclesCount:
+          type: integer
+          example: 30
+          description: The total number of vehicles associated with this account.
+    AccountsCsvExportResponse:
+      type: object
+      properties:
+        fileUrl:
+          type: string
+          example: https://s3.eu-west-2.amazonaws.com/csv-export-bucket/generated-file.csv
+        bucketName:
+          type: string
+          example: csv-export-bucket
+    AccountVehiclesRetrievalResponse:
+      type: object
+      properties:
+        anyUndeterminedVehicles:
+          type: boolean
+          description: Flag that tells whether ANY vehicle of the given account has undetermined charge (i.e. it does not exist in DVLA repository)
+        pageCount:
+          type: integer
+          example: 3
+          description: Total number of pages available (with current page size).
+        totalVehiclesCount:
+          type: integer
+          example: 30
+          description: The total number of vehicles associated with this account.
+        vehicles:
           type: array
-          description: Array of days to pay
+          description: A list of vehicles associated with an account.
           items:
-            type: string
-            format: date
-            example: 2019-09-09
-          example: ['2019-09-09']
+            $ref: '#/components/schemas/VehicleWithCharges'
+    VehicleWithCharges:
+      type: object
+      properties:
         vrn:
           type: string
           description: Vehicle registration number
-          example: BD51SMR
-        amount:
+        isExempt:
+          type: boolean
+          description: Flag indicating whether this vehicle is exempt
+        isRetrofitted:
+          type: boolean
+          description: Flag indicating whether this vehicle is retrofitted
+        vehicleType:
+          type: string
+          description: Type of this vehicle, nullable
+        cachedCharges:
+          type: array
+          description: List containing compliance data per CAZ
+          items:
+            $ref: '#/components/schemas/VehicleCharge'
+    VehicleCharge:
+      type: object
+      properties:
+        cazId:
+          type: string
+          format: uuid
+          description: Clean Air Zone identifier
+        charge:
           type: number
-          format: integer
-          description: Amount to pay in pence
-          example: 5010
+          format: float
+          description: Charge to pay by this vehicle for entering the CAZ
+        tariffCode:
+          type: string
+          description: Tariff identifier
+    CreateDirectDebitPaymentRequest:
+      type: object
+      properties:
+        cleanAirZoneId:
+          type: string
+          format: uuid
+          example: e59539bd-0ca0-4a08-844d-3365841b1868
+          description: System ID of the clean air zone
+        accountId:
+          type: string
+          format: uuid
+          description: An identifier of the account which is making the payment
+        mandateId:
+          type: string
+          example: j4nuo03jginfke5c3ebrvgig6a
+          description: An identifier of the direct debit mandate
+        userId:
+          type: string
+          format: uuid
+          description: An identifier of the user which is making the payment
+        userEmail:
+          type: string
+          format: email
+          example: test@example.com
+          description: Email address of user who is making the payment
+        transactions:
+          type: array
+          description: Collection of objects representing a single vehicle entrant against which the payment is made
+          items:
+            $ref: '#/components/schemas/PaymentRequestTransaction'
+      required:
+        - cleanAirZoneId
+        - mandateId
+        - accountId
+        - transactions
+    CreateDirectDebitPaymentResponse:
+      type: object
+      properties:
+        paymentId:
+          description: System ID of the payment
+          type: string
+          format: uuid
+          example: e59539bd-0ca0-4a08-844d-3365841b1868
+        referenceNumber:
+          description: A unique identifier that provides traceability between the central CAZ Service and Local Authority case management systems in the event that a payment is subject to some form of customer support query (e.g. a refund or chargeback)
+          type: string
+          example: j4nuo03jginfke5c3ebrvgig6a
+        externalPaymentId:
+          description: GOV.UK Pay unique payment identifier
+          type: string
+          example: 1n0dn2nd10d9u1yt72fvbno908
+        paymentStatus:
+          description: Status of the payment
+          type: string
+          example: 'success'
+    CompleteDirectDebitPaymentRequest:
+      type: object
+      properties:
+        sessionToken:
+          type: string
+        cleanAirZoneId:
+          type: string
+    PaymentRequest:
+      type: object
+      properties:
         cleanAirZoneId:
           type: string
           format: uuid
@@ -2384,10 +5584,48 @@ components:
           format: url
           description: A URL where user should be return after payment confirmation
           example: "https://example.com/payments/result"
+        userId:
+          type: string
+          format: uuid
+          description: An identifier of the account/user which is making the payment
+        telephonePayment:
+          type: boolean
+          description: Indicates whether payment was done over phone
+        operatorId:
+          type: string
+          format: uuid
+          description: An optional field storing the identifier of the operator who makes the payment. Can be non-null only when telephonePayment is true.
+        transactions:
+          type: array
+          description: Collection of objects representing a single vehicle entrant against which the payment is made
+          items:
+            $ref: '#/components/schemas/PaymentRequestTransaction'
+      required:
+        - cleanAirZoneId
+        - returnUrl
+        - transactions
+        - telephonePayment
+    PaymentRequestTransaction:
+      type: object
+      properties:
+        charge:
+          type: number
+          format: integer
+          description: Amount to pay in pence
+          example: 5010
         tariffCode:
           type: string
           example: BCC01-private_car
-          description: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay.
+          description: A code that uniquely identifies the tariff that determines the charge that the vehicle is liable to pay
+        travelDate:
+          type: string
+          format: date
+          description: Date on which the vehicle entered or will enter the CAZ
+          example: '2019-09-09'
+        vrn:
+          type: string
+          description: Vehicle registration number
+          example: BD51SMR
     PaymentCreatedResult:
       type: object
       properties:
@@ -2401,6 +5639,41 @@ components:
           format: url
           description: A URL where user should be returned to make payment
           example: "https://an.example.link/from/payment/platform"
+    PaidPaymentsRequest:
+      type: object
+      properties:
+        vrns:
+          type: array
+          items:
+            $ref: '#/components/schemas/VRN'
+        cleanAirZoneId:
+          type: string
+          format: uuid
+        startDate:
+          type: string
+          format: date
+          example: '2019-05-15'
+        endDate:
+          type: string
+          format: date
+          example: '2019-05-15'
+    PaidCharges:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PaidCharge'
+    PaidCharge:
+      type: object
+      properties:
+        vrn:
+          $ref: '#/components/schemas/VRN'
+        paidDates:
+          type: array
+          items:
+            type: string
+            format: date
     Payment:
       type: object
       properties:
@@ -2409,6 +5682,14 @@ components:
           format: uuid
           example: e59539bd-0ca0-4a08-844d-3365841b1868
           description: System ID of the payment
+        externalPaymentId:
+          type: string
+          example: 6e2gh07omdjoeftvu4fob4huev
+          description: Gov.UK Pay unique payment identifier
+        referenceNumber:
+          type: string
+          description: Internal reference number for payment
+          example: 1640
         status:
           type: string
           example: 'success'
@@ -2417,14 +5698,221 @@ components:
           format: email
           example: test@example.com
           description: Email address submitted by the user during the payment process on Gov.UK Pay
-    BillableDaysResponse:
+    PaymentDetailsResponse:
       type: object
       properties:
-        billableDays:
+        centralPaymentReference:
+          type: number
+          example: 1500
+          description: The central reference for the payment
+        paymentProviderId:
+          type: string
+          example: 6e2gh07omdjoeftvu4fob4huev
+          description: GOV.UK Pay unique payment identifier
+        paymentDate:
+          type: string
+          format: date
+          example: '2019-05-15'
+          description: ISO 8601 formatted date string that specifies the date on which the payment was made via GOV.UK Pay
+        totalPaid:
+          type: number
+          format: bigdecimal
+          description: The total GBP value of the payment linked to the paymentProviderId.
+          example: 50.00
+        telephonePayment:
+          type: boolean
+          example: true
+          description: Indicates whether payment was done over phone
+        payerName:
+          type: string
+          example: Test Name
+          description: When a given user is an account owner, payerName should be “Administrator”. If a user has been deleted it should be set to “Deleted user”, otherwise use name from accounts.
+        lineItems:
+          description: >-
+            Array containing objects that specify the: (1) date(s) for which the vehicle has paid to journey in to the CAZ (identified by the x-api-key header parameter); (2) the charge associated with the journey; (3) the payment status of the charge (i.e. whether it has been paid or refunded); and, (4) any Local Authority case reference associated with the charge (e.g. that may be linked to a customer query relating to the charge). 1 object will be returned for each date of travel associated with the payment.
           type: array
-          description: Array containing ISO 8601 formatted date strings that specify the date(s) which can user pay for
           items:
-            type: string
+            $ref: '#/components/schemas/VehicleEntrantPaymentDetails'
+        modificationHistory:
+          description: >-
+            Array containing objects that contains information about modifications of payments made by LA.
+          type: array
+          items:
+            $ref: '#/components/schemas/ModificationHistoryEntrantPaymentDetails'
+    VehicleEntrantPaymentDetails:
+      type: object
+      properties:
+        caseReference:
+          description: A unique identifier that provides traceability between the central CAZ Service and Local Authority case management systems in the event that a payment is subject to some form of customer support query (e.g. a refund or chargeback)
+          type: string
+        chargePaid:
+          type: number
+          format: double
+          example: 4.23
+          description: The GBP value of the payment linked to the paymentProviderId. If the motorist paid in advance to travel in to the CAZ on multiple dates, then the payment amount will be a multiple of the daily charge due (e.g. if the daily charge for a car entering a CAZ is £8.00, but the motorist paid in advance for 3 days of travel, then the chargePaid would be equal to £24.00). Expressed in pounds and pence format to 2 decimal places.
+        paymentStatus:
+          description: Status of the payment. Can be either 'paid', 'notPaid','refunded' or 'chargeback'
+          type: string
+          enum: ["paid", "notPaid", "refunded", "chargeback"]
+          example: paid
+        travelDate:
+          type: string
+          format: date
+          description: ISO 8601 formatted date string that specifies a date(s) for which the vehicle has paid to travel in to the CAZ (identified by the x-api-key header parameter)
+        vrn:
+          type: string
+          description: Vehicle registration number
+          example: BD51SMR
+    ReferencesHistoryResponse:
+      type: object
+      properties:
+        paymentReference:
+          type: number
+          example: 1500
+          description: The central reference for the payment
+        paymentProviderId:
+          type: string
+          example: 6e2gh07omdjoeftvu4fob4huev
+          description: GOV.UK Pay unique payment identifier
+        paymentTimestamp:
+          type: string
+          format: date
+          example: '2019-05-15T15:50:50'
+          description: ISO 8601 formatted date string that specifies the date on which the payment was made via GOV.UK Pay
+        totalPaid:
+          type: integer
+          description: The total value of the payment linked to the paymentProviderId expressed in pennies
+          example: 5000
+        telephonePayment:
+          type: boolean
+          example: true
+          description: Indicates whether payment was done over phone
+        operatorId:
+          description: ID of operator
+          format: uuid
+          type: string
+        cazName:
+          type: string
+          example: Bath
+          description: Clean air zone name
+        paymentProviderStatus:
+          description: External status of payment
+          type: string
+          example: FAILED
+        lineItems:
+          description: >-
+            Array containing objects that specify the: (1) date(s) for which the vehicle has paid to journey in to the CAZ (identified by the x-api-key header parameter); (2) the charge associated with the journey; (3) the payment status of the charge (i.e. whether it has been paid or refunded); and, (4) any Local Authority case reference associated with the charge (e.g. that may be linked to a customer query relating to the charge). 1 object will be returned for each date of travel associated with the payment.
+          type: array
+          items:
+            $ref: '#/components/schemas/ReferencesHistoryEntrantPaymentDetails'
+        modificationHistory:
+          description: >-
+            Array containing objects that contains information about modifications of payments made by LA.
+          type: array
+          items:
+            $ref: '#/components/schemas/ModificationHistoryEntrantPaymentDetails'
+    ReferencesHistoryEntrantPaymentDetails:
+      type: object
+      properties:
+        chargePaid:
+          type: integer
+          example: 400
+          description: The value of a single entrant payment linked to the paymentProviderId expressed in pennies
+        travelDate:
+          type: string
+          format: date
+          description: ISO 8601 formatted date string that specifies a date(s) for which the vehicle has paid to travel in to the CAZ (identified by the x-api-key header parameter)
+        vrn:
+          type: string
+          description: Vehicle registration number
+          example: BD51SMR
+    ModificationHistoryEntrantPaymentDetails:
+      type: object
+      properties:
+        amount:
+          type: integer
+          example: 300
+          description: Payment amount expressed in pennies
+        travelDate:
+          type: string
+          format: date
+          example: '2020-06-22'
+          description: ISO 8601 formatted date string that specifies a date for which the vehicle has paid to travel in to the CAZ
+        vrn:
+          type: string
+          description: Vehicle registration number
+          example: BD51SMR
+        caseReference:
+          description: A unique identifier that provides traceability between the central CAZ Service and Local Authority case management systems in the event that a payment is subject to some form of customer support query (e.g. a refund or chargeback)
+          type: string
+        modificationTimestamp:
+          description: Timestamp of modification
+          type: string
+          format: date
+          example: '2020-06-22 10:01:01'
+        entrantPaymentStatus:
+          type: string
+          example: CHARGEBACK
+          description: Payment Status of created Vehicle Entrant
+    VehiclePaymentHistoryResponse:
+      type: object
+      properties:
+        page:
+          description: page number
+          type: number
+        pageCount:
+          description: number of total pages that can be returned
+          type: number
+        perPage:
+          description: number of items per page
+          type: number
+        totalPaymentsCount:
+          description: total number of payments for this vehicle
+          type: number
+        payments:
+          description: list of historical payments for a specific vehicle
+          type: array
+          items:
+            $ref: '#/components/schemas/VehicleHistoricalPayment'
+    VehicleHistoricalPayment:
+      type: object
+      properties:
+        travelDate:
+          description: Date of travel
+          type: string
+          format: date
+          example: '2020-06-22'
+        paymentTimestamp:
+          description: Time of payment was done
+          type: string
+          format: date
+          example: '2020-06-22 10:01:01'
+        operatorId:
+          description: ID of operator
+          format: uuid
+          type: string
+        cazName:
+          description: Mame of clean air zone
+          type: string
+        paymentId:
+          description: ID of payment
+          format: uuid
+          type: string
+        paymentReference:
+          description: Reference number for payment
+          type: string
+        paymentProviderStatus:
+          description: External status of payment
+          type: string
+          example: FAILED
+        isRefunded:
+          description: Indicates if the payment was refunded
+          type: boolean
+          example: false
+        isChargedback:
+          description: Indicates if the payment was charged back
+          type: boolean
+          example: true
     AccountCreation:
       type: object
       properties:
@@ -2432,6 +5920,29 @@ components:
           type: string
           example: Royal Mail
           description: Name of the created account account. It is not unique.
+    AccountUpdateRequest:
+      type: object
+      properties:
+        accountName:
+          type: string
+          example: Royal Mail
+          description: New name of the account. It is not unique.
+    AccountListing:
+      type: object
+      properties:
+        accountName:
+          type: string
+          example: Royal Mail
+          description: Name of the created account account. It is not unique.
+    AccountCreationResponse:
+      type: object
+      properties:
+        accountId:
+          type: string
+          description: an internal identifier of the newly created account
+    UserCreationForAccount:
+      type: object
+      properties:
         email:
           type: string
           format: email
@@ -2439,6 +5950,73 @@ components:
         password:
           type: string
           description: User password used to login to the application.
+        verificationUrl:
+          type: string
+          description: URL to which user will be redirected in order to confirm the verification.
+    AccountUsers:
+      type: object
+      properties:
+        users:
+          type: array
+          description: An array containig all users details for account
+          items:
+            $ref: '#/components/schemas/AccountUser'
+        multiPayerAccount:
+          type: boolean
+          description: Information whether this account is multi-payer
+    AccountUser:
+      type: object
+      properties:
+        accountUserId:
+          type: string
+          format: uuid
+          description: Primary key of Account_User table
+          example: bd9a306d-93d9-4809-8ab7-64f70da699a1
+        email:
+          type: string
+          format: email
+          description: User email
+          example: example@email.com
+        name:
+          type: string
+          description: name
+          example: Test Name
+        owner:
+          type: boolean
+          description: specifies if user is an owner
+          example: true
+        removed:
+          type: boolean
+          description: specifies if user is removed
+          example: false
+    SingleAccountUsers:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: User email
+          example: example@email.com
+        name:
+          type: string
+          description: name
+          example: Test Name
+        owner:
+          type: boolean
+          description: Returns true for the fleet owner account
+        permissions:
+          type: array
+          description: List of user account permissions.
+          items:
+            type: string
+            example: MANAGE_VEHICLES
+        uiSelectedCaz:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: "1b93e6e3-cff8-45b9-bcda-f7245defaeb5"
+            description: A list of uuid cazes that was selected by user. Can be empty.
     User:
       type: object
       properties:
@@ -2458,15 +6036,79 @@ components:
           type: string
           format: email
           description: Unique login credential. It is stored on Cognito level
-        admin:
+        owner:
           type: boolean
-          description: Returns true for the fleet admin account
+          description: Returns true for the fleet owner account
+    UserDetails:
+      type: object
+      properties:
+        accountUserId:
+          type: string
+          format: uuid
+          description: Primary key of Account_User table
+        accountId:
+          type: string
+          format: uuid
+          description: AccountId in AccountUser table (must match PK in Account table)
+        accountName:
+          type: string
+          description: Name of the Account for this user
+        name:
+          type: string
+          example: User Name
+          description: Name of the created account.
+        email:
+          type: string
+          format: email
+          description: Unique login credential. It is stored on Cognito level
+        owner:
+          type: boolean
+          description: Returns true for the fleet owner account
+        removed:
+          type: boolean
+          description: Returns true for the fleet owner account
+    LoggedInUser:
+      type: object
+      properties:
+        accountUserId:
+          type: string
+          format: uuid
+          description: Primary key of Account_User table
+        accountId:
+          type: string
+          format: uuid
+          description: AccountId in AccountUser table (must match PK in Account table)
+        accountName:
+          type: string
+          example: Royal Mail
+          description: Name of the created account. It is not unique. (accountName form Account table)
+        email:
+          type: string
+          format: email
+          description: Unique login credential. It is stored on Cognito level
+        owner:
+          type: boolean
+          description: Returns true for the fleet owner account
+        betaTester:
+          type: boolean
+          description: Returns true for the user how belongs to Beta testers group
+        passwordUpdateTimestamp:
+          type: string
+          format: date
+          example: '2020-06-22 19:10:25'
+          description: Timestamp of when password was last updated or if not yet known timestamp of user creation.
+        permissions:
+          type: array
+          description: List of user account permissions.
+          items:
+            type: string
+            example: MANAGE_VEHICLES
     AccountError:
       type: object
       properties:
         status:
-          type: string
-          example: "422"
+          type: integer
+          example: 422
           description: HTTP status
         message:
           type: string
@@ -2474,7 +6116,21 @@ components:
         errorCode:
           type: string
           description: code specifying what error which occured during account creation
-          enum: [emailNotUnique, passwordNotValid]
+          enum: [emailNotUnique, passwordNotValid, duplicate, profanity, abuse, emailAlreadyVerified, invalid, expired]
+    LoginError:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 401
+          description: HTTP status
+        message:
+          type: string
+          example: "Invalid credentials"
+        errorCode:
+          type: string
+          description: code specifying what error occured during user login
+          enum: [invalidCredentials, pendingEmailChange]
     LoginParams:
       type: object
       properties:
@@ -2485,75 +6141,222 @@ components:
         password:
           type: string
           description: User password used to login to the application.
-    WLNewVehicle:
+    PasswordResetParams:
       type: object
       properties:
-        vrn:
-          $ref: '#/components/schemas/VRN'
-        addedBy:
+        email:
+          type: string
+          format: email
+          description: User email for the account.
+        resetUrl:
+          type: string
+          format: uri
+          description: UI address which should be used in the reset link
+    PasswordResetValidationParams:
+      type: object
+      properties:
+        token:
           type: string
           format: uuid
-          description: User's sub
-        reasonAdded:
-          $ref: '#/components/schemas/WLAddReason'
-    WLVehicle:
+          description: Random uuid
+    PasswordSetParams:
+      type: object
+      properties:
+        token:
+          type: string
+          format: uuid
+          description: Random uuid plus salt
+        password:
+          type: string
+          format: password
+          description: The new password value
+    PasswordUpdateParam:
+      type: object
+      properties:
+        accountUserId:
+          type: string
+          format: uuid
+          description: Account user id of user whose password is being updated
+        oldPassword:
+          type: string
+          format: password
+          description: Old password for the user
+        newPassword:
+          type: string
+          format: password
+          description: New password being set for the user
+    InitiateEmailChangeRequest:
+      type: object
+      properties:
+        accountUserId:
+          type: string
+          format: uuid
+          description: Account user id of user whose email is to be updated
+        newEmail:
+          type: string
+          description: User's new email
+        confirmUrl:
+          type: string
+          format: uri
+          description: UI address which should be used in the confirmation link
+    AccountVehicleRequest:
       type: object
       properties:
         vrn:
-          $ref: '#/components/schemas/VRN'
-        whitelisted:
+          type: string
+          description: vehicle registration number
+    AccountVehicleResponse:
+      type: object
+      properties:
+        vrn:
+          type: string
+          description: registration number of added vehicle
+        accountId:
+          type: string
+          format: uuid
+          description: ID of the account for which the vehicle was added
+    DirectDebitMandatesResponse:
+      type: object
+      properties:
+        cleanAirZones:
+          type: array
+          items:
+            $ref: '#/components/schemas/CleanAirZoneWithMandates'
+    CleanAirZoneWithMandates:
+      type: object
+      properties:
+        cazId:
+          type: string
+          format: uuid
+        cazName:
+          type: string
+        mandates:
+          type: array
+          items:
+            $ref: '#/components/schemas/MandateWithUser'
+        directDebitEnabled:
           type: boolean
-          description: Determines if the vehicle is currently marked as whitelisted. False means "removed from the list"
-        addedBy:
-          type: string
-          format: uuid
-          description: User's sub
-        updatedBy:
-          type: string
-          format: uuid
-          description: User's sub
-          nullable: true
-        removedBy:
-          type: string
-          format: uuid
-          description: User's sub
-          nullable: true
-        reasonAdded:
-          $ref: '#/components/schemas/WLAddReason'
-        reasonRemoved:
-          $ref: '#/components/schemas/WLRemoveReason'
-        dateAdded:
-          type: string
-          format: date
-          example: 2019-09-09
-        dateUpdated:
-          type: string
-          format: date
-          example: 2019-09-09
-          nullable: true
-        dateRemoved:
-          type: string
-          format: date
-          example: 2019-09-09
-          nullable: true
-    WLUpdateVehicle:
+    DirectDebitMandatesForCazResponse:
       type: object
       properties:
-        reasonAdded:
-          $ref: '#/components/schemas/WLAddReason'
-        reasonRemoved:
-          $ref: '#/components/schemas/WLRemoveReason'
-        updatedBy:
+        mandates:
+          type: array
+          items:
+            $ref: '#/components/schemas/Mandate'
+    MandateWithUser:
+      type: object
+      properties:
+        id:
+          type: string
+        accountUserId:
+          type: string
+          format: uuid
+        status:
+          type: string
+    Mandate:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+    CreateDirectDebitMandatesResponse:
+      type: object
+      properties:
+        nextUrl:
+          type: string
+          format: url
+          description: A URL where user should be returned to complete direct debit mandate creation.
+          example: "https://an.example.link/from/payment/platform"
+    CreateDirectDebitMandateRequest:
+      type: object
+      properties:
+        returnUrl:
+          type: string
+          format: url
+          description: A URL where user should be return after DirectDebitMandate creation.
+          example: "https://example.com/payments/result"
+        cleanAirZoneId:
+          type: string
+          format: uuid
+        sessionId:
+          type: string
+          description: Session token of user who performs direct debit mandate creation
+          example: "SESS_wSs0uGYMISxzqOBq"
+        accountUserId:
+          type: string
+          format: uuid
+          description: Account user ID of a Direct Debit creator
+    WLVehicle:
+      allOf:
+        - $ref: '#/components/schemas/VrnObject'
+        - $ref: '#/components/schemas/WLVehicleObject'
+    WLVehicleResponse:
+      allOf:
+        - $ref: '#/components/schemas/VrnObject'
+        - $ref: '#/components/schemas/WLVehicleObject'
+        - $ref: '#/components/schemas/WLUpdateTimestamp'
+    WLVehicleDetailsResponse:
+      allOf:
+        - $ref: '#/components/schemas/VrnObject'
+        - $ref: '#/components/schemas/WLVehicleObject'
+        - $ref: '#/components/schemas/WLUpdateTimestamp'
+        - $ref: '#/components/schemas/WLAddedTimestamp'
+    VrnObject:
+      type: object
+      properties:
+        vrn:
+          $ref: '#/components/schemas/VRN'
+    WLVehicleObject:
+      type: object
+      properties:
+        category:
+          type: string
+          enum: [Early Adopter, Non-UK Vehicle, Problematic VRN, Exemption, Other]
+        manufacturer:
+          type: string
+          example: Lamborghini
+        reasonUpdated:
+          type: string
+          example: Some Reason
+        email:
+          type: string
+          format: email
+          example: test@example.com
+          description: User's email address
+        uploaderId:
           type: string
           format: uuid
           description: User's sub
-    WLAddReason:
-      type: string
-      enum: [other, earlyAdopter]
-    WLRemoveReason:
-      type: string
-      enum: [other]
-      nullable: true
+        exempt:
+          type: boolean
+          example: true
+        compliant:
+          type: boolean
+          example: false
+    WLCsvExportResponse:
+      type: object
+      properties:
+        fileUrl:
+          type: string
+          example: https://s3.eu-west-2.amazonaws.com/csv-export-bucket/generated-file.csv
+        bucketName:
+          type: string
+          example: csv-export-bucket
+    WLUpdateTimestamp:
+      type: object
+      properties:
+        updateTimestamp:
+          type: string
+          format: date
+          example: '2020-06-22 19:10:25-07'
+    WLAddedTimestamp:
+      type: object
+      properties:
+        addedTimestamp:
+          type: string
+          format: date
+          example: '2020-06-22 19:10:25-07'
     VRN:
       type: string
       example: CU12345
@@ -2561,6 +6364,282 @@ components:
       minLength: 2
       maxLength: 7
       pattern: "^([A-Za-z]{3}[0-9]{1,4})|([A-Za-z][0-9]{1,3}[A-Za-z]{3})|([A-Za-z]{3}[0-9]{1,3}[A-Za-z])|([A-Za-z]{2}[0-9]{2}[A-Za-z]{3})|([A-Za-z]{1,3}[0-9]{1,3})|([0-9]{1,4}[A-Za-z]{1,3})|([A-Za-z]{1,2}[0-9]{1,4})$"
+    GetAccountDirectDebitMandatesResponse:
+      type: object
+      properties:
+        directDebitMandates:
+          type: array
+          items:
+            $ref: '#/components/schemas/AccountDirectDebitMandateDto'
+    AccountDirectDebitMandateDto:
+      type: object
+      properties:
+        directDebitMandateId:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        accountUserId:
+          type: string
+          format: uuid
+        cleanAirZoneId:
+          type: string
+          format: uuid
+        paymentProviderMandateId:
+          type: string
+        status:
+          type: string
+          enum:
+            - CREATED
+            - STARTED
+            - ABANDONED
+            - FAILED
+            - PENDING
+            - ACTIVE
+            - CANCELLED
+            - INACTIVE
+            - ERROR
+    PostAccountDirectDebitMandateRequest:
+      type: object
+      properties:
+        mandateId:
+          type: string
+        cleanAirZoneId:
+          type: string
+          format: uuid
+        accountUserId:
+          type: string
+          format: uuid
+    PatchAccountsDirectDebitMandatesUpdateRequest:
+      type: object
+      properties:
+        directDebitMandates:
+          type: array
+          items:
+            $ref: '#/components/schemas/SingleDirectDebitMandateUpdate'
+    SingleDirectDebitMandateUpdate:
+      type: object
+      properties:
+        mandateId:
+          type: string
+        status:
+          type: string
+          enum:
+            - CREATED
+            - STARTED
+            - ABANDONED
+            - FAILED
+            - PENDING
+            - ACTIVE
+            - CANCELLED
+            - INACTIVE
+            - ERROR
+    AccountDirectDebitMandateUpdateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+    DirectDebitMandatesUpdateErrorResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/DirectDebitMandateUpdateError'
+    DirectDebitMandateUpdateError:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+        mandateId:
+          type: string
+    AccountVerificationRequest:
+      type: object
+      properties:
+        token:
+          type: string
+          format: uuid
+    ResendVerificationEmailRequest:
+      type: object
+      properties:
+        verificationUrl:
+          type: string
+    UpdateUserRequest:
+      type: object
+      properties:
+        permissions:
+          type: array
+          items:
+            type: string
+            enum:
+              - VIEW_PAYMENTS
+              - MAKE_PAYMENTS
+              - MANAGE_VEHICLES
+              - MANAGE_USERS
+              - MANAGE_MANDATES
+        name:
+          type: string
+          description: New name for the user
+        uiSelectedCaz:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: "1b93e6e3-cff8-45b9-bcda-f7245defaeb5"
+            description: A list of uuid cazes that was selected by user. Can be empty.
+    ResendVerificationEmailResponse:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        accountUserId:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+    CloseAccountRequest:
+      type: object
+      properties:
+        reason:
+          description: The reason of closing account
+          enum:
+            - VEHICLES_UPDATED_TO_NON_CHARGEABLE
+            - VEHICLES_NOT_CHARGED
+            - NOT_A_TRAVEL_DESTINATION
+            - NON_OPERATIONAL_BUSINESS
+            - OTHER
+    CreateAndInviteUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          description: Email of the invited user
+        isAdministeredBy:
+          type: string
+          format: uuid
+          description: Internal identifier of a inviting user
+        name:
+          type: string
+          description: Name of the invited user
+        verificationUrl:
+          type: string
+    VehicleRegisterDetails:
+      type: object
+      properties:
+        registerCompliant:
+          type: boolean
+          description: specifies if vehicle features in Retrofit or is compliant on GPWL
+        registerExempt:
+          type: boolean
+          description: specifies if vehicle features in MOD or is exempt on GPWL
+        registeredMOD:
+          type: boolean
+          description: specifies if vehicle features in MOD
+        registeredGPW:
+          type: boolean
+          description: specifies if vehicle features in GPW
+        registeredNTR:
+          type: boolean
+          description: specifies if vehicle features in NTR
+        registeredRetrofit:
+          type: boolean
+          description: specifies if vehicle features in Retrofit
+    SuccessfulPaymentsResponse:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 0
+          description: Page that has been retrieved.
+        pageCount:
+          type: integer
+          example: 3
+          description: Total number of pages available (with current page size).
+        perPage:
+          type: integer
+          example: 10
+          description: The current page size.
+        totalPaymentsCount:
+          type: integer
+          example: 30
+          description: The total number of payments associated with users
+        payments:
+          type: array
+          description: A list of payments data associated with users
+          items:
+            $ref: '#/components/schemas/SuccessfulPaymentSummary'
+    SuccessfulPaymentSummary:
+      type: object
+      properties:
+        paymentId:
+          type: string
+          format: uuid
+          description: ID of the payment
+        entriesCount:
+          type: integer
+          example: 30
+          description: Quantity of vehicles which entered the clean air zone
+        totalPaid:
+          type: number
+          format: bigdecimal
+          example: 50.00
+        cazName:
+          type: string
+          example: Birmingham
+          description: Name of the Clean Air Zone with which the payment is associated
+        payerName:
+          type: string
+          example: John Doe
+          description: Name of the payer
+        paymentDate:
+          type: string
+          format: date
+          example: '2020-03-10'
+        isRefunded:
+          type: boolean
+          example: true
+          description: Indicates if the payment was refunded.
+        isChargedback:
+          type: boolean
+          example: false
+          description: Indicates if the payment was charged back.
+    ConfirmEmailChangeRequest:
+      type: object
+      properties:
+        emailChangeVerificationToken:
+          type: string
+          format: uuid
+          description: Token used to confirm the email change
+        password:
+          type: string
+          description: New user's password
+    ResendReceiptEmailRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          example: test@example.com
+          description: Email address to which the payment receipt is going to be sent
+    RetrofitStatus:
+      type: object
+      properties:
+        retrofitStatus:
+          type: boolean
+          example: true
+          description: indicates whether vehicle exists
+        addedTimestamp:
+          type: string
+          format: date
+          example: '2020-06-22 19:10:25'
+          description: Time when vehicle was added
+
 tags:
   - name: VCC
     description: Vehicle Compliance Checker
@@ -2580,7 +6659,3 @@ tags:
     description: Whitelisting
   - name: Others
     description: Others
-# Added by API Auto Mocking Plugin
-servers:
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/musztardem/JAQU-CAZ-contract/1.8.4

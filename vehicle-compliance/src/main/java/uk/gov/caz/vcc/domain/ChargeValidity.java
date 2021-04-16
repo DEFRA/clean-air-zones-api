@@ -17,7 +17,7 @@ import org.hibernate.validator.constraints.Length;
  */
 @Entity
 @Getter
-@Table(name = "t_charge_validity")
+@Table(name = "t_charge_validity", schema = "CAZ_VEHICLE_ENTRANT")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ChargeValidity {
 

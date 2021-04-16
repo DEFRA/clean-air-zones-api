@@ -23,7 +23,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.caz.csv.exception.CsvInvalidCharacterParseException;
 import uk.gov.caz.csv.exception.CsvInvalidFieldsCountException;
 import uk.gov.caz.csv.exception.CsvMaxLineLengthExceededException;
-import uk.gov.caz.taxiregister.service.exception.CsvInvalidBooleanValueException;
 
 @ExtendWith(MockitoExtension.class)
 class CsvLicenceParserTest {
@@ -264,7 +263,7 @@ class CsvLicenceParserTest {
       "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,yes",
       "OI64EFO,2019-04-30,2019-05-22,taxi,la-3,dJfRR,no",
   })
-  public void shouldRejectLinesWithInvalidBooleanValuesForWheelchairAccessibleFlag(String line)
+  public void shouldAcceptLinesWithInvalidBooleanValuesForWheelchairAccessibleFlag(String line)
       throws IOException {
     // given
     String[] result = line.split(",");
@@ -274,6 +273,6 @@ class CsvLicenceParserTest {
     Throwable throwable = catchThrowable(() -> parser.parseLineMulti(line));
 
     // then
-    then(throwable).isInstanceOf(CsvInvalidBooleanValueException.class);
+    then(throwable).isNull();
   }
 }

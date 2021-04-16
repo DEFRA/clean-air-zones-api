@@ -8,6 +8,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import uk.gov.caz.accounts.model.Account;
+import uk.gov.caz.accounts.model.AccountClosureReason;
 
 /**
  * A class which handles managing data in {@code T_ACCOUNT} table.
@@ -22,6 +23,11 @@ public interface AccountRepository extends CrudRepository<Account, UUID> {
   @Modifying
   @Query("update Account act set act.name = :accountName where act.id = :accountId")
   void updateName(@Param("accountId") UUID accountId, @Param("accountName") String accountName);
+
+  @Modifying
+  @Query("update Account act set act.closureReason = :closureReason where act.id = :accountId")
+  void updateClosureReason(@Param("accountId") UUID accountId,
+      @Param("closureReason") AccountClosureReason closureReason);
 
   @Modifying
   @Query("update Account act "

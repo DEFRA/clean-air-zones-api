@@ -91,14 +91,14 @@ public class StubbedIdentityProvider extends IdentityProvider {
   }
 
   @Override
-  public User createStandardUser(User user) {
+  public UserEntity createStandardUser(UserEntity user) {
     StubbedIdentityProviderUser stubbedIdentityProviderUser = StubbedIdentityProviderUser.builder()
         .accountId(user.getAccountId())
         .name(user.getName())
         .isOwner(false)
         .email(user.getEmail())
         .password(null)
-        .emailVerified(false)
+        .emailVerified(user.isEmailVerified())
         .identityProviderUserId(
             user.getIdentityProviderUserId() == null
                 ? UUID.randomUUID()
@@ -121,7 +121,7 @@ public class StubbedIdentityProvider extends IdentityProvider {
   }
 
   @Override
-  public User getUserDetailsByIdentityProviderId(User user) {
+  public UserEntity getUserDetailsByIdentityProviderId(UserEntity user) {
     StubbedIdentityProviderUser foundUser = users.entrySet().stream()
         .filter(e -> Objects
             .equals(e.getValue().getIdentityProviderUserId(), user.getIdentityProviderUserId()))
@@ -273,5 +273,9 @@ public class StubbedIdentityProvider extends IdentityProvider {
     AwsErrorDetails details = getStubbedAwsNotAuthorizedErrorDetails();
 
     return NotAuthorizedException.builder().awsErrorDetails(details).build();
+  }
+
+  public void clearUserData() {
+    this.users.clear();
   }
 }

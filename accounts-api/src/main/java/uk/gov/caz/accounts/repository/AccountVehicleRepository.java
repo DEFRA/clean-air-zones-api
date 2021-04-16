@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.UUID;
 import lombok.experimental.UtilityClass;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -32,31 +33,16 @@ public interface AccountVehicleRepository extends
       + "and av.accountId = ?1")
   long countVehiclesWithUndeterminedChargeabilityFor(UUID accountId);
 
+  @Query(value = "select count (distinct av) from AccountVehicle av "
+      + "left join av.vehicleChargeability vc "
+      + "where vc.charge is null "
+      + "and av.accountId = ?1 "
+      + "and vc.cazId = ?2")
+  long countVehiclesWithUndeterminedChargeabilityForAccountInCaz(UUID accountId, UUID cazId);
+
   @Modifying
   @Query(value = "delete from AccountVehicle av where av.accountId = ?1")
   void deleteInBulkByAccountId(UUID accountId);
-
-  @Query(value = Sql.CURSOR_NEXT, nativeQuery = true)
-  List<UUID> findPageByAccountIdAndCursorNextPage(UUID accountId,
-      String vrn, UUID cazId, long limit);
-
-  @Query(value = Jpql.CURSOR_NEXT_WITH_CHARGEABILITY)
-  List<AccountVehicle> findAllWithChargeabilityByAccountVehicleIdsCursorNext(
-      List<UUID> accountVehicleIds);
-
-  @Query(value = Sql.CURSOR_PREV, nativeQuery = true)
-  List<UUID> findPageByAccountIdAndCursorPrevPage(UUID accountId,
-      String vrn, UUID cazId, long limit);
-
-  @Query(value = Jpql.CURSOR_PREV_WITH_CHARGEABILITY)
-  List<AccountVehicle> findAllWithChargeabilityByAccountVehicleIdsCursorPrev(
-      List<UUID> accountVehicleIds);
-
-  @Query(value = Sql.NULL_VRN, nativeQuery = true)
-  List<UUID> findPageByAccountIdAndCursorWithEmptyVrn(UUID accountId, UUID cazId, long limit);
-
-  @Query(value = Jpql.VRN_WITH_CHARGEABILITY)
-  List<AccountVehicle> findAllWithChargeabilityWith(List<UUID> accountVehicleIds);
 
   @Query(value = Sql.VEHICLES_FOR_ACCOUNT_WITH_CHARGEABILITY,
       countQuery = Sql.VEHICLES_FOR_ACCOUNT_WITH_CHARGEABILITY_COUNT,
@@ -68,6 +54,76 @@ public interface AccountVehicleRepository extends
       nativeQuery = true)
   Page<AccountVehicle> findAllByVrnContainingWithChargeabilityFor(UUID accountId, String query,
       Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_FOR_ACCOUNT_WITH_DETERMINED_CHARGE,
+      countQuery = Sql.VEHICLES_FOR_ACCOUNT_WITH_DETERMINED_CHARGE_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllDeterminedWithChargeabilityFor(UUID accountId, Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_FOR_ACCOUNT_BY_QUERY_WITH_DETERMINED_CHARGE,
+      countQuery = Sql.VEHICLES_FOR_ACCOUNT_BY_QUERY_WITH_DETERMINED_CHARGE_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllDeterminedByVrnContainingWithChargeabilityFor(UUID accountId,
+      String query, Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_FOR_ACCOUNT_WITH_DETERMINED_CHARGE_AND_CHARGEABLE,
+      countQuery = Sql.VEHICLES_FOR_ACCOUNT_WITH_DETERMINED_CHARGE_AND_CHARGEABLE_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllDeterminedChargeableWithChargeabilityFor(UUID accountId,
+      PageRequest page);
+
+  @Query(value = Sql.VEHICLES_FOR_ACCOUNT_BY_QUERY_WITH_DETERMINED_CHARGE_AND_CHARGEABLE,
+      countQuery = Sql.VEHICLES_FOR_ACCOUNT_BY_QUERY_WITH_DETERMINED_CHARGE_AND_CHARGEABLE_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllDeterminedChargeableByVrnContainingWithChargeabilityFor(
+      UUID accountId, String query, PageRequest page);
+
+  @Query(value = Sql.VEHICLES_FOR_ACCOUNT_BY_CAZ,
+      countQuery = Sql.VEHICLES_FOR_ACCOUNT_BY_CAZ_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllByAccountIdAndCaz(UUID accountId, UUID cazId, Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_FOR_ACCOUNT_BY_VRN_AND_CAZ,
+      countQuery = Sql.VEHICLES_FOR_ACCOUNT_BY_VRN_AND_CAZ_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllByAccountIdAndVrnContainingInCaz(UUID accountId, UUID cazId,
+      String vrn, Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_CHARGEABLE_FOR_ACCOUNT_BY_CAZ,
+      countQuery = Sql.VEHICLES_CHARGEABLE_FOR_ACCOUNT_BY_CAZ_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllChargeableForAccountInCaz(UUID accountId, UUID cazId,
+      Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_CHARGEABLE_FOR_ACCOUNT_BY_VRN_AND_CAZ,
+      countQuery = Sql.VEHICLES_CHARGEABLE_FOR_ACCOUNT_BY_VRN_AND_CAZ_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllChargeableByVrnForAccountInCaz(UUID accountId, UUID cazId, String vrn,
+      Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_DETERMINED_FOR_ACCOUNT_BY_CAZ,
+      countQuery = Sql.VEHICLES_DETERMINED_FOR_ACCOUNT_BY_CAZ_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllDeterminedForAccountInCaz(UUID accountId, UUID cazId,
+      Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_DETERMINED_FOR_ACCOUNT_BY_VRN_AND_CAZ,
+      countQuery = Sql.VEHICLES_DETERMINED_FOR_ACCOUNT_BY_VRN_AND_CAZ_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllDeterminedByVrnForAccountInCaz(UUID accountId, UUID cazId, String vrn,
+      Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_DETERMINED_CHARGEABLE_FOR_ACCOUNT_BY_CAZ,
+      countQuery = Sql.VEHICLES_DETERMINED_CHARGEABLE_FOR_ACCOUNT_BY_CAZ_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllDeterminedChargeableForAccountInCaz(UUID accountId, UUID cazId,
+      Pageable pageable);
+
+  @Query(value = Sql.VEHICLES_DETERMINED_CHARGEABLE_FOR_ACCOUNT_BY_VRN_AND_CAZ,
+      countQuery = Sql.VEHICLES_DETERMINED_CHARGEABLE_FOR_ACCOUNT_BY_VRN_AND_CAZ_COUNT,
+      nativeQuery = true)
+  Page<AccountVehicle> findAllDeterminedChargeableByVrnForAccountInCaz(UUID accountId, UUID cazId,
+      String vrn, Pageable pageable);
 
   Long deleteByVrnAndAccountId(String vrn, UUID accountId);
 
@@ -93,40 +149,6 @@ public interface AccountVehicleRepository extends
    */
   @UtilityClass
   class Sql {
-
-    private static final String CURSOR_NEXT =
-        "SELECT Cast(av.account_vehicle_id as varchar)"
-            + " FROM caz_account.t_account_vehicle av"
-            + " LEFT JOIN caz_account.t_vehicle_chargeability vc"
-            + " ON av.account_vehicle_id = vc.account_vehicle_id"
-            + " WHERE av.account_id=?#{[0]} AND av.vrn > ?#{[1]}"
-            + " AND vc.caz_id=?#{[2]} "
-            + " AND (vc.charge is not null AND vc.charge > 0)"
-            + " ORDER BY av.vrn ASC"
-            + " LIMIT ?#{[3]}";
-
-    private static final String CURSOR_PREV =
-        "SELECT Cast(av.account_vehicle_id as varchar)"
-            + " FROM caz_account.t_account_vehicle av"
-            + " LEFT JOIN caz_account.t_vehicle_chargeability vc"
-            + " ON av.account_vehicle_id = vc.account_vehicle_id"
-            + " WHERE av.account_id=?#{[0]} AND av.vrn < ?#{[1]}"
-            + " AND vc.caz_id=?#{[2]}"
-            + " AND (vc.charge is not null AND vc.charge > 0)"
-            + " ORDER BY av.vrn DESC"
-            + " LIMIT ?#{[3]}";
-
-    private static final String NULL_VRN =
-        "SELECT Cast(av.account_vehicle_id as varchar) "
-            + "FROM caz_account.t_account_vehicle av "
-            + "LEFT JOIN caz_account.t_vehicle_chargeability vc "
-            + "ON av.account_vehicle_id = vc.account_vehicle_id "
-            + "WHERE av.account_id=?#{[0]} "
-            + "AND vc.caz_id=?#{[1]} "
-            + "AND (vc.charge is not null AND vc.charge > 0) "
-            + "ORDER BY av.vrn ASC "
-            + "LIMIT ?#{[2]}";
-
 
     private static final String VEHICLES_FOR_ACCOUNT_WITH_CHARGEABILITY =
         "SELECT distinct av.* "
@@ -163,30 +185,235 @@ public interface AccountVehicleRepository extends
             + "WHERE av.account_id = ?#{[0]} "
             + "AND av.vrn LIKE %?#{[1]}% "
             + "AND (vc.charge is null OR vc.charge > 0)";
-  }
 
-  /**
-   * Static inner class holding custom JPQL queries.
-   */
-  @UtilityClass
-  class Jpql {
+    private static final String VEHICLES_FOR_ACCOUNT_WITH_DETERMINED_CHARGE =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.charge is not null "
+            + "ORDER BY av.vrn ASC";
 
-    private static final String CURSOR_NEXT_WITH_CHARGEABILITY = "select distinct av "
-        + "from AccountVehicle av "
-        + "left join fetch av.vehicleChargeability "
-        + "where av.accountVehicleId in (?1) "
-        + "ORDER BY av.vrn ASC";
+    private static final String VEHICLES_FOR_ACCOUNT_WITH_DETERMINED_CHARGE_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.charge is not null";
 
-    private static final String CURSOR_PREV_WITH_CHARGEABILITY = "select distinct av "
-        + "from AccountVehicle av "
-        + "left join fetch av.vehicleChargeability "
-        + "where av.accountVehicleId in (?1) "
-        + "ORDER BY av.vrn DESC";
+    private static final String VEHICLES_FOR_ACCOUNT_BY_QUERY_WITH_DETERMINED_CHARGE =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND av.vrn LIKE %?#{[1]}% "
+            + "AND vc.charge is not null "
+            + "ORDER BY av.vrn ASC";
 
-    private static final String VRN_WITH_CHARGEABILITY = "select distinct av "
-        + "from AccountVehicle av "
-        + "left join fetch av.vehicleChargeability "
-        + "where av.accountVehicleId in (?1) "
-        + "ORDER BY av.vrn ASC";
+    private static final String VEHICLES_FOR_ACCOUNT_BY_QUERY_WITH_DETERMINED_CHARGE_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND av.vrn LIKE %?#{[1]}% "
+            + "AND vc.charge is not null";
+
+    private static final String VEHICLES_FOR_ACCOUNT_WITH_DETERMINED_CHARGE_AND_CHARGEABLE =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is not null AND vc.charge > 0) "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String VEHICLES_FOR_ACCOUNT_WITH_DETERMINED_CHARGE_AND_CHARGEABLE_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is not null AND vc.charge > 0)";
+
+    private static final String
+        VEHICLES_FOR_ACCOUNT_BY_QUERY_WITH_DETERMINED_CHARGE_AND_CHARGEABLE =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND av.vrn LIKE %?#{[1]}% "
+            + "AND (vc.charge is not null AND vc.charge > 0) "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String
+        VEHICLES_FOR_ACCOUNT_BY_QUERY_WITH_DETERMINED_CHARGE_AND_CHARGEABLE_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND av.vrn LIKE %?#{[1]}% "
+            + "AND (vc.charge is not null AND vc.charge > 0)";
+
+    private static final String VEHICLES_FOR_ACCOUNT_BY_CAZ =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String VEHICLES_FOR_ACCOUNT_BY_CAZ_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.caz_id = ?#{[1]}";
+
+    private static final String VEHICLES_FOR_ACCOUNT_BY_VRN_AND_CAZ =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "AND av.vrn LIKE %?#{[2]}% "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String VEHICLES_FOR_ACCOUNT_BY_VRN_AND_CAZ_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "AND av.vrn LIKE %?#{[2]}%";
+
+    private static final String VEHICLES_CHARGEABLE_FOR_ACCOUNT_BY_CAZ =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is null OR vc.charge > 0) "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String VEHICLES_CHARGEABLE_FOR_ACCOUNT_BY_CAZ_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is null OR vc.charge > 0) "
+            + "AND vc.caz_id = ?#{[1]}";
+
+    private static final String VEHICLES_CHARGEABLE_FOR_ACCOUNT_BY_VRN_AND_CAZ =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is null OR vc.charge > 0) "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "AND av.vrn LIKE %?#{[2]}% "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String VEHICLES_CHARGEABLE_FOR_ACCOUNT_BY_VRN_AND_CAZ_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is null OR vc.charge > 0) "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "AND av.vrn LIKE %?#{[2]}%";
+
+    private static final String VEHICLES_DETERMINED_FOR_ACCOUNT_BY_CAZ =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.charge is not null "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String VEHICLES_DETERMINED_FOR_ACCOUNT_BY_CAZ_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.charge is not null "
+            + "AND vc.caz_id = ?#{[1]} ";
+
+    private static final String VEHICLES_DETERMINED_FOR_ACCOUNT_BY_VRN_AND_CAZ =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.charge is not null "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "AND av.vrn LIKE %?#{[2]}% "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String VEHICLES_DETERMINED_FOR_ACCOUNT_BY_VRN_AND_CAZ_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND vc.charge is not null "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "AND av.vrn LIKE %?#{[2]}%";
+
+    private static final String VEHICLES_DETERMINED_CHARGEABLE_FOR_ACCOUNT_BY_CAZ =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is not null AND vc.charge > 0) "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String VEHICLES_DETERMINED_CHARGEABLE_FOR_ACCOUNT_BY_CAZ_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is not null AND vc.charge > 0) "
+            + "AND vc.caz_id = ?#{[1]} ";
+
+    private static final String VEHICLES_DETERMINED_CHARGEABLE_FOR_ACCOUNT_BY_VRN_AND_CAZ =
+        "SELECT distinct av.* "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is not null AND vc.charge > 0) "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "AND av.vrn LIKE %?#{[2]}% "
+            + "ORDER BY av.vrn ASC";
+
+    private static final String VEHICLES_DETERMINED_CHARGEABLE_FOR_ACCOUNT_BY_VRN_AND_CAZ_COUNT =
+        "SELECT count(distinct av) "
+            + "FROM caz_account.t_account_vehicle av "
+            + "LEFT JOIN caz_account.t_vehicle_chargeability vc ON "
+            + "vc.account_vehicle_id = av.account_vehicle_id "
+            + "WHERE av.account_id = ?#{[0]} "
+            + "AND (vc.charge is not null AND vc.charge > 0) "
+            + "AND vc.caz_id = ?#{[1]} "
+            + "AND av.vrn LIKE %?#{[2]}%";
   }
 }

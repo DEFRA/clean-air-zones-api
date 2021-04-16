@@ -10,9 +10,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.context.support.WebApplicationContextUtils;
-import uk.gov.caz.auditcleanup.AuditCleanupDataService;
 import uk.gov.caz.awslambda.AwsHelpers;
 import uk.gov.caz.taxiregister.Application;
+import uk.gov.caz.taxiregister.service.audit.NtrDataCleanupService;
 
 /**
  * Lambda function which handle cleaning old audit data.
@@ -22,20 +22,20 @@ public class CleanupOldAuditDataLambdaHandler implements RequestStreamHandler {
 
   private SpringBootLambdaContainerHandler<AwsProxyRequest, AwsProxyResponse> handler;
 
-  private AuditCleanupDataService auditCleanupDataService;
+  private NtrDataCleanupService dataCleanupService;
 
   @Override
   public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
       throws IOException {
     initializeHandlerIfNull();
 
-    auditCleanupDataService.cleanupOldAuditData();
+    dataCleanupService.cleanupData();
   }
 
   private void initializeHandlerIfNull() {
     if (handler == null) {
       handler = AwsHelpers.initSpringBootHandler(Application.class);
-      auditCleanupDataService = getBean(handler, AuditCleanupDataService.class);
+      dataCleanupService = getBean(handler, NtrDataCleanupService.class);
     }
   }
 

@@ -1,0 +1,1 @@
+CREATE INDEX idx_logged_actions_json_vrm ON audit.logged_actions ((new_data -> 'vrm'), (original_data -> 'vrm'));

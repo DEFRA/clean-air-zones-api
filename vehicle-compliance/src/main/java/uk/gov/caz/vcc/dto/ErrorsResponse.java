@@ -29,6 +29,12 @@ public class ErrorsResponse {
     return UNHANDLED_EXCEPTION_RESPONSE;
   }
 
+  /**
+   * Cast validation errors into an ErrorsResponse object.
+   * 
+   * @param validationErrors List of validation erros to be cast.
+   * @return ErrorsResponse containing the validation errors to be returned.
+   */
   public static ErrorsResponse from(List<ValidationError> validationErrors) {
     List<ErrorResponse> errorResponses = validationErrors.stream()
         .map(ValidationError::asErrorResponse)

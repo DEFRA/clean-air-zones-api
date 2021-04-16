@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0003.1-whitelist-1.0
+      author: jaroslaw.niedorozow
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            columnExist:
+              schemaName: CAZ_WHITELIST_VEHICLES
+              tableName: T_WHITELIST_VEHICLES
+              columnName: CATEGORY
+        - not:
+            columnExist:
+              schemaName: CAZ_WHITELIST_VEHICLES
+              tableName: T_WHITELIST_VEHICLES
+              columnName: EXEMPT
+        - not:
+            columnExist:
+              schemaName: CAZ_WHITELIST_VEHICLES
+              tableName: T_WHITELIST_VEHICLES
+              columnName: COMPLIANT
+      changes:
+        - addColumn:
+            comment: Add additional columns to table that holds data extracted from CSV.
+            schemaName: CAZ_WHITELIST_VEHICLES
+            tableName: T_WHITELIST_VEHICLES
+            columns:
+              - column:
+                  name: CATEGORY
+                  type: varchar(25)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: EXEMPT
+                  type: boolean
+                  constraints:
+                    nullable: false
+              - column:
+                  name: COMPLIANT
+                  type: boolean
+                  constraints:
+                    nullable: false

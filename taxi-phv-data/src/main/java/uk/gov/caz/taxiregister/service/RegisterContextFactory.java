@@ -14,7 +14,6 @@ import uk.gov.caz.taxiregister.model.TaxiPhvVehicleLicence;
 import uk.gov.caz.taxiregister.repository.LicensingAuthorityPostgresRepository;
 import uk.gov.caz.taxiregister.repository.TaxiPhvLicencePostgresRepository;
 import uk.gov.caz.taxiregister.service.RegisterService.RegisterContext;
-import uk.gov.caz.taxiregister.service.RegisterService.UniqueLicenceAttributes;
 
 @Component
 @Slf4j
@@ -124,8 +123,7 @@ public class RegisterContextFactory {
     String licensingAuthorityName = licence.getLicensingAuthority().getName();
     boolean matches = licensingAuthorityByName.containsKey(licensingAuthorityName);
     if (!matches) {
-      log.warn("Licence's (vrm='{}') licensing authority '{}' does not exist in the database",
-          licence.getVrm(), licensingAuthorityName);
+      log.warn("Licensing authority '{}' does not exist in the database", licensingAuthorityName);
     }
     return matches;
   }

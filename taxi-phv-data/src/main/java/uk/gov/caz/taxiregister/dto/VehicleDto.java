@@ -2,6 +2,8 @@ package uk.gov.caz.taxiregister.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import com.google.common.collect.ImmutableList;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
@@ -11,21 +13,25 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import lombok.Builder;
+import lombok.ToString;
 import lombok.Value;
-
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.util.StringUtils;
+import uk.gov.caz.taxiregister.dto.VehicleDto.VehicleDtoBuilder;
 import uk.gov.caz.taxiregister.dto.validation.LicenceDatesValidator;
 import uk.gov.caz.taxiregister.dto.validation.LicenceTypeValidator;
 import uk.gov.caz.taxiregister.dto.validation.LicenceValidator;
 import uk.gov.caz.taxiregister.dto.validation.LicensePlateNumberValidator;
 import uk.gov.caz.taxiregister.dto.validation.LicensingAuthorityNameValidator;
 import uk.gov.caz.taxiregister.dto.validation.VrmValidator;
+import uk.gov.caz.taxiregister.dto.validation.WheelchairAccessibleVehicleValidator;
 import uk.gov.caz.taxiregister.model.ValidationError;
 import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
 
 @Value
 @Builder(toBuilder = true)
+@JsonDeserialize(builder = VehicleDtoBuilder.class)
 public class VehicleDto {
 
   private static final List<LicenceValidator> VALIDATORS = ImmutableList.of(
@@ -33,7 +39,8 @@ public class VehicleDto {
       new LicenceDatesValidator(),
       new LicenceTypeValidator(),
       new LicensingAuthorityNameValidator(),
-      new LicensePlateNumberValidator()
+      new LicensePlateNumberValidator(),
+      new WheelchairAccessibleVehicleValidator()
   );
 
   @JsonIgnore 
@@ -55,6 +62,7 @@ public class VehicleDto {
     return Optional.ofNullable(this.registerJobTrigger).orElse(RegisterJobTrigger.API_CALL);
   }
 
+  @ToString.Exclude
   @ApiModelProperty(value = "${swagger.model.descriptions.vehicle.vrm}")
   @NotNull
   @Size(min = 1, max = 7)
@@ -91,7 +99,7 @@ public class VehicleDto {
   String licensePlateNumber;
 
   @ApiModelProperty(notes = "${swagger.model.descriptions.vehicle.wheelchair-accessible-vehicle}")
-  Boolean wheelchairAccessibleVehicle;
+  String wheelchairAccessibleVehicle;
 
   @ApiModelProperty(hidden = true)
   @JsonIgnore
@@ -108,5 +116,25 @@ public class VehicleDto {
         .map(validator -> validator.validate(this))
         .flatMap(List::stream)
         .collect(Collectors.toList());
+  }
+
+  @JsonPOJOBuilder(withPrefix = "")
+  public static class VehicleDtoBuilder {
+
+    /**
+     * Custom method to always remove all whitespaces from VRN.
+     */
+    public VehicleDto.VehicleDtoBuilder vrm(final String vrm) {
+      this.vrm = StringUtils.trimAllWhitespace(vrm);
+      return this;
+    }
+    
+    /**
+     * Custom method to always remove all whitespaces from the licensingAuthorityName.
+     */
+    public VehicleDto.VehicleDtoBuilder licensingAuthorityName(final String licAuthorityName) {
+      this.licensingAuthorityName = StringUtils.trimWhitespace(licAuthorityName);
+      return this;
+    }
   }
 }

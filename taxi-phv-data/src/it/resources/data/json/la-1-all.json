@@ -1,7 +1,7 @@
 {
   "vehicleDetails": [
     {
-      "vrm": "DS98UDG",
+      "vrm": "DS9   8UDG",
       "start": "2019-03-11",
       "end": "2019-07-24",
       "taxiOrPHV": "PHV",
@@ -10,7 +10,7 @@
       "wheelchairAccessibleVehicle": true
     },
     {
-      "vrm": "ND84VSX",
+      "vrm": "  ND84VSX",
       "start": "2019-04-14",
       "end": "2019-06-13",
       "taxiOrPHV": "taxi",
@@ -19,7 +19,7 @@
       "wheelchairAccessibleVehicle": false
     },
     {
-      "vrm": "DL76MWX",
+      "vrm": "DL76MWX ",
       "start": "2019-04-11",
       "end": "2019-05-20",
       "taxiOrPHV": "PHV",
@@ -28,7 +28,7 @@
       "wheelchairAccessibleVehicle": false
     },
     {
-      "vrm": "BW91HUN",
+      "vrm": "BW91HUN ",
       "start": "2019-03-09",
       "end": "2019-05-06",
       "taxiOrPHV": "taxi",

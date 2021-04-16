@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0024-1.0
+      author: exlabs
+      changes:
+        - sql:
+            comment: Update BOUNDARY_URL for Birmingham CAZ
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+              UPDATE public.T_CAZ_LINK_DETAIL
+              SET BOUNDARY_URL = 'https://www.brumbreathes.co.uk/info/1/welcome/1/welcome-1/2'
+              WHERE CHARGE_DEFINITION_ID = (SELECT charge_definition_id
+              FROM public.t_charge_definition WHERE caz_name = 'Birmingham');

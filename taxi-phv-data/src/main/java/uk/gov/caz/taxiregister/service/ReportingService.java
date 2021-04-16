@@ -2,10 +2,12 @@ package uk.gov.caz.taxiregister.service;
 
 import com.google.common.base.Preconditions;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.caz.taxiregister.model.ActiveLicenceInReportingWindow;
 import uk.gov.caz.taxiregister.repository.ReportingRepository;
 
 /**
@@ -17,6 +19,7 @@ import uk.gov.caz.taxiregister.repository.ReportingRepository;
 public class ReportingService {
 
   private final ReportingRepository reportingRepository;
+  private final ActiveLicencesCollator activeLicencesCollator;
 
   /**
    * Returns licensing authorities (names) of active licences for a given VRM and date.
@@ -36,21 +39,18 @@ public class ReportingService {
   }
 
   /**
-   * Returns licences (represented by VRMs) which were active for a given licensing authority
-   * (represented by {@code licensingAuthorityId}) on a given date.
+   * Runs reporting query for active licences in a specified reporting window.
    *
-   * @param licensingAuthorityId The identifier of the licensing authority.
-   * @param date The date against which the check is performed.
-   * @return A {@link Set} of VRMs which had at least one active licence on a given date for a given
-   *     licensing authority.
-   * @throws NullPointerException if {@code date} is null.
-   * @throws IllegalArgumentException if {@code date} is a future date.
+   * @param reportingWindowStartDate Reporting window start date.
+   * @param reportingWindowEndDate Reporting window end date.
+   * @return List of {@link ActiveLicenceInReportingWindow} objects.
    */
-  public Set<String> getActiveLicencesForLicensingAuthorityOn(int licensingAuthorityId,
-      LocalDate date) {
-    Preconditions.checkNotNull(date, "Date cannot be null");
-    Preconditions.checkArgument(!date.isAfter(LocalDate.now()), "Cannot process a future date");
-
-    return reportingRepository.getActiveLicencesForLicensingAuthorityOn(licensingAuthorityId, date);
+  public List<ActiveLicenceInReportingWindow> runReporting(LocalDate reportingWindowStartDate,
+      LocalDate reportingWindowEndDate) {
+    Preconditions.checkArgument(reportingWindowEndDate.isAfter(reportingWindowStartDate),
+        "Reporting window end date must be after start date.");
+    return activeLicencesCollator
+        .collate(reportingRepository.getLicenceEvents(reportingWindowEndDate),
+            reportingWindowStartDate, reportingWindowEndDate);
   }
 }

@@ -8,10 +8,10 @@
       "activeChargeStartDate": "2018-10-28"
     },
     {
-      "name": "Leeds",
+      "name": "Test",
       "directDebitEnabled": false,
-      "cleanAirZoneId": "39e54ed8-3ed2-441d-be3f-38fc9b70c8d3",
-      "boundaryUrl": "https://cleanairleeds.co.uk",
+      "cleanAirZoneId": "742b343f-6ce6-42d3-8324-df689ad4c515",
+      "boundaryUrl": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3",
       "activeChargeStartDate": "2018-10-29"
     }
   ]

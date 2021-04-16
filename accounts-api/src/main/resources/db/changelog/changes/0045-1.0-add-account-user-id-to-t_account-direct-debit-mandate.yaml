@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0045.1-accounts-1.0
+      author: antoni.pstras
+      changes:
+        - addColumn:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT_DIRECT_DEBIT_MANDATE
+            columns:
+              - column:
+                  name: ACCOUNT_USER_ID
+                  type: uuid
+                  constraints:
+                    references: CAZ_ACCOUNT.T_ACCOUNT_USER(ACCOUNT_USER_ID)
+                    foreignKeyName: T_ACCOUNT_DIRECT_DEBIT_MANDATE_ACCOUNT_USER_ID_FKEY

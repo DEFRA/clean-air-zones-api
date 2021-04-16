@@ -1,79 +1,65 @@
 package uk.gov.caz.vcc.repository;
 
-import com.google.common.annotations.VisibleForTesting;
-import java.net.URI;
-import java.util.Optional;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Repository;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.RestTemplate;
-import uk.gov.caz.vcc.domain.exceptions.ExternalServiceCallException;
-import uk.gov.caz.vcc.dto.PaymentStatusRequestDto;
-import uk.gov.caz.vcc.dto.PaymentStatusResponseDto;
+import java.util.List;
+import retrofit2.Call;
+import retrofit2.http.Body;
+import retrofit2.http.Headers;
+import retrofit2.http.POST;
+import uk.gov.caz.async.rest.AsyncOp;
+import uk.gov.caz.vcc.dto.EntrantPaymentDtoV1;
+import uk.gov.caz.vcc.dto.EntrantPaymentDtoV2;
+import uk.gov.caz.vcc.dto.EntrantPaymentRequestDto;
 
 /**
- * The class that is responsible for integration with payments service.
+ * Retrofit2 repository to create a payment call.
  */
-@Slf4j
-@Repository
-public class PaymentsRepository {
-
-  private final RestTemplate paymentsRestTemplate;
-
-  @VisibleForTesting
-  public static final String PAYMENT_VEHICLE_ENTRANTS_URL = "/v1/payments/vehicle-entrants";
-
-  private final URI getPaymentStatusUrl;
+public interface PaymentsRepository {
 
   /**
-   * Public constructor. Builds rest templates for payments repository.
+   * Method to create retrofit2 payment call.
    *
-   * @param restTemplateBuilder builder for the separate rest templates
+   * @param paymentStatusRequests list of {@link EntrantPaymentRequestDto}
+   * @return list of {@link EntrantPaymentDtoV1}
    */
-  public PaymentsRepository(RestTemplateBuilder restTemplateBuilder,
-      @Value("${services.payments.root-url}") String paymentsRootUrl) {
-    this.paymentsRestTemplate = restTemplateBuilder
-        .rootUri(paymentsRootUrl + PAYMENT_VEHICLE_ENTRANTS_URL).build();
-    this.getPaymentStatusUrl = URI.create(paymentsRootUrl + PAYMENT_VEHICLE_ENTRANTS_URL);
-  }
+  @Headers({"Content-Type: application/json"})
+  @POST("v1/payments/vehicle-entrants")
+  Call<List<EntrantPaymentDtoV1>> registerVehicleEntryV1(
+      @Body List<EntrantPaymentRequestDto> paymentStatusRequests);
 
   /**
-   * Get payment status from payments service.
+   * Method to create retrofit2 payment call.
    *
-   * @param request {@link PaymentStatusRequestDto}.
-   * @return {@link PaymentStatusResponseDto} (optional).
+   * @param paymentStatusRequests list of {@link EntrantPaymentRequestDto}
+   * @return list of {@link EntrantPaymentDtoV2}
    */
-  public Optional<PaymentStatusResponseDto> registerVehicleEntryAndGetPaymentStatus(
-      PaymentStatusRequestDto request) {
-    try {
-      log.info("Get payment status for '{}' VRN, start", request.getVrn());
-      ResponseEntity<PaymentStatusResponseDto> responseEntity = paymentsRestTemplate
-          .exchange(buildRequestEntityForPaymentStatus(request), PaymentStatusResponseDto.class);
-      return Optional.ofNullable(responseEntity.getBody());
-    } catch (HttpServerErrorException e) {
-      log.error("Error {} while getting the payment status for VRN '{}'", e, request.getVrn());
-      return Optional.empty();
-    } catch (Exception e) {
-      log.error("Cannot call Payments Service fir vrn {}", request.getVrn());
-      throw new ExternalServiceCallException(e);
-    } finally {
-      log.info("Get payment status for '{}' VRN, finish", request.getVrn());
-    }
+  @Headers({"Content-Type: application/json"})
+  @POST("v1/payments/vehicle-entrants")
+  Call<List<EntrantPaymentDtoV2>> registerVehicleEntryV2(
+      @Body List<EntrantPaymentRequestDto> paymentStatusRequests);
+
+
+  /**
+   * Wraps REST API call in {@link AsyncOp} making it asynchronous.
+   *
+   * @param paymentStatusRequests List of {@link EntrantPaymentRequestDto}.
+   * @return {@link AsyncOp} with prepared REST call.
+   */
+  default AsyncOp<List<EntrantPaymentDtoV1>> registerVehicleEntryAsyncV1(
+      List<EntrantPaymentRequestDto> paymentStatusRequests) {
+    return AsyncOp.from("PSR: " + paymentStatusRequests.hashCode(),
+        registerVehicleEntryV1(paymentStatusRequests));
   }
 
   /**
-   * Creates a request entity for payment status operation.
+   * Wraps REST API call in {@link AsyncOp} making it asynchronous.
+   *
+   * @param paymentStatusRequests List of {@link EntrantPaymentRequestDto}.
+   * @return {@link AsyncOp} with prepared REST call.
    */
-  private RequestEntity<PaymentStatusRequestDto> buildRequestEntityForPaymentStatus(
-      PaymentStatusRequestDto paymentStatusRequest) {
-    return RequestEntity.post(getPaymentStatusUrl)
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .body(paymentStatusRequest);
+  default AsyncOp<List<EntrantPaymentDtoV2>> registerVehicleEntryAsyncV2(
+      List<EntrantPaymentRequestDto> paymentStatusRequests) {
+    return AsyncOp.from("PSR: " + paymentStatusRequests.hashCode(),
+        registerVehicleEntryV2(paymentStatusRequests));
   }
+
 }

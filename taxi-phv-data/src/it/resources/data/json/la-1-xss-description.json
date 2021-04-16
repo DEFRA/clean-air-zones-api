@@ -1,0 +1,13 @@
+{
+  "vehicleDetails": [
+    {
+      "vrm": "DS9   8UDG",
+      "start": "2019-03-11",
+      "end": "2019-07-24",
+      "taxiOrPHV": "<script>alert('XSS!!')</script>",
+      "licensingAuthorityName": "la-1",
+      "licensePlateNumber": "aa",
+      "wheelchairAccessibleVehicle": true
+    }
+  ]
+}

@@ -4,20 +4,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import uk.gov.caz.csv.exception.CsvInvalidCharacterParseException;
 import uk.gov.caz.csv.exception.CsvInvalidFieldsCountException;
 import uk.gov.caz.csv.exception.CsvMaxLineLengthExceededException;
 import uk.gov.caz.csv.exception.CsvParseException;
 import uk.gov.caz.csv.model.CsvValidationError;
-import uk.gov.caz.taxiregister.service.exception.CsvInvalidBooleanValueException;
 
 @ExtendWith(MockitoExtension.class)
 class CsvVehicleDtoParseExceptionResolverTest {
@@ -108,25 +105,6 @@ class CsvVehicleDtoParseExceptionResolverTest {
     assertThat(errorOptional).hasValueSatisfying(csvValidationError -> {
       assertThat(csvValidationError.getDetail())
           .isEqualTo(CsvVehicleDtoParseExceptionResolver.LINE_TOO_LONG_MESSAGE);
-      assertThat(csvValidationError.getLineNumber()).isEqualTo(lineNumber);
-    });
-  }
-
-  @Test
-  public void shouldResolveInvalidBooleanError() {
-    // given
-    CsvInvalidBooleanValueException exception = new CsvInvalidBooleanValueException(
-        "");
-    int lineNumber = 68;
-
-    // when
-    Optional<CsvValidationError> errorOptional = exceptionResolver
-        .resolve(exception, lineNumber);
-
-    assertThat(errorOptional).isPresent();
-    assertThat(errorOptional).hasValueSatisfying(csvValidationError -> {
-      assertThat(csvValidationError.getDetail()).isEqualTo(
-          CsvVehicleDtoParseExceptionResolver.INVALID_BOOLEAN_VALUE_MESSAGE);
       assertThat(csvValidationError.getLineNumber()).isEqualTo(lineNumber);
     });
   }

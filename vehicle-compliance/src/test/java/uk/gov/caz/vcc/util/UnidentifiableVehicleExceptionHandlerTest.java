@@ -17,9 +17,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import uk.gov.caz.vcc.domain.Vehicle;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
+import uk.gov.caz.definitions.domain.Vehicle;
 import uk.gov.caz.vcc.domain.exceptions.FailedIdentificationLogs;
-import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
 import uk.gov.caz.vcc.repository.IdentificationErrorRepository;
 
 @ExtendWith(MockitoExtension.class)

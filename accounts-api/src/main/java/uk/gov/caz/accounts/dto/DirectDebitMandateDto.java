@@ -27,6 +27,11 @@ public class DirectDebitMandateDto {
   UUID accountId;
 
   /**
+   * An identifier of the associated AccountUser.
+   */
+  UUID accountUserId;
+
+  /**
    * An identifier of the Clean Air Zone.
    */
   UUID cleanAirZoneId;
@@ -58,6 +63,7 @@ public class DirectDebitMandateDto {
         .builder()
         .directDebitMandateId(directDebitMandate.getId())
         .accountId(directDebitMandate.getAccountId())
+        .accountUserId(directDebitMandate.getAccountUserId())
         .cleanAirZoneId(directDebitMandate.getCleanAirZoneId())
         .paymentProviderMandateId(directDebitMandate.getPaymentProviderMandateId())
         .status(directDebitMandate.getStatus())

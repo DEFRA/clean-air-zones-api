@@ -134,9 +134,9 @@ public class ChargeCalculationService {
           count(allCazesIds), chargeabilityCacheRefreshDays);
 
       if (allVehiclesToProcess.setOfIDs().isEmpty()) {
+        log.info("End: There are no more vehicles that need to have charge calculations cache");
         return CachePopulationResult.ALL_RECORDS_CACHED;
       }
-
       VehiclesToCalculateChargeability subsetOfVehiclesToProcess = allVehiclesToProcess;
       if (maxVehiclesToProcess > 0) {
         subsetOfVehiclesToProcess = subset(maxVehiclesToProcess, allVehiclesToProcess);

@@ -1,0 +1,13 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0064-1.0-retrofit-view
+      author: lukasz.kuczynski
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/0064-1.0-retrofit-view.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

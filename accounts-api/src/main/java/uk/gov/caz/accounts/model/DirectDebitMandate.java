@@ -38,6 +38,9 @@ public class DirectDebitMandate {
   @NonNull
   UUID cleanAirZoneId;
 
+  @Column(name = "account_user_id")
+  UUID accountUserId;
+
   @Column(name = "payment_provider_mandate_id")
   @NonNull
   String paymentProviderMandateId;

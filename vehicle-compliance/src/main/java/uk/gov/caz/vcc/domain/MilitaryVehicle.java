@@ -1,34 +1,40 @@
 package uk.gov.caz.vcc.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import uk.gov.caz.vcc.dto.ModVehicleDto;
 
 /**
  * Domain object to represent a MOD vehicle.
  *
  * @author Informed Solutions
  */
-@Entity
-@Table(name = "t_mod_whitelist")
+@AllArgsConstructor
+@NoArgsConstructor
 public class MilitaryVehicle {
 
-  @Id
   @Getter
   @Setter
   String vrn;
 
-  @Column(name = "mod_whitelist_type")
   @Getter
   @Setter
   String modWhitelistType;
 
-  @Column(name = "whitelist_discount_code")
   @Getter
   @Setter
   String whitelistDiscountCode;
+
+  /**
+   * Cast from ModVehicleDto to MilitaryVehicle.
+   */
+  public static MilitaryVehicle fromDto(ModVehicleDto modVehicleDto) {
+    return new MilitaryVehicle(
+        modVehicleDto.getVrn(),
+        "WHITE VEHICLE",
+        modVehicleDto.getWhitelistDiscountCode()
+    );
+  }
 }

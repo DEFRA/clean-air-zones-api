@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0036-1.0
+      author: informed
+      preConditions:
+        - onFail: MARK_RAN
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/036-align-test-harness-retrofit.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true

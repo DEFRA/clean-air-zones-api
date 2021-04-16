@@ -82,7 +82,7 @@ public class AccountUserCodeRepositoryTestIT {
   void shouldFindUserCodesByAccountIdAndStatus() {
     List<AccountUserCode> foundAccountUserCodes = accountUserCodeRepository.
         findAllByAccountNameForExistingUsers("test");
-    assertThat(foundAccountUserCodes).hasSize(2);
+    assertThat(foundAccountUserCodes).hasSize(3);
     assertThat(foundAccountUserCodes.get(0).getExpiration())
         .isEqualTo(LocalDateTime.parse("2020-01-01T10:10"));
   }

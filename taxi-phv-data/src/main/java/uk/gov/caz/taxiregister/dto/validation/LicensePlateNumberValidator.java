@@ -12,10 +12,10 @@ public class LicensePlateNumberValidator implements LicenceValidator {
   private static final int MAX_LENGTH = 15;
 
   @VisibleForTesting
-  static final String MISSING_LICENCE_PLATE_NUMBER_MESSAGE = "Missing license plate number";
+  static final String MISSING_LICENCE_PLATE_NUMBER_MESSAGE = "Missing licence plate number";
 
   @VisibleForTesting
-  static final String INVALID_PLATE_NUMBER_MESSAGE = "Invalid format of license plate "
+  static final String INVALID_PLATE_NUMBER_MESSAGE = "Invalid format of licence plate "
       + "number";
 
   @Override

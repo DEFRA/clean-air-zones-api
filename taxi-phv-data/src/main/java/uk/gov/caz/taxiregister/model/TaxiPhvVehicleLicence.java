@@ -2,9 +2,11 @@ package uk.gov.caz.taxiregister.model;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 import lombok.Builder;
 import lombok.NonNull;
+import lombok.ToString;
 import lombok.Value;
 
 @Value
@@ -17,6 +19,7 @@ public class TaxiPhvVehicleLicence implements Serializable {
 
   UUID uploaderId;
 
+  @ToString.Exclude
   @NonNull
   String vrm;
 
@@ -33,6 +36,8 @@ public class TaxiPhvVehicleLicence implements Serializable {
   String licensePlateNumber;
 
   Boolean wheelchairAccessible;
+
+  LocalDateTime addedTimestamp;
 
   /**
    * Checks whether this licence is valid, i.e. {@code startDate() <= now <= endDate()}

@@ -6,6 +6,8 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -18,8 +20,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
 import uk.gov.caz.GlobalExceptionHandlerConfiguration;
 import uk.gov.caz.correlationid.Configuration;
-import uk.gov.caz.tariff.dto.CleanAirZone;
-import uk.gov.caz.tariff.dto.CleanAirZones;
+import uk.gov.caz.definitions.dto.CleanAirZoneDto;
+import uk.gov.caz.definitions.dto.CleanAirZonesDto;
 import uk.gov.caz.tariff.dto.InformationUrls;
 import uk.gov.caz.tariff.dto.Rates;
 import uk.gov.caz.tariff.dto.Tariff;
@@ -31,8 +33,9 @@ import uk.gov.caz.tariff.service.TariffRepository;
 class CleanAirZonesControllerTest {
 
   private static final String SOME_CLEAN_AIR_ZONE_ID = "dc1efcaf-a2cf-41ec-aa37-ea4b28a20a1d";
-
+  private static LocalDate ACTIVE_CHARGE_START_DATE = LocalDate.of(2018, 10, 28);
   private static final String SOME_URL = "www.test.uk";
+  private static final String MAIN_INFO_URL = "www.main.info";
 
   @Mock
   private TariffRepository tariffRepository;
@@ -49,17 +52,20 @@ class CleanAirZonesControllerTest {
     when(cleanAirZonesRepository.findAll()).thenReturn(prepareCleanAirZones());
 
     // when
-    ResponseEntity<CleanAirZones> cleanAirZones = cleanAirZonesController.cleanAirZones();
+    ResponseEntity<CleanAirZonesDto> cleanAirZones = cleanAirZonesController.cleanAirZones();
 
     // then
     assertThat(cleanAirZones).isNotNull();
     assertThat(cleanAirZones.getStatusCode()).isEqualByComparingTo(HttpStatus.OK);
     assertThat(cleanAirZones.getBody().getCleanAirZones()).contains(
-        CleanAirZone.builder()
+        CleanAirZoneDto.builder()
             .cleanAirZoneId(UUID.fromString("0d7ab5c4-5fff-4935-8c4e-56267c0c9493"))
             .name("Birmingham")
             .boundaryUrl(URI.create(
                 "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3"))
+            .exemptionUrl(URI.create("https://exemption.birmingham.gov.uk"))
+            .activeChargeStartDate("2018-10-28")
+            .mainInfoUrl(URI.create(MAIN_INFO_URL))
             .build()
     );
   }
@@ -69,7 +75,7 @@ class CleanAirZonesControllerTest {
     // given
 
     // when
-    ResponseEntity<CleanAirZones> cleanAirZones = cleanAirZonesController.cleanAirZones();
+    ResponseEntity<CleanAirZonesDto> cleanAirZones = cleanAirZonesController.cleanAirZones();
 
     // then
     assertThat(cleanAirZones).isNotNull();
@@ -107,54 +113,59 @@ class CleanAirZonesControllerTest {
         .becomeCompliant(SOME_URL)
         .boundary(SOME_URL)
         .exemptionOrDiscount(SOME_URL)
-        .hoursOfOperation(SOME_URL)
-        .payCaz(SOME_URL)
-        .pricing(SOME_URL)
         .mainInfo(SOME_URL)
-        .financialAssistance(SOME_URL)
         .build();
     Rates rates = Rates.builder()
         .bus(new BigDecimal("5.50"))
         .coach(new BigDecimal("15.60"))
         .hgv(new BigDecimal("5.69"))
-        .largeVan(new BigDecimal("100.00"))
         .moped(new BigDecimal("49.49"))
         .motorcycle(new BigDecimal("80.01"))
         .phv(new BigDecimal("80.10"))
         .car(new BigDecimal("80.10"))
         .miniBus(new BigDecimal("80.10"))
-        .smallVan(new BigDecimal("80.00"))
+        .van(new BigDecimal("80.00"))
         .taxi(new BigDecimal("2.00"))
         .build();
     Tariff tariff = Tariff.builder()
         .cleanAirZoneId(UUID.fromString(SOME_CLEAN_AIR_ZONE_ID))
-        .name("Leeds")
+        .name("Bath")
         .tariffClass('C')
         .informationUrls(informationUrls)
         .rates(rates)
+        .activeChargeStartDate("2018-10-28")
         .build();
 
     return Optional.ofNullable(tariff);
   }
 
-  private CleanAirZones prepareCleanAirZones() {
-    return new CleanAirZones(
+  private CleanAirZonesDto prepareCleanAirZones() {
+    return CleanAirZonesDto.builder().cleanAirZones(
         newArrayList(
             caz("Birmingham", "0d7ab5c4-5fff-4935-8c4e-56267c0c9493",
                 "https://www.birmingham.gov.uk/info/20076/pollution/"
-                    + "1763/a_clean_air_zone_for_birmingham/3"),
+                    + "1763/a_clean_air_zone_for_birmingham/3",
+                "https://exemption.birmingham.gov.uk",
+                MAIN_INFO_URL,
+                ACTIVE_CHARGE_START_DATE),
 
-            caz("Leeds", "39e54ed8-3ed2-441d-be3f-38fc9b70c8d3",
-                "https://www.arcgis.com/home/webmap/viewer.html?webmap="
-                    + "de0120ae980b473982a3149ab072fdfc&extent=-1.733%2c53.7378%2c-1.333%2c53.8621")
-        ));
+            caz("Bath", "5dd5c926-ed33-4a0a-b911-46324433e866",
+                "http://www.bathnes.gov.uk/zonemaps",
+                "http://www.bathnes.gov.uk/CAZexemptions",
+                MAIN_INFO_URL,
+                ACTIVE_CHARGE_START_DATE)
+        )).build();
   }
 
-  private CleanAirZone caz(String cazName, String cleanAirZoneId, String boundaryUrl) {
-    return CleanAirZone.builder()
+  private CleanAirZoneDto caz(String cazName, String cleanAirZoneId, String boundaryUrl,
+      String exemptionUrl, String mainInfoUrl, LocalDate activeChargeStartDate) {
+    return CleanAirZoneDto.builder()
         .name(cazName)
         .cleanAirZoneId(UUID.fromString(cleanAirZoneId))
         .boundaryUrl(URI.create(boundaryUrl))
+        .exemptionUrl(URI.create(exemptionUrl))
+        .mainInfoUrl(URI.create(mainInfoUrl))
+        .activeChargeStartDate(activeChargeStartDate.format(DateTimeFormatter.ISO_DATE))
         .build();
   }
 }

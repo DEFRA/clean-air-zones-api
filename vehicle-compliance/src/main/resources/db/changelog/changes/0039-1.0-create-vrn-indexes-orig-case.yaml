@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0039-1.1
+      author: informed
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: ;GO
+            path: ../rawSql/039-create-vrn-indexes-orig-case.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+

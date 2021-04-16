@@ -1,0 +1,80 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0015-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Inserts (if not exist) default data for reporting
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: INSERT INTO CAZ_REPORTING.t_type_approval (type_approval_id, type_approval) 
+              VALUES 
+              ('e26a79b9-0e47-4114-9c7f-0e2e78e0417c','M1'),
+              ('1585dbb8-45ae-416f-b6dc-1591a1e1a69c','M2'),
+              ('72597342-c2ac-483d-8eba-811d44260382','M3'),
+              ('64b427db-cdce-400e-95b5-db94eb6b0be9','N1'),
+              ('a8d98449-d952-4696-9fc2-0389232e67a6','N2'),
+              ('10f3478d-7e39-4b16-b8bb-9ae00b14cff2','N3'), 
+              ('50942e07-5ee9-42b9-926e-fa81409682c0','L1'),
+              ('00bbaa42-b735-4591-baed-d3abe1948b36','L2'),
+              ('b1a52654-3f33-44f6-a0ec-587319647b35','L3'),
+              ('d6483218-3ae8-41b6-85e7-8f97dd362f98','L4'),
+              ('cf795916-56d0-4e79-b90c-9fc1079be2ca','L5'),
+              ('53ac5a5b-bbbb-4615-86f4-2481d4cc120a','L6'),
+              ('2a705722-43af-4fc2-ba8c-dded7bea4607','L7'),
+              ('c1759db5-9253-4ce6-8d56-054682fc5005','T1'),
+              ('0394d016-38a6-4d91-832b-7bfaef7c2ff2','T2'),
+              ('8dc3f589-2d18-4435-ad37-fa5e0228d71c','T3'),
+              ('09ca1889-2a7d-4e66-bdc2-f674ebc0e2cf','T4'),
+              ('5c864068-c2ef-414d-9274-814c6d2010de','T5'),
+              ('c8f36849-9396-4ae7-810a-e5c862ec80bf', 'unrecognised');
+                 
+               INSERT INTO CAZ_REPORTING.t_exemption_reason (exemption_reason_id, exemption_reason)
+               VALUES 
+               ('4e76dd9b-7dbf-4595-8a08-6b3e296d5047','Agricultural Vehicle'),
+               ('5ca5228d-e968-4a15-bc7d-5366c9022491','Steam'),
+               ('e21e71e5-b1e3-4fe8-a616-44b7a65702b3','Electricity'),
+               ('e53c94a4-b2f6-4873-9397-048602fe42d5','Fuel Cells'),
+               ('67a90e46-633d-4ada-b32f-fc849279c0df','Gas'),
+               ('30c01eb5-df8c-4066-9ab7-af7e1ebfe3b6','Electric Motorcycle'),
+               ('1de4b217-a769-405d-ab25-c36337a1cf9a','Electric'),
+               ('cade6edc-bb50-4205-9edd-823ffa8050e8','Disabled Passenger Vehicle'),
+               ('ebf51d6d-8d2b-4d4b-93ab-64c772acbd1c','Disabled'),
+               ('bc679d38-a638-49c1-86e1-c9dab95d6995','Historic Vehicle'),
+               ('9620d9c5-1ce7-4f06-835f-b5dafd654236','Other'),
+               ('eaf13509-25c6-4c05-b863-4f15701416b3','Exemption'),
+               ('baac9b65-e5ad-42bd-b74d-572a826745d9','Problematic VRN'),
+               ('73fb59b2-07a8-43f2-96f9-64c2d25a9f66', 'unrecognised');
+               
+               INSERT INTO CAZ_REPORTING.t_ccaz_vehicle_type (ccaz_vehicle_type_id, ccaz_vehicle_type)
+               VALUES 
+               ('68a713ac-a18b-4d5c-aa45-be9e81715194','Car'),
+               ('a534584a-8114-4252-b50a-b98b94071176','Taxi'),
+               ('38e3d368-e178-49ed-84be-1694d3c329a0','Bus'),
+               ('f8beeb04-827c-49ab-ac5e-5ad5bab83e49','Motorcycle'),
+               ('a8112648-09d7-4019-96eb-ef7cf982ea2f','Agricultural Vehicle'),
+               ('5d693cf5-3c86-46ef-a9ce-8628c6f03bc0','Heavy Goods Vehicle'),
+               ('bcd7a3ba-1f17-459e-bd59-f03c0943e721','Van'),
+               ('a4cdbc5d-86c6-4250-a865-70f33a9b8d3e','Minibus'),
+               ('c1b66a4f-87ad-49f5-92fb-6a067fe3d5c8','Coach'),
+               ('6d697db0-01c1-4442-993d-e8747e3410c6','Unrecognised');
+               
+               INSERT INTO CAZ_REPORTING.t_fuel_type (fuel_type_id, fuel_type)
+               VALUES 
+               ('ff2ba16e-78f5-4337-8c6b-4b29876f17f0','steam'),
+               ('2b58cf9c-3c29-43b7-9e5a-5f7d79ce894a','electricity'),
+               ('0ba6cebf-f785-454f-9585-28ad6f3279b6','fuel cells'),
+               ('9bbc88f6-1423-455a-ab51-eed7292bbfef','gas'),
+               ('69cafb9f-9261-4710-b67d-27e682dcf1c1','petrol'),
+               ('4290a5a5-1a4f-4c0c-a783-8d72be87089d','hybrid electric'),
+               ('6941e304-ffb6-43f8-b3cb-c888166f9ae3','gas bi-fuel'),
+               ('e51c25e0-ce1e-47e5-beae-2bbd74301264','gas/petrol'),
+               ('db129bed-495d-4e3f-946f-7802257642c6','diesel'),
+               ('6766cfe4-7d19-47c7-a75c-9151744a966e','heavy oil'),
+               ('0f53bab9-e03b-4820-a600-5b1fd7569168','electric diesel'),
+               ('516a8c69-3c42-400a-9127-7401b1a17d78','gas diesel'),
+               ('01e47366-b9a4-4e1a-99f4-b74dc501cd14','unrecognised');
+                   
+
+

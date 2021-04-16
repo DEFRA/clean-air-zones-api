@@ -6,26 +6,21 @@
   "rates": {
     "bus": 50,
     "car": 8,
-    "miniBus": 50,
+    "miniBus": 8,
     "coach": 50,
     "taxi": 8,
     "phv": 8,
     "hgv": 50,
-    "largeVan": 50,
-    "smallVan": 8,
+    "van": 8,
     "motorcycle": 0,
     "moped": 0
   },
   "informationUrls": {
-    "emissionsStandards": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/2",
     "mainInfo": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham",
-    "hoursOfOperation": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/4",
-    "pricing": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/5",
-    "exemptionOrDiscount": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/6",
-    "payCaz": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3",
+    "exemptionOrDiscount": "https://exemption.birmingham.gov.uk",
     "becomeCompliant": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/7",
-    "financialAssistance": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/7",
     "boundary": "https://www.birmingham.gov.uk/info/20076/pollution/1763/a_clean_air_zone_for_birmingham/3",
-    "additionalInfo": "https://www.brumbreathes.co.uk/what-does-it-mean-for-me"
+    "additionalInfo": "https://www.brumbreathes.co.uk/what-does-it-mean-for-me",
+    "publicTransportOptions": "https://www.brumbreathes.co.uk/info/15/drive-work-clean-air-zone-1/9/drive-work-clean-air-zone/4"
   }
 }

@@ -1,9 +1,12 @@
 package uk.gov.caz.taxiregister.controller;
 
+import static org.apache.logging.log4j.util.Strings.isNotBlank;
+
 import java.util.Optional;
 import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +21,7 @@ import uk.gov.caz.taxiregister.model.registerjob.RegisterJobTrigger;
 import uk.gov.caz.taxiregister.service.AsyncBackgroundJobStarter;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor;
 import uk.gov.caz.taxiregister.service.RegisterJobSupervisor.StartParams;
-import uk.gov.caz.taxiregister.service.UploaderIdS3MetadataExtractor;
+import uk.gov.caz.taxiregister.service.S3FileMetadataExtractor;
 
 @RestController
 @Slf4j
@@ -26,9 +29,15 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
 
   public static final String PATH = "/v1/scheme-management/register-csv-from-s3/jobs";
 
+  private static final String UPLOAD_UNSUCCESSFUL_YOU_WILL_RECEIVE_AN_EMAIL_WITH_ERRORS
+      = "CSV file upload unsuccessful. You will receive an email with error messages detailed.";
+
   private final AsyncBackgroundJobStarter asyncBackgroundJobStarter;
   private final RegisterJobSupervisor registerJobSupervisor;
-  private final UploaderIdS3MetadataExtractor uploaderIdS3MetadataExtractor;
+  private final S3FileMetadataExtractor s3FileMetadataExtractor;
+
+  @Value("${application.mail.allowed-errors-before-sending-email}")
+  private int allowedErrorsBeforeSendingEmail;
 
   /**
    * Creates new instance of {@link RegisterCsvFromS3Controller} class.
@@ -36,16 +45,16 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
    * @param asyncBackgroundJobStarter Implementation of {@link AsyncBackgroundJobStarter}
    *     interface.
    * @param registerJobSupervisor {@link RegisterJobSupervisor} that supervises whole job run.
-   * @param uploaderIdS3MetadataExtractor {@link UploaderIdS3MetadataExtractor} that allows to
-   *     get 'uploader-id' metadata from CSV file.
+   * @param s3FileMetadataExtractor {@link S3FileMetadataExtractor} that allows to get
+   *     'uploader-id' metadata from CSV file.
    */
   public RegisterCsvFromS3Controller(
       AsyncBackgroundJobStarter asyncBackgroundJobStarter,
       RegisterJobSupervisor registerJobSupervisor,
-      UploaderIdS3MetadataExtractor uploaderIdS3MetadataExtractor) {
+      S3FileMetadataExtractor s3FileMetadataExtractor) {
     this.asyncBackgroundJobStarter = asyncBackgroundJobStarter;
     this.registerJobSupervisor = registerJobSupervisor;
-    this.uploaderIdS3MetadataExtractor = uploaderIdS3MetadataExtractor;
+    this.s3FileMetadataExtractor = s3FileMetadataExtractor;
   }
 
   @Override
@@ -63,7 +72,7 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
 
   private UUID getUploaderIdOrThrowIfUnableTo(
       StartRegisterCsvFromS3JobCommand startCommand) {
-    Optional<UUID> uploaderId = uploaderIdS3MetadataExtractor
+    Optional<UUID> uploaderId = s3FileMetadataExtractor
         .getUploaderId(startCommand.getS3Bucket(), startCommand.getFilename());
 
     return uploaderId.orElseThrow(
@@ -114,6 +123,14 @@ public class RegisterCsvFromS3Controller implements RegisterCsvFromS3ControllerA
   private StatusOfRegisterCsvFromS3JobQueryResult toQueryResult(RegisterJob registerJob) {
     RegisterJobStatusDto registerJobStatusDto = RegisterJobStatusDto.from(registerJob.getStatus());
     if (thereWereErrors(registerJob)) {
+      long registerJobErrorsCount = registerJob.getErrors().stream()
+          .filter(error -> isNotBlank(error.getDetail()))
+          .count();
+      if (registerJobErrorsCount > allowedErrorsBeforeSendingEmail) {
+        return StatusOfRegisterCsvFromS3JobQueryResult
+            .withStatusAndSpecificError(registerJobStatusDto,
+                UPLOAD_UNSUCCESSFUL_YOU_WILL_RECEIVE_AN_EMAIL_WITH_ERRORS);
+      }
       return StatusOfRegisterCsvFromS3JobQueryResult
           .withStatusAndErrors(registerJobStatusDto, registerJob.getErrors());
     }

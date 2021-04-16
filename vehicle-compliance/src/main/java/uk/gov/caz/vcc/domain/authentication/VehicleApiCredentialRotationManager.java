@@ -193,6 +193,8 @@ public class VehicleApiCredentialRotationManager {
 
       String apiKey =
           vehicleApiAuthenticationUtility.renewApiKey(token, dvlaApiKey);
+      
+      // Note that in production, this key will not be logged due to error verbosity level
       log.info("Generated new API key: {}", apiKey);
 
       updatedSecrets =
@@ -202,6 +204,7 @@ public class VehicleApiCredentialRotationManager {
         .equals(CredentialRotationType.PASSWORD.toString())) {
       String newPassword = RandomPasswordGenerator.newRandomPassword();
 
+      // Note that in production, this key will not be logged due to error verbosity level
       log.info("Generated new API password: {}", newPassword);
 
       vehicleApiAuthenticationUtility.changePassword(newPassword);

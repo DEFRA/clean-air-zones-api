@@ -3,7 +3,6 @@ package uk.gov.caz.taxiregister.service;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.Sets;
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -14,7 +13,6 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,6 +21,7 @@ import uk.gov.caz.taxiregister.model.LicensingAuthority;
 import uk.gov.caz.taxiregister.model.TaxiPhvVehicleLicence;
 import uk.gov.caz.taxiregister.model.ValidationError;
 import uk.gov.caz.taxiregister.model.VrmSet;
+import uk.gov.caz.taxiregister.repository.AuditingRepository;
 import uk.gov.caz.taxiregister.repository.TaxiPhvLicencePostgresRepository;
 
 /**
@@ -40,6 +39,7 @@ public class RegisterService {
   private final TaxiPhvLicencePostgresRepository vehicleRepository;
   private final RegisterContextFactory registerContextFactory;
   private final VehicleComplianceCheckerService vehicleComplianceCheckerService;
+  private final AuditingRepository auditingRepository;
 
   /**
    * Registers {@code licences} in the database for a given {@code uploaderId}.
@@ -65,6 +65,8 @@ public class RegisterService {
       log.info("Registering {} licence(s) for uploader '{}' : start", licences.size(), uploaderId);
 
       Stopwatch timer = Stopwatch.createStarted();
+      
+      auditingRepository.tagModificationsInCurrentTransactionBy(uploaderId);
 
       RegisterContext context = registerContextFactory.createContext(licences, uploaderId);
       log.info("Registering context took {}ms", timer.elapsed(TimeUnit.MILLISECONDS));
@@ -470,10 +472,9 @@ public class RegisterService {
   private <T> void logValueChanged(String attributeName, TaxiPhvVehicleLicence currentLicence,
       T currentValue, T newValue) {
     log.trace(
-        "{} changed for vehicle (id={}, vrm={}), current value: '{}', new value: '{}'",
+        "{} changed for vehicle (id={}), current value: '{}', new value: '{}'",
         attributeName,
         currentLicence.getId(),
-        currentLicence.getVrm(),
         currentValue,
         newValue
     );
@@ -522,35 +523,4 @@ public class RegisterService {
     Map<String, LicensingAuthority> currentLicensingAuthoritiesByName;
   }
 
-  /**
-   * An immutable value object holding a set of attributes which uniquely identifies a given
-   * licence.
-   */
-  @Value
-  @Builder
-  static class UniqueLicenceAttributes {
-
-    String vrm;
-    LocalDate start;
-    LocalDate end;
-    String licensingAuthorityName;
-    String licencePlateNumber;
-
-    /**
-     * Static factory method for {@link UniqueLicenceAttributes}.
-     *
-     * @param licence An instance of {@link TaxiPhvVehicleLicence} which will be mapped to
-     *     {@link UniqueLicenceAttributes}.
-     * @return An instance of {@link UniqueLicenceAttributes}.
-     */
-    public static UniqueLicenceAttributes from(TaxiPhvVehicleLicence licence) {
-      return UniqueLicenceAttributes.builder()
-          .vrm(licence.getVrm())
-          .start(licence.getLicenseDates().getStart())
-          .end(licence.getLicenseDates().getEnd())
-          .licensingAuthorityName(licence.getLicensingAuthority().getName())
-          .licencePlateNumber(licence.getLicensePlateNumber())
-          .build();
-    }
-  }
 }

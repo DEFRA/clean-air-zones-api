@@ -27,8 +27,8 @@ public class TaxClassServiceTestIT {
 
   private static Stream<Arguments> exemptedTaxClasses() {
     Collection<String> exemptedTaxClass = 
-      Arrays.asList("electric motorcycle","electric","disabled passenger vehicle","historic vehicle","gas",
-                    "ELECTRIC MOTORCYCLE","ELECTRIC","DISABLED PASSENGER VEHICLE","HISTORIC VEHICLE","GAS");
+      Arrays.asList("electric motorcycle","electric","disabled passenger vehicle","historic vehicle","disabled",
+                    "ELECTRIC MOTORCYCLE","ELECTRIC","DISABLED PASSENGER VEHICLE","HISTORIC VEHICLE","DISABLED");
     return exemptedTaxClass
             .stream()
             .map(taxClass -> Arguments.of(taxClass));
@@ -42,6 +42,7 @@ public class TaxClassServiceTestIT {
 
   private static Stream<Arguments> nonExemptedTaxClasses() {
     return Stream.of(Arguments.of(""),
+                    Arguments.of("gas"),
                     Arguments.of("non-exempted-tax-class"));
   }
 }

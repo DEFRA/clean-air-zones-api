@@ -15,6 +15,7 @@ import uk.gov.caz.accounts.model.UserEntity;
 import uk.gov.caz.accounts.repository.AccountUserCodeRepository;
 import uk.gov.caz.accounts.repository.IdentityProvider;
 import uk.gov.caz.accounts.repository.UserRepository;
+import uk.gov.caz.accounts.repository.exception.IdentityProviderUnavailableException;
 
 /**
  * Service responsible for removing users. A user is permanently deleted from the third-party
@@ -70,9 +71,7 @@ public class UserRemovalService {
 
     UserEntity user = validationResult.getUser();
 
-    identityProvider.deleteUser(
-        identityProvider.getEmailByIdentityProviderId(user.getIdentityProviderUserId())
-    );
+    removeUserInIdentityProvider(user);
 
     discardActiveTokensForUser(user);
 
@@ -82,6 +81,16 @@ public class UserRemovalService {
 
     log.info("Successfully removed user with id '{}'", accountUserId);
     return UserRemovalStatus.SUCCESSFULLY_DELETED;
+  }
+
+  private void removeUserInIdentityProvider(UserEntity user) {
+    try {
+      String email = identityProvider
+          .getEmailByIdentityProviderId(user.getIdentityProviderUserId());
+      identityProvider.deleteUser(email);
+    } catch (IdentityProviderUnavailableException exception) {
+      log.error("Locally stored user was not found in the IdentityProvider");
+    }
   }
 
   private void discardActiveTokensForUser(UserEntity user) {

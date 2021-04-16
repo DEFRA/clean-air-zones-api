@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0032.1-1.0
+      author: informed
+      changes:
+        - sql:
+            comment: Remove management of test fixtures from the changelog.
+            dbms: postgresql
+            endDelimiter: ;
+            splitStatements: true
+            sql: DELETE FROM vehicle;
+  - changeSet:
+      id: 0032.2-1.0
+      author: informed
+      changes:
+       - dropColumn:
+          comment: Drop redundant column.
+          columnName: iswav
+          schemaName: public
+          tableName: vehicle
+       - dropColumn:
+          comment: Drop redundant column.
+          columnName: vehicletype
+          schemaName: public
+          tableName: vehicle
+       - dropColumn:
+          comment: Drop redundant column.
+          columnName: unladenweight
+          schemaName: public
+          tableName: vehicle
+       - dropColumn:
+          comment: Drop redundant column.
+          columnName: expectedtype
+          schemaName: public
+          tableName: vehicle
+       - dropColumn:
+          comment: Drop redundant column.
+          columnName: expectedexempt
+          schemaName: public
+          tableName: vehicle
+       - dropColumn:
+          comment: Drop redundant column.
+          columnName: expectedcompliant
+          schemaName: public
+          tableName: vehicle

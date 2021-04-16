@@ -1,20 +1,21 @@
 package uk.gov.caz.vcc.service;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.caz.vcc.dto.LicencesInformation;
 import uk.gov.caz.vcc.dto.TaxiPhvLicenseInformationResponse;
 import uk.gov.caz.vcc.repository.NationalTaxiRegisterRepository;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class NationalTaxiRegisterService {
 
   private final NationalTaxiRegisterRepository nationalTaxiRegisterRepository;
-
-  public NationalTaxiRegisterService(
-      NationalTaxiRegisterRepository nationalTaxiRegisterRepository) {
-    this.nationalTaxiRegisterRepository = nationalTaxiRegisterRepository;
-  }
 
   /**
    * Get license info for a vehicle from the National Taxi Register.
@@ -26,11 +27,15 @@ public class NationalTaxiRegisterService {
     return nationalTaxiRegisterRepository.getLicenseInfo(vrn);
   }
 
+  public LicencesInformation getLicensesInformation(Collection<String> vrns) {
+    return nationalTaxiRegisterRepository.getLicensesInformation(vrns);
+  }
+
   /**
    * Method for evicting cached licenseInfo.
    */
   public void cacheEvictLicenses(List<String> vrms) {
-    if (vrms.stream().count() == 0) {
+    if (vrms.isEmpty()) {
       return;
     }
     

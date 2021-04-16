@@ -1,0 +1,170 @@
+[
+  {
+    "vrn": "IS05YBB",
+    "category": "Exemption",
+    "reasonUpdated": "Reason1",
+    "manufacturer": "Manufacturer1",
+    "action": "C"
+  },
+  {
+    "vrn": "IS14DBB",
+    "category": "Other",
+    "reasonUpdated": "Reason2",
+    "manufacturer": "Manufacturer2",
+    "action": "C"
+  },
+  {
+    "vrn": "IS05YHB",
+    "category": "Problematic VRN",
+    "reasonUpdated": "Reason3",
+    "manufacturer": "Manufacturer3",
+    "action": "C"
+  },
+  {
+    "vrn": "IS19DHB",
+    "category": "Exemption",
+    "reasonUpdated": "Reason4",
+    "manufacturer": "Manufacturer4",
+    "action": "C"
+  },
+  {
+    "vrn": "IS05PMB",
+    "category": "Other",
+    "reasonUpdated": "Reason5",
+    "manufacturer": "Manufacturer5",
+    "action": "C"
+  },
+  {
+    "vrn": "IS17DMB",
+    "category": "Problematic VRN",
+    "reasonUpdated": "Reason6",
+    "manufacturer": "Manufacturer6",
+    "action": "C"
+  },
+  {
+    "vrn": "IS08HCB",
+    "category": "Exemption",
+    "reasonUpdated": "Reason7",
+    "manufacturer": "Manufacturer7",
+    "action": "C"
+  },
+  {
+    "vrn": "IS19DCB",
+    "category": "Other",
+    "reasonUpdated": "Reason8",
+    "manufacturer": "Manufacturer8",
+    "action": "C"
+  },
+  {
+    "vrn": "IS05PNB",
+    "category": "Problematic VRN",
+    "reasonUpdated": "Reason9",
+    "manufacturer": "Manufacturer9",
+    "action": "C"
+  },
+  {
+    "vrn": "IS19DNB",
+    "category": "Exemption",
+    "reasonUpdated": "Reason10",
+    "manufacturer": "Manufacturer10",
+    "action": "C"
+  },
+  {
+    "vrn": "IS05YBC",
+    "category": "Early Adopter",
+    "reasonUpdated": "Reason1",
+    "manufacturer": "Manufacturer1",
+    "action": "C"
+  },
+  {
+    "vrn": "IS14DBC",
+    "category": "Non-UK Vehicle",
+    "reasonUpdated": "Reason2",
+    "manufacturer": "Manufacturer2",
+    "action": "C"
+  },
+  {
+    "vrn": "IS05YHC",
+    "category": "Non-UK Vehicle",
+    "reasonUpdated": "Reason3",
+    "manufacturer": "Manufacturer3",
+    "action": "C"
+  },
+  {
+    "vrn": "IS19DHC",
+    "category": "Early Adopter",
+    "reasonUpdated": "Reason4",
+    "manufacturer": "Manufacturer4",
+    "action": "C"
+  },
+  {
+    "vrn": "IS05PMC",
+    "category": "Early Adopter",
+    "reasonUpdated": "Reason5",
+    "manufacturer": "Manufacturer5",
+    "action": "C"
+  },
+  {
+    "vrn": "IS17DMC",
+    "category": "Non-UK Vehicle",
+    "reasonUpdated": "Reason6",
+    "manufacturer": "Manufacturer6",
+    "action": "C"
+  },
+  {
+    "vrn": "IS08HCC",
+    "category": "Non-UK Vehicle",
+    "reasonUpdated": "Reason7",
+    "manufacturer": "Manufacturer7",
+    "action": "C"
+  },
+  {
+    "vrn": "IS19DCC",
+    "category": "Early Adopter",
+    "reasonUpdated": "Reason8",
+    "manufacturer": "Manufacturer8",
+    "action": "C"
+  },
+  {
+    "vrn": "IS05PNC",
+    "category": "Early Adopter",
+    "reasonUpdated": "Reason9",
+    "manufacturer": "Manufacturer9",
+    "action": "C"
+  },
+  {
+    "vrn": "IS19DNC",
+    "category": "Non-UK Vehicle",
+    "reasonUpdated": "Reason10",
+    "manufacturer": "Manufacturer10",
+    "action": "C"
+  },
+  {
+    "vrn": "USA1",
+    "category": "Other",
+    "reasonUpdated": "Diplomatic Vehicle",
+    "manufacturer": "Manufacturer11",
+    "action": "C"
+  },
+  {
+    "vrn": "FRANCE1",
+    "category": "Other",
+    "reasonUpdated": "Diplomatic Vehicle",
+    "manufacturer": "Manufacturer11",
+    "action": "C"
+  },
+  {
+    "vrn": "400D001",
+    "category": "Other",
+    "reasonUpdated": "Diplomatic Vehicle",
+    "manufacturer": "Manufacturer12",
+    "action": "C"
+  },
+  {
+    "vrn": "400D002",
+    "category": "Other",
+    "reasonUpdated": "Diplomatic Vehicle",
+    "manufacturer": "Manufacturer12",
+    "action": "C"
+  }
+]

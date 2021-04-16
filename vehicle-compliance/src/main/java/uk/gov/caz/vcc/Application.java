@@ -8,6 +8,11 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import uk.gov.caz.vcc.configuration.RequestMappingConfiguration;
 import uk.gov.caz.vcc.configuration.SwaggerConfiguration;
 
+/**
+ * Main application launch method. Please see amazonaws package for handlers
+ * specific to Lambda method invocations.
+ *
+ */
 @Import({RequestMappingConfiguration.class, SwaggerConfiguration.class})
 @EntityScan("uk.gov.caz.vcc.domain")
 @EnableJpaRepositories("uk.gov.caz.vcc.repository")

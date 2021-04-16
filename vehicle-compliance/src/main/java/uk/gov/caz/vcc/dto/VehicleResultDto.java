@@ -1,9 +1,12 @@
 package uk.gov.caz.vcc.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModelProperty;
 import java.util.List;
+import java.util.UUID;
 import lombok.Builder;
+import lombok.ToString;
 import lombok.Value;
 
 /**
@@ -17,6 +20,7 @@ public class VehicleResultDto {
    * String containing the unique Vehicle Registration Number of the witnessed vehicle without
    * whitespace.
    */
+  @ToString.Exclude
   @ApiModelProperty(notes = "${swagger.model.descriptions.vehicleResult.vrn}")
   String vrn;
 
@@ -52,6 +56,12 @@ public class VehicleResultDto {
   String status;
 
   /**
+   * Returns one of the following values {"card", "direct_debit", null}.
+   */
+  @ApiModelProperty(notes = "${swagger.model.descriptions.vehicleResult.paymentMethod}")
+  String paymentMethod;
+
+  /**
    * A code that uniquely identifies the national exemption on which the exempt status is based.
    */
   @ApiModelProperty(notes = "${swagger.model.descriptions.vehicleResult.exemptionCode}")
@@ -80,4 +90,7 @@ public class VehicleResultDto {
   public boolean isTaxiOrPhv() {
     return isTaxiOrPhv;
   }
+
+  @JsonIgnore
+  UUID entrantPaymentId;
 }

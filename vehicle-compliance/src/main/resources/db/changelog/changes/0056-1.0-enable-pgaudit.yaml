@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0056.1-0
+      author: informed
+      preConditions: # run this changeset unless we're in CI/CD
+        - onFail: MARK_RAN
+        - not:
+            changeLogPropertyDefined:
+              property: BUILD_ID # this env variable is set in CI execution environment
+      changes:
+        - sql:
+            comment: Enable pgaudit extension.
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: >-
+              CREATE EXTENSION if not exists pgaudit;
+              ALTER DATABASE "vehicle_compliance" set pgaudit.log = 'ALL';
+            stripComments: true

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0046.1-accounts-1.0
+      author: lukasz.kuczynski
+      changes:
+        - addColumn:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT
+            columns:
+              - column:
+                  name: CLOSURE_REASON
+                  type: varchar
+        - createIndex:
+            schemaName: CAZ_ACCOUNT
+            tableName: T_ACCOUNT
+            indexName: T_ACCOUNT_CLOSURE_REASON_IDX
+            columns:
+              - column:
+                  name: CLOSURE_REASON

@@ -1,6 +1,6 @@
 package uk.gov.caz.vcc.dto.validation;
 
-import static uk.gov.caz.vcc.service.VehicleEntrantsService.DATE_TIME_FORMATTER;
+import static uk.gov.caz.vcc.controller.VehicleEntrantsController.DATE_TIME_FORMATTER;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;

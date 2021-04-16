@@ -3,10 +3,10 @@ package uk.gov.caz.vcc.domain.service.vehicleidentifiers;
 import java.util.ArrayList;
 
 import org.springframework.stereotype.Service;
-
-import uk.gov.caz.vcc.domain.Vehicle;
-import uk.gov.caz.vcc.domain.VehicleType;
-import uk.gov.caz.vcc.domain.exceptions.UnidentifiableVehicleException;
+import uk.gov.caz.definitions.domain.Vehicle;
+import uk.gov.caz.definitions.domain.VehicleType;
+import uk.gov.caz.definitions.exceptions.UnidentifiableVehicleException;
+import uk.gov.caz.vcc.domain.service.vehicleidentifiers.MotorhomeVehicleIdentifier;
 
 /**
  * VehicleIdentifer class for vehicles with null typeApproval.
@@ -23,6 +23,7 @@ public class NullVehicleIdentifier extends VehicleIdentifier {
   private ArrayList<String> agriculturalBodyTypes = new ArrayList<>(10);
   private ArrayList<String> coachBodyTypes = new ArrayList<>(4);
   private ArrayList<String> privateCarBodyTypes = new ArrayList<>(15);
+  private ArrayList<String> vanBodyTypes = new ArrayList<>(8);
 
   /**
    * Default public constructor for NullVehicleIdentifier. Populates the
@@ -47,8 +48,8 @@ public class NullVehicleIdentifier extends VehicleIdentifier {
     taxClassesRequiringBodyTypeCheck.add("PRIVATE/LIGHT GOODS (PLG)".toLowerCase());
     taxClassesRequiringBodyTypeCheck.add("CROWN VEHICLE".toLowerCase());
     taxClassesRequiringBodyTypeCheck.add("NOT LICENSED".toLowerCase());
-    taxClassesRequiringBodyTypeCheck.add("EXEMPT (NO LICENSE)".toLowerCase());
-    taxClassesRequiringBodyTypeCheck.add("EXEMPT (NIL LICENSE)".toLowerCase());
+    taxClassesRequiringBodyTypeCheck.add("EXEMPT (NO LICENCE)".toLowerCase());
+    taxClassesRequiringBodyTypeCheck.add("EXEMPT (NIL LICENCE)".toLowerCase());
     taxClassesRequiringBodyTypeCheck.add("CONSULAR".toLowerCase());
     taxClassesRequiringBodyTypeCheck.add("DIPLOMATIC".toLowerCase());
     taxClassesRequiringBodyTypeCheck.add("PLG (Old)".toLowerCase());
@@ -74,6 +75,10 @@ public class NullVehicleIdentifier extends VehicleIdentifier {
     taxClassesRequiringBodyTypeCheck.add("RP BUS".toLowerCase());
     taxClassesRequiringBodyTypeCheck.add("WORKS TRUCK".toLowerCase());
     taxClassesRequiringBodyTypeCheck.add("DIRECT EXPORT PRIVATE".toLowerCase());
+    taxClassesRequiringBodyTypeCheck.add("AGRICULTURAL MACHINE".toLowerCase());
+    taxClassesRequiringBodyTypeCheck.add("PETROL CAR".toLowerCase());
+    taxClassesRequiringBodyTypeCheck.add("DIESEL CAR".toLowerCase());
+    taxClassesRequiringBodyTypeCheck.add("ALTERNATIVE FUEL CAR".toLowerCase());
 
     motorcycleBodyTypes.add("Tricycle".toLowerCase());
     motorcycleBodyTypes.add("Goods Tricycle".toLowerCase());
@@ -115,31 +120,56 @@ public class NullVehicleIdentifier extends VehicleIdentifier {
     privateCarBodyTypes.add("Light 4x4 Utility".toLowerCase());
     privateCarBodyTypes.add("Tourer".toLowerCase());
     privateCarBodyTypes.add("MPV".toLowerCase());
+    
+    vanBodyTypes.add("Van - side windows".toLowerCase());
+    vanBodyTypes.add("Car derived van".toLowerCase());
+    vanBodyTypes.add("Panel van".toLowerCase());
+    vanBodyTypes.add("Light van".toLowerCase());
+    vanBodyTypes.add("Insulated Van".toLowerCase());
+    vanBodyTypes.add("Luton van".toLowerCase());
+    vanBodyTypes.add("Box van".toLowerCase());
+    vanBodyTypes.add("Van".toLowerCase());
   }
 
+  /**
+   * Method to identify vehicles which cannot be identified by type approval.
+   */
   @Override
   public void identifyVehicle(Vehicle vehicle) {
 
-    testNotNull(checkTaxClass, vehicle, "taxClass");
-
-    if (vehicle.getTaxClass().equalsIgnoreCase("electric motorcycle")) {
-      vehicle.setVehicleType(VehicleType.MOTORCYCLE);
-    } else if (vehicle.getTaxClass().equalsIgnoreCase("euro lgv")
-        || vehicle.getTaxClass().equalsIgnoreCase("light goods vehicle")) {
-      vehicle.setVehicleType(VehicleType.SMALL_VAN);
-    } else if (vehicle.getTaxClass().equalsIgnoreCase("bus")
-        || vehicle.getTaxClass().equalsIgnoreCase("rp bus")) {
-      checkMinibusBodyTypes(vehicle);
-    } else if (hgvTaxClasses.contains(vehicle.getTaxClass())) {
-      vehicle.setVehicleType(VehicleType.HGV);
-    } else if (taxClassesRequiringBodyTypeCheck
-        .contains(vehicle.getTaxClass())) {
-      checkBodyTypes(vehicle);
+    // if the vehicle has a motorhome body type check against motorhome identifier
+    if (vehicle.getBodyType() != null && vehicle.getBodyType()
+        .replaceAll("\\s+", "").equals("motorhome/caravan")) {
+      MotorhomeVehicleIdentifier identifier = new MotorhomeVehicleIdentifier();
+      identifier.identifyVehicle(vehicle);
     } else {
-      throw new UnidentifiableVehicleException("taxClass not recognised.");
+      testNotNull(checkTaxClass, vehicle, "taxClass");
+      if (vehicle.getTaxClass().equalsIgnoreCase("electric motorcycle")) {
+        vehicle.setVehicleType(VehicleType.MOTORCYCLE);
+      } else if (vehicle.getTaxClass().equalsIgnoreCase("euro lgv")
+          || vehicle.getTaxClass().equalsIgnoreCase("light goods vehicle")) {
+        vehicle.setVehicleType(VehicleType.VAN);
+      } else if (vehicle.getTaxClass().equalsIgnoreCase("bus")
+          || vehicle.getTaxClass().equalsIgnoreCase("rp bus")) {
+        checkMinibusBodyTypes(vehicle);
+      } else if (hgvTaxClasses.contains(vehicle.getTaxClass())) {
+        vehicle.setVehicleType(VehicleType.HGV);
+      } else if (vehicle.getTaxClass().equalsIgnoreCase("PRIVATE/LIGHT GOODS (PLG)") 
+          && vanBodyTypes.contains(vehicle.getBodyType())) {
+        vehicle.setVehicleType(VehicleType.VAN);
+      } else if (taxClassesRequiringBodyTypeCheck.contains(
+          vehicle.getTaxClass())) {
+        checkBodyTypes(vehicle);
+      } else {
+        throw new UnidentifiableVehicleException("taxClass not recognised.");
+      }
     }
   }
-
+  
+  /**
+   * Method to identify minibuses and bus by body type.
+   * @param vehicle Vehicle to be identified
+   */
   private void checkMinibusBodyTypes(Vehicle vehicle) {
 
     testNotNull(checkBodyType, vehicle, "bodyType");
@@ -153,6 +183,10 @@ public class NullVehicleIdentifier extends VehicleIdentifier {
     }
   }
 
+  /**
+   * Method to identify vehicles by body type.
+   * @param vehicle Vehicle to be identified.
+   */
   private void checkBodyTypes(Vehicle vehicle) {
 
     testNotNull(checkBodyType, vehicle, "bodyType");

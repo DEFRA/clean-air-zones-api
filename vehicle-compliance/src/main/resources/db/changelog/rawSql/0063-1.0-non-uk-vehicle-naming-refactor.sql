@@ -1,0 +1,8 @@
+-- Rename views to appropriate representation of statics captured
+ALTER VIEW caz_reporting.number_of_non_uk_vehicles_by_month RENAME TO number_of_non_standard_uk_plate_vehicles_by_month;
+ALTER VIEW caz_reporting.number_of_compliant_non_uk_vehicles_by_month RENAME TO number_of_compliant_non_standard_uk_plate_vehicles_by_month;
+ALTER VIEW caz_reporting.number_of_not_compliant_non_uk_vehicles_by_month RENAME TO number_of_not_compliant_non_standard_uk_plate_vehicles_by_month;
+
+-- Alter column names in underpinning tables to align with data capture
+ALTER TABLE caz_reporting.t_vehicle_entrant_reporting
+RENAME COLUMN non_uk_vehicle TO non_standard_uk_plate_format_vehicle;

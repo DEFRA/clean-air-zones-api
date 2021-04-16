@@ -6,6 +6,7 @@ INSERT INTO caz_account.t_account_user(
 	account_user_id, account_id, user_id, is_owner, is_administrated_by)
 	VALUES
 	  ('4e581c88-3ba3-4df0-91a3-ad46fb48bfd1', '1f30838f-69ee-4486-95b4-7dfcd5c6c67c', 'd2b55341-551e-498d-a7be-a6e7f8639161', true, NULL),
+	  ('cc4eb9d2-7ae9-47ec-9a4c-86246c8ca16b', '1f30838f-69ee-4486-95b4-7dfcd5c6c67c', '5d5e79d8-6055-4d0f-a841-829b97b79279', false, '4e581c88-3ba3-4df0-91a3-ad46fb48bfd1'),
 	  ('49401c98-2141-4cf4-8cec-2ab9635806a9', '1f30838f-69ee-4486-95b4-7dfcd5c6c67c', '54f04990-fea5-4ca2-9c60-834a5d9ba411', false, '4e581c88-3ba3-4df0-91a3-ad46fb48bfd1'),
 	  ('c11826f3-3ec7-4bd2-9b26-3653bb46c889', '1f30838f-69ee-4486-95b4-7dfcd5c6c67c', '1b93e6e3-cff8-45b9-bcda-f7245defaeb5', true, NULL),
 	  ('f54554b1-d582-43da-9899-ee33b679e49f', '1f30838f-69ee-4486-95b4-7dfcd5c6c67c', '08d84742-b196-481e-b2d2-1bb0d7324d0d', false, NULL),
@@ -24,4 +25,6 @@ VALUES ('49401c98-2141-4cf4-8cec-2ab9635806a9', 5);
 
 INSERT INTO caz_account.t_account_user_code(
 	account_user_code_id, account_user_id, code, expiration, code_type, status)
-	VALUES (124, 'f54554b1-d582-43da-9899-ee33b679e49f', 'blablabla', '2020-01-01 10:10', 'PASSWORD_RESET', 'ACTIVE');
+	VALUES
+	(124, 'f54554b1-d582-43da-9899-ee33b679e49f', 'blablabla', '2020-01-01 10:10', 'PASSWORD_RESET', 'ACTIVE'),
+	(125, 'cc4eb9d2-7ae9-47ec-9a4c-86246c8ca16b', 'blablablax', '2022-01-01 10:10', 'PASSWORD_RESET', 'ACTIVE');

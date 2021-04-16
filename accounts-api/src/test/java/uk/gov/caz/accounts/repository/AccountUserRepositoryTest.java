@@ -33,62 +33,6 @@ class AccountUserRepositoryTest {
   private AccountUserRepository accountUserRepository;
 
   @Nested
-  class Insert {
-
-    @Test
-    public void shouldThrowNullPointerExceptionWhenUserIsNull() {
-      // given
-      User user = null;
-
-      // when
-      Throwable throwable = catchThrowable(() -> accountUserRepository.insert(user));
-
-      // then
-      assertThat(throwable).isInstanceOf(NullPointerException.class);
-      assertThat(throwable).hasMessage("User cannot be null");
-    }
-
-    @Test
-    public void shouldThrowIllegalArgumentExceptionWhenUserHasIdAssigned() {
-      // given
-      User user = User.builder().id(UUID.randomUUID()).build();
-
-      // when
-      Throwable throwable = catchThrowable(() -> accountUserRepository.insert(user));
-
-      // then
-      assertThat(throwable).isInstanceOf(IllegalArgumentException.class);
-      assertThat(throwable).hasMessage("User cannot have ID");
-    }
-
-    @Test
-    public void shouldThrowNullPointerExceptionWhenUserHasNoIdentityProviderAccountCreated() {
-      // given
-      User user = User.builder().build();
-
-      // when
-      Throwable throwable = catchThrowable(() -> accountUserRepository.insert(user));
-
-      // then
-      assertThat(throwable).isInstanceOf(NullPointerException.class);
-      assertThat(throwable).hasMessage("User need to have identity provider account created");
-    }
-
-    @Test
-    public void shouldThrowNullPointerExceptionWhenUserHasNoAccountIdAssigned() {
-      // given
-      User user = User.builder().identityProviderUserId(UUID.randomUUID()).accountId(null).build();
-
-      // when
-      Throwable throwable = catchThrowable(() -> accountUserRepository.insert(user));
-
-      // then
-      assertThat(throwable).isInstanceOf(NullPointerException.class);
-      assertThat(throwable).hasMessage("User need to be assigned to Account");
-    }
-  }
-
-  @Nested
   class GetUserDetails {
 
     @Test
@@ -143,63 +87,6 @@ class AccountUserRepositoryTest {
     private void mockQueryByUserId(List<User> users) {
       when(jdbcTemplate.query(
           eq(AccountUserRepository.SELECT_BY_USER_ID_SQL),
-          any(PreparedStatementSetter.class),
-          any(UserRowMapper.class)
-      )).thenReturn(users);
-    }
-  }
-
-  @Nested
-  class FindAllUsersByAccountId {
-
-    @Test
-    public void shouldThrowNullPointerExceptionWhenAccountIdIsNull() {
-      // given
-      UUID accountId = null;
-
-      // when
-      Throwable throwable = catchThrowable(
-          () -> accountUserRepository.findAllUsersByAccountId(accountId));
-
-      // then
-      assertThat(throwable).isInstanceOf(NullPointerException.class);
-      assertThat(throwable).hasMessage("accountId cannot be null");
-    }
-
-    @Test
-    public void shouldReturnEmptyListIfUserByAccountIdNotFound() {
-      // given
-      UUID accountId = UUID.randomUUID();
-      mockQueryStandardUsersByAccountId(Collections.emptyList());
-
-      // when
-      List<User> users = accountUserRepository.findAllUsersByAccountId(accountId);
-
-      // then
-      assertThat(users).isEmpty();
-    }
-
-    @Test
-    public void shouldReturnFoundListIfUserByAccountIdExistsInDB() {
-      // given
-      UUID accountId = UUID.randomUUID();
-      User user = User.builder()
-          .id(UUID.randomUUID())
-          .identityProviderUserId(UUID.randomUUID())
-          .build();
-      mockQueryStandardUsersByAccountId(Arrays.asList(user));
-
-      // when
-      List<User> users = accountUserRepository.findAllUsersByAccountId(accountId);
-
-      // then
-      assertThat(users).isNotEmpty();
-      assertThat(users).contains(user);
-    }
-
-    private void mockQueryStandardUsersByAccountId(List<User> users) {
-      when(jdbcTemplate.query(
-          eq(AccountUserRepository.SELECT_ALL_USERS_BY_ACCOUNT_ID_SQL),
           any(PreparedStatementSetter.class),
           any(UserRowMapper.class)
       )).thenReturn(users);

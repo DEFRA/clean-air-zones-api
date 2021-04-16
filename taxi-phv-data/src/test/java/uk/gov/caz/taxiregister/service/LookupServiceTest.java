@@ -4,6 +4,7 @@ import static org.assertj.core.api.BDDAssertions.then;
 import static org.mockito.BDDMockito.given;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -236,7 +237,8 @@ class LookupServiceTest {
         .licensePlateNumber("plate-1")
         .description("TAXI")
         .licensingAuthority(
-            new LicensingAuthority(99, "la"));
+            new LicensingAuthority(99, "la"))
+        .addedTimestamp(LocalDateTime.now());
   }
 
   static Stream<List<TaxiPhvVehicleLicence>> atLeastOneActiveLicenceProviderWithAtLeastOneAccessibleTrueFlag() {

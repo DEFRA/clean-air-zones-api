@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Optional;
@@ -33,9 +34,9 @@ class TariffRepositoryTest {
 
   private static final String SOME_URL = "www.test.uk";
 
-  private static final String SOME_CHARGE_IDENTIFIER = "LCC01";
+  private static final String SOME_CHARGE_IDENTIFIER = "BTH01";
 
-  private static final String LEEDS = "Leeds";
+  private static final String BATH = "Bath";
 
   @Mock
   private JdbcTemplate jdbcTemplate;
@@ -88,14 +89,24 @@ class TariffRepositoryTest {
 
     @Test
     public void shouldMapResultSetToTariff() throws SQLException {
-      ResultSet resultSet = mockResultSet();
+      ResultSet resultSet = mockResultSet(Date.valueOf("2020-01-01"));
 
       Tariff tariff = rowMapper.mapRow(resultSet, 0);
 
       assertThat(tariff).isEqualToComparingFieldByFieldRecursively(expectedTariff());
     }
 
-    private ResultSet mockResultSet() throws SQLException {
+    @Test
+    public void shouldReturnEmptyStringWhenChargeDateIsMissing() throws SQLException {
+      ResultSet resultSet = mockResultSet(null);
+
+      Tariff tariff = rowMapper.mapRow(resultSet, 0);
+
+      assertThat(tariff.getActiveChargeStartDate()).isEmpty();
+    }
+
+
+    private ResultSet mockResultSet(Date activeChargeStartDate) throws SQLException {
       ResultSet resultSet = mock(ResultSet.class);
       when(resultSet.getObject("clean_air_zone_id", UUID.class)).thenReturn(SOME_CLEAN_AIR_ZONE_ID);
 
@@ -103,21 +114,17 @@ class TariffRepositoryTest {
         String argument = answer.getArgument(0);
         switch (argument) {
           case "caz_name":
-            return LEEDS;
+            return BATH;
           case "charge_identifier":
             return SOME_CHARGE_IDENTIFIER;
           case "caz_class":
-            return String.valueOf('C');
+            return String.valueOf('B');
           case "become_compliant_url":
-          case "emissions_url":
-          case "operation_hours_url":
           case "main_info_url":
-          case "pricing_url":
           case "exemption_url":
-          case "pay_caz_url":
-          case "financial_assistance_url":
           case "boundary_url":
           case "additional_info_url":
+          case "public_transport_options_url":
             return SOME_URL;
 
         }
@@ -141,9 +148,7 @@ class TariffRepositoryTest {
             return new BigDecimal("15.35");
           case "hgv_entrant_fee":
             return new BigDecimal("5.30");
-          case "large_van_entrant_fee":
-            return new BigDecimal("80.30");
-          case "small_van_entrant_fee":
+          case "van_entrant_fee":
             return new BigDecimal("100.00");
           case "motorcycle_ent_fee":
             return new BigDecimal("25.10");
@@ -154,6 +159,9 @@ class TariffRepositoryTest {
         throw new RuntimeException("Value not stubbed!");
       });
 
+      when(resultSet.getDate("active_charge_start_time"))
+          .thenReturn(activeChargeStartDate);
+
       return resultSet;
     }
   }
@@ -161,7 +169,7 @@ class TariffRepositoryTest {
   private Tariff mockTariffInDB() {
     Tariff tariff = Tariff.builder()
         .cleanAirZoneId(SOME_CLEAN_AIR_ZONE_ID)
-        .name("Leeds")
+        .name("Bath")
         .build();
     when(jdbcTemplate.queryForObject(anyString(), any(TariffRowMapper.class), any())).thenReturn(
         tariff);
@@ -171,15 +179,11 @@ class TariffRepositoryTest {
   private Tariff expectedTariff() {
     InformationUrls informationUrls = InformationUrls.builder()
         .mainInfo(SOME_URL)
-        .emissionsStandards(SOME_URL)
-        .hoursOfOperation(SOME_URL)
-        .pricing(SOME_URL)
         .exemptionOrDiscount(SOME_URL)
-        .payCaz(SOME_URL)
         .becomeCompliant(SOME_URL)
-        .financialAssistance(SOME_URL)
         .boundary(SOME_URL)
         .additionalInfo(SOME_URL)
+        .publicTransportOptions(SOME_URL)
         .build();
     Rates rates = Rates.builder()
         .bus(rate(50.55))
@@ -189,18 +193,18 @@ class TariffRepositoryTest {
         .taxi(rate(15.10))
         .phv(rate(15.35))
         .hgv(rate(5.30))
-        .largeVan(rate(80.30))
-        .smallVan(rate(100.00))
+        .van(rate(100.00))
         .motorcycle(rate(25.10))
         .moped(rate(49.49))
         .build();
     return Tariff.builder()
         .cleanAirZoneId(SOME_CLEAN_AIR_ZONE_ID)
-        .name(LEEDS)
-        .tariffClass('C')
+        .name(BATH)
+        .tariffClass('B')
         .chargeIdentifier(SOME_CHARGE_IDENTIFIER)
         .rates(rates)
         .informationUrls(informationUrls)
+        .activeChargeStartDate("2020-01-01")
         .build();
   }
 

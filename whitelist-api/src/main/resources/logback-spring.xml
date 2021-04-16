@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <include resource="uk/gov/caz/logger/base.xml"/>
+  <logger name="org.springframework" level="ERROR"/>
+  <logger name="uk.gov.caz.whitelist" level="INFO"/>
+  <logger name="com.amazonaws.serverless" level="ERROR"/>
+</configuration>

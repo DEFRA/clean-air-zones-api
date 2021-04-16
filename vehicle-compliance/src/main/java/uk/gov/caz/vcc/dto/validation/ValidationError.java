@@ -8,7 +8,7 @@ import uk.gov.caz.vcc.dto.ErrorResponse;
 /**
  * DTO that holds single validation error from {@link uk.gov.caz.vcc.dto.VehicleEntrantDto}.
  */
-@RequiredArgsConstructor(access = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public class ValidationError {
 
   private static final String MANDATORY_FIELD_MISSING_ERROR_TITLE = "Mandatory field missing";
@@ -49,7 +49,7 @@ public class ValidationError {
    * Factory method that produces Validation error for given VRN.
    */
   static ValidationError invalidVrnFormat(String vrn) {
-    return new ValidationError(INVALID_FIELD_VALUE, "invalid VRN format", vrn);
+    return new ValidationError(INVALID_FIELD_VALUE, "VRN should have from 2 to 15 characters", vrn);
   }
 
   /**

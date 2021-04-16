@@ -1,0 +1,55 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0001.1-1.0
+      author: Informed
+      changes:
+        - sql:
+            comment: Conditionally enables uuid-ossp extension
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: create extension if not exists "uuid-ossp";
+  - changeSet:
+      id: 0001.2-1.0
+      author: Informed
+      changes:
+        - sql:
+            comment: Create schema for payments
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql: CREATE SCHEMA CAZ_PAYMENT;
+        - createTable:
+            tableName: T_CLEAN_AIR_ZONE_ENTRANT_PAYMENT
+            schemaName: CAZ_PAYMENT
+            columns:
+              - column:
+                  name: ID
+                  type: uuid
+                  defaultValueComputed: uuid_generate_v1mc()
+                  constraints:
+                    unique: true
+                    primaryKey: true
+                    nullable: false
+                    primaryKeyName: clean_air_zone_entrant_payment_id_pkey
+              - column:
+                  name: CLEAN_AIR_ZONE_ENTRANT_PAYMENT_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: VRN
+                  type: varchar(15)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: CLEAN_AIR_ZONE_ID
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: TRAVEL_DATE
+                  type: date
+              - column:
+                  name: PAYMENT_STATUS
+                  type: varchar(64)

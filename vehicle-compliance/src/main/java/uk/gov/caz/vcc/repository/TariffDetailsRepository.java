@@ -12,13 +12,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.client.HttpClientErrorException.NotFound;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.caz.vcc.domain.exceptions.ExternalServiceCallException;
+import uk.gov.caz.definitions.domain.VehicleType;
+import uk.gov.caz.definitions.dto.CleanAirZonesDto;
+import uk.gov.caz.definitions.dto.RatesDto;
 import uk.gov.caz.vcc.domain.CazClass;
 import uk.gov.caz.vcc.domain.TariffDetails;
-import uk.gov.caz.vcc.domain.VehicleType;
 import uk.gov.caz.vcc.domain.VehicleTypeCharge;
-import uk.gov.caz.vcc.dto.CleanAirZonesDto;
-import uk.gov.caz.vcc.dto.RatesDto;
+import uk.gov.caz.vcc.domain.exceptions.ExternalServiceCallException;
 import uk.gov.caz.vcc.dto.TariffDto;
 
 @Slf4j
@@ -32,9 +32,9 @@ public class TariffDetailsRepository {
   /**
    * Default constructor for tariff repository.
    *
-   * @param restTemplateBuilder Injected rest template builder
-   * @param tariffServiceRootUri the remote URL to query drawn from the application's
-   *     configuration file.
+   * @param restTemplateBuilder  Injected rest template builder
+   * @param tariffServiceRootUri the remote URL to query drawn from the application's configuration
+   *                             file.
    */
   public TariffDetailsRepository(RestTemplateBuilder restTemplateBuilder,
       @Value("${services.tariff-service.root-url}") String tariffServiceRootUri) {
@@ -53,8 +53,8 @@ public class TariffDetailsRepository {
         + "information from base API endpoint: {}", tariffServiceRootUri);
 
     try {
-      ResponseEntity<CleanAirZonesDto> responseEntity = tariffServiceRestTemplate
-          .getForEntity("/v1/clean-air-zones", CleanAirZonesDto.class);
+      ResponseEntity<CleanAirZonesDto> responseEntity =
+          tariffServiceRestTemplate.getForEntity("/v1/clean-air-zones", CleanAirZonesDto.class);
 
       return responseEntity.getBody();
     } catch (Exception e) {
@@ -90,7 +90,7 @@ public class TariffDetailsRepository {
   /**
    * Method for evicting a cached clean-air-zones from redis.
    */
-  @CacheEvict(value = { "cleanAirZones", "tariffs" }, allEntries = true)
+  @CacheEvict(value = {"cleanAirZones", "tariffs"}, allEntries = true)
   public void cacheEvictCleanAirZones() {
     log.debug("Evicting cached clean-air-zones.");
   }
@@ -107,10 +107,13 @@ public class TariffDetailsRepository {
     response.setCazId(tariff.getCleanAirZoneId());
     response.setName(tariff.getName());
     response.setChargesMotorcycles(tariff.isMotorcyclesChargeable());
-    response.setTariff(CazClass.fromChar(tariff.getTariffClass()));
+    response.setTariff((tariff.getTariffClass() != '\u0000'
+        ? CazClass.fromChar(tariff.getTariffClass())
+        : null));
     response.setInformationUrls(tariff.getInformationUrls());
     response.setRates(mapRatesFromTariffDto(tariff));
     response.setChargeIdentifier(tariff.getChargeIdentifier());
+    response.setDisabledTaxClassChargeable(tariff.isDisabledTaxClassChargeable());
     return response;
   }
 
@@ -121,7 +124,11 @@ public class TariffDetailsRepository {
    * @return an internal domain object representation of tariff rates.
    */
   private static ArrayList<VehicleTypeCharge> mapRatesFromTariffDto(TariffDto tariff) {
+    
     RatesDto externalRates = tariff.getRates();
+    if (externalRates == null) {
+      return new ArrayList<>();
+    }
     ArrayList<VehicleTypeCharge> internalRates = new ArrayList<>();
 
     VehicleTypeCharge privateCar = new VehicleTypeCharge();
@@ -129,15 +136,10 @@ public class TariffDetailsRepository {
     privateCar.setCharge(externalRates.getCar().floatValue());
     internalRates.add(privateCar);
 
-    VehicleTypeCharge largeVan = new VehicleTypeCharge();
-    largeVan.setVehicleType(VehicleType.LARGE_VAN);
-    largeVan.setCharge(externalRates.getLargeVan().floatValue());
-    internalRates.add(largeVan);
-
-    VehicleTypeCharge smallVan = new VehicleTypeCharge();
-    smallVan.setVehicleType(VehicleType.SMALL_VAN);
-    smallVan.setCharge(externalRates.getSmallVan().floatValue());
-    internalRates.add(smallVan);
+    VehicleTypeCharge van = new VehicleTypeCharge();
+    van.setVehicleType(VehicleType.VAN);
+    van.setCharge(externalRates.getVan().floatValue());
+    internalRates.add(van);
 
     VehicleTypeCharge miniBus = new VehicleTypeCharge();
     miniBus.setVehicleType(VehicleType.MINIBUS);

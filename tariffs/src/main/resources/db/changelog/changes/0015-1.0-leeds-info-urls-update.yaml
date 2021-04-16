@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 0015.1.0
+      author: james.proctor
+      changes:
+        - sql:
+            comment: Update BECOME_COMPLIANT_URL for Leeds
+            dbms: postgresql
+            endDelimiter: ;GO
+            splitStatements: true
+            sql:
+                UPDATE public.T_CAZ_LINK_DETAIL
+                SET BECOME_COMPLIANT_URL = 'http://www.leeds.gov.uk/cleanairzone'
+                WHERE CHARGE_DEFINITION_ID = 2;
+            stripComments: true

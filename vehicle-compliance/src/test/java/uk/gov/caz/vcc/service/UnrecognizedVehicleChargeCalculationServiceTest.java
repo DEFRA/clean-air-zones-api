@@ -11,8 +11,8 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.caz.definitions.domain.VehicleType;
 import uk.gov.caz.vcc.domain.TariffDetails;
-import uk.gov.caz.vcc.domain.VehicleType;
 import uk.gov.caz.vcc.domain.VehicleTypeCharge;
 
 @ExtendWith(MockitoExtension.class)
@@ -24,7 +24,7 @@ class UnrecognizedVehicleChargeCalculationServiceTest {
   private static Stream<Arguments> tariffs() {
     return Stream.of(
         Arguments.arguments(tariffWithChargeWithVehicleType(VehicleType.BUS), true),
-        Arguments.arguments(tariffWithChargeWithVehicleType(VehicleType.LARGE_VAN), false),
+        Arguments.arguments(tariffWithChargeWithVehicleType(VehicleType.VAN), false),
         Arguments.arguments(tariffWithChargeWithVehicleType(VehicleType.MOTORCYCLE), false)
     );
   }

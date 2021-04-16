@@ -6,5 +6,7 @@ package uk.gov.caz.vcc.dto;
 public enum PaymentStatus {
 
   PAID,
-  NOT_PAID
+  NOT_PAID,
+  REFUNDED,
+  CHARGEBACK
 }

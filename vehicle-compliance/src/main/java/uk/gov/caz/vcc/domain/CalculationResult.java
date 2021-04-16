@@ -1,60 +1,34 @@
 package uk.gov.caz.vcc.domain;
 
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 /**
  * Object representation for charge calculation result.
  *
  */
-public class  CalculationResult {
+@AllArgsConstructor
+@Getter
+@NoArgsConstructor
+@Setter
+public class CalculationResult {
 
   private UUID cazIdentifier;
 
   private boolean exempt;
 
-  private boolean compliant;
+  private Boolean compliant;
 
   private boolean chargeable;
 
   private float charge;
-
-  public UUID getCazIdentifier() {
-    return cazIdentifier;
-  }
-
-  public void setCazIdentifier(UUID cazIdentifier) {
-    this.cazIdentifier = cazIdentifier;
-  }
-
-  public boolean getExempt() {
-    return exempt;
-  }
-
-  public boolean getCompliant() {
-    return compliant;
-  }
-
-  public void setCompliant(boolean compliant) {
-    this.compliant = compliant;
-  }
-
-  public boolean getChargeable() {
-    return chargeable;
-  }
-
-  public void setChargeable(boolean chargeable) {
-    this.chargeable = chargeable;
-  }
-
-  public float getCharge() {
-    return charge;
-  }
-
-  public void setCharge(float charge) {
-    this.charge = charge;
-  }
-
-  public void setExempt(boolean exempt) {
-    this.exempt = exempt;
+  
+  private Boolean isRetrofitted;
+  
+  public void unableToIdentifyVehicleCompliant() {
+    this.compliant = null;
   }
 }

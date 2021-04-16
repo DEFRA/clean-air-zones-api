@@ -1,8 +1,5 @@
 package uk.gov.caz.accounts.service;
 
-import static java.util.Collections.emptyList;
-import static org.springframework.util.CollectionUtils.isEmpty;
-
 import com.google.common.base.Strings;
 import java.util.Collections;
 import java.util.List;
@@ -18,17 +15,14 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 import uk.gov.caz.accounts.model.Account;
 import uk.gov.caz.accounts.model.AccountVehicle;
-import uk.gov.caz.accounts.model.TravelDirection;
 import uk.gov.caz.accounts.model.VehiclesWithAnyUndeterminedChargeabilityFlagData;
 import uk.gov.caz.accounts.repository.AccountRepository;
 import uk.gov.caz.accounts.repository.AccountVehicleRepository;
 import uk.gov.caz.accounts.service.exception.AccountNotFoundException;
 import uk.gov.caz.accounts.service.exception.AccountVehicleAlreadyExistsException;
 import uk.gov.caz.accounts.service.exception.PageOutOfBoundsException;
-import uk.gov.caz.accounts.service.exception.VrnNotFoundException;
 
 /**
  * Service responsible for persisting and retrieving data about vehicles associated with accounts.
@@ -55,11 +49,17 @@ public class AccountVehicleService {
    *     reconciled.
    */
   public VehiclesWithAnyUndeterminedChargeabilityFlagData findVehiclesForAccount(UUID accountId,
-      String query, int pageNumber, int pageSize, Boolean onlyChargeable) {
+      String query, int pageNumber, int pageSize, Boolean onlyChargeable, Boolean onlyDetermined) {
     verifyAccountPresence(accountId);
     Page<AccountVehicle> accountVehiclesPage;
-    if (onlyChargeable) {
+
+    if (onlyChargeable && onlyDetermined) {
+      accountVehiclesPage = fetchChargeableDeterminedVehiclesPage(accountId, query, pageNumber,
+          pageSize);
+    } else if (onlyChargeable) {
       accountVehiclesPage = fetchChargeableVehiclesPage(accountId, query, pageNumber, pageSize);
+    } else if (onlyDetermined) {
+      accountVehiclesPage = fetchDeterminedVehiclesPage(accountId, query, pageNumber, pageSize);
     } else {
       accountVehiclesPage = fetchVehiclesPage(accountId, query, pageNumber, pageSize);
     }
@@ -73,48 +73,125 @@ public class AccountVehicleService {
   }
 
   /**
-   * Fetches a page of vrns using cursor-based pagination.
+   * Given an accountId along with page parameters and cleanAirZoneId, method returns a page of
+   * results with vehicles associated with the given account in the given CAZ.
    *
-   * @param accountIdStr the ID of the account to fetch vrns for
-   * @param pageSize the size of the page to return
-   * @param vrn an optional vrn to use as a cursor
-   * @param direction the direction in which to sort records
-   * @return a list of vrns
+   * @param accountId the identifier of the account
+   * @param query argument used to search by vrn
+   * @param cazId identifier of the Clean Air Zone
+   * @param pageNumber the page that should be retrieved
+   * @param pageSize the number of results in that page
+   * @return the corresponding list of vehicles
+   * @throws AccountNotFoundException when the account could not be reconciled.
    */
-  public List<AccountVehicle> findVehiclesForAccountWithCursor(String accountIdStr, long pageSize,
-      String vrn, TravelDirection direction, UUID chargeableCazId) {
-    log.debug("fetching {} vrns with direction: {}", pageSize, direction);
+  public VehiclesWithAnyUndeterminedChargeabilityFlagData findVehiclesForAccountInCaz(
+      UUID accountId, String query, UUID cazId, int pageNumber, int pageSize,
+      Boolean onlyChargeable, Boolean onlyDetermined) {
+    verifyAccountPresence(accountId);
+    Page<AccountVehicle> accountVehiclesPage;
 
-    UUID accountId = verifyAccountPresence(accountIdStr);
-    if (!StringUtils.hasText(vrn)) {
-      List<UUID> accountVehicleIds = accountVehicleRepository
-          .findPageByAccountIdAndCursorWithEmptyVrn(accountId, chargeableCazId, pageSize);
-      return isEmpty(accountVehicleIds)
-          ? emptyList()
-          : accountVehicleRepository.findAllWithChargeabilityWith(accountVehicleIds);
-    }
-    verifyVrnPresence(accountId, vrn);
-
-    if (direction == TravelDirection.NEXT) {
-      List<UUID> accountVehicleIds = accountVehicleRepository
-          .findPageByAccountIdAndCursorNextPage(accountId, vrn, chargeableCazId, pageSize);
-      return isEmpty(accountVehicleIds)
-          ? emptyList()
-          : accountVehicleRepository
-              .findAllWithChargeabilityByAccountVehicleIdsCursorNext(accountVehicleIds);
+    if (onlyChargeable && onlyDetermined) {
+      accountVehiclesPage = fetchChargeableDeterminedVehiclesPageByCaz(accountId, cazId, query,
+          pageNumber, pageSize);
+    } else if (onlyChargeable) {
+      accountVehiclesPage = fetchChargeableVehiclesPageByCaz(accountId, cazId, query, pageNumber,
+          pageSize);
+    } else if (onlyDetermined) {
+      accountVehiclesPage = fetchDeterminedVehiclesPageByCaz(accountId, cazId, query, pageNumber,
+          pageSize);
+    } else {
+      accountVehiclesPage = fetchVehiclesPageByCaz(accountId, cazId, query, pageNumber, pageSize);
     }
 
-    if (direction == TravelDirection.PREVIOUS) {
-      List<UUID> accountVehicleIds = accountVehicleRepository
-          .findPageByAccountIdAndCursorPrevPage(accountId, vrn, chargeableCazId, pageSize);
-      return isEmpty(accountVehicleIds)
-          ? emptyList()
-          : accountVehicleRepository
-              .findAllWithChargeabilityByAccountVehicleIdsCursorPrev(accountVehicleIds);
+    boolean anyUndeterminedVehicles = accountContainsAnyUndeterminedChargeInCaz(accountId, cazId);
+
+    return VehiclesWithAnyUndeterminedChargeabilityFlagData.builder()
+        .vehicles(accountVehiclesPage)
+        .anyUndeterminedVehicles(anyUndeterminedVehicles)
+        .build();
+  }
+
+  /**
+   * Gets chargeable and determined vehicles for the given account in the given CAZ with their
+   * chargeability data.
+   */
+  private Page<AccountVehicle> fetchChargeableDeterminedVehiclesPageByCaz(UUID accountId,
+      UUID cazId, String query, int pageNumber,
+      int pageSize) {
+    Page<AccountVehicle> accountVehicles;
+
+    if (Strings.isNullOrEmpty(query)) {
+      accountVehicles = accountVehicleRepository
+          .findAllDeterminedChargeableForAccountInCaz(accountId, cazId,
+              page(pageNumber, pageSize));
+    } else {
+      accountVehicles = accountVehicleRepository
+          .findAllDeterminedChargeableByVrnForAccountInCaz(accountId, cazId, query,
+              page(pageNumber, pageSize));
     }
 
-    log.error("Sort direction invalid");
-    throw new IllegalArgumentException("Sort direction invalid");
+    verifyPageNumberBounds(pageNumber, accountVehicles);
+    return enrichWithChargesData(accountVehicles);
+  }
+
+  /**
+   * Gets chargeable vehicles for the given account in the given CAZ with their chargeability data.
+   */
+  private Page<AccountVehicle> fetchChargeableVehiclesPageByCaz(UUID accountId, UUID cazId,
+      String query, int pageNumber, int pageSize) {
+    Page<AccountVehicle> accountVehicles;
+
+    if (Strings.isNullOrEmpty(query)) {
+      accountVehicles = accountVehicleRepository.findAllChargeableForAccountInCaz(accountId, cazId,
+          page(pageNumber, pageSize));
+    } else {
+      accountVehicles = accountVehicleRepository
+          .findAllChargeableByVrnForAccountInCaz(accountId, cazId, query,
+              page(pageNumber, pageSize));
+    }
+
+    verifyPageNumberBounds(pageNumber, accountVehicles);
+    return enrichWithChargesData(accountVehicles);
+  }
+
+  /**
+   * Gets determined vehicles (charge not null) for the given account in the given CAZ with their
+   * chargeability data.
+   */
+  private Page<AccountVehicle> fetchDeterminedVehiclesPageByCaz(UUID accountId, UUID cazId,
+      String query, int pageNumber, int pageSize) {
+    Page<AccountVehicle> accountVehicles;
+
+    if (Strings.isNullOrEmpty(query)) {
+      accountVehicles = accountVehicleRepository.findAllDeterminedForAccountInCaz(accountId, cazId,
+          page(pageNumber, pageSize));
+    } else {
+      accountVehicles = accountVehicleRepository
+          .findAllDeterminedByVrnForAccountInCaz(accountId, cazId, query,
+              page(pageNumber, pageSize));
+    }
+
+    verifyPageNumberBounds(pageNumber, accountVehicles);
+    return enrichWithChargesData(accountVehicles);
+  }
+
+  /**
+   * Gets vehicles for the given account in the given clean air zone with their chargeability data.
+   */
+  private Page<AccountVehicle> fetchVehiclesPageByCaz(UUID accountId, UUID cazId, String query,
+      int pageNumber, int pageSize) {
+    Page<AccountVehicle> accountVehicles;
+    if (Strings.isNullOrEmpty(query)) {
+      accountVehicles = accountVehicleRepository.findAllByAccountIdAndCaz(accountId, cazId,
+          page(pageNumber, pageSize));
+    } else {
+      accountVehicles = accountVehicleRepository
+          .findAllByAccountIdAndVrnContainingInCaz(accountId, cazId, query,
+              page(pageNumber, pageSize));
+    }
+
+    verifyPageNumberBounds(pageNumber, accountVehicles);
+    return enrichWithChargesData(accountVehicles);
   }
 
   /**
@@ -225,10 +302,57 @@ public class AccountVehicleService {
   }
 
   /**
+   * Gets determined vehicles (charge not null) for the given account with their chargeability
+   * data.
+   */
+  private Page<AccountVehicle> fetchDeterminedVehiclesPage(UUID accountId, String query,
+      int pageNumber, int pageSize) {
+    Page<AccountVehicle> accountVehicles;
+    if (Strings.isNullOrEmpty(query)) {
+      accountVehicles = accountVehicleRepository
+          .findAllDeterminedWithChargeabilityFor(accountId, page(pageNumber, pageSize));
+    } else {
+      accountVehicles = accountVehicleRepository
+          .findAllDeterminedByVrnContainingWithChargeabilityFor(accountId, query,
+              page(pageNumber, pageSize));
+    }
+    verifyPageNumberBounds(pageNumber, accountVehicles);
+    return enrichWithChargesData(accountVehicles);
+  }
+
+  /**
+   * Gets determined chargeable (charge not null && charge > 0) vehicles for the given account with
+   * their chargeability.
+   */
+  private Page<AccountVehicle> fetchChargeableDeterminedVehiclesPage(UUID accountId, String query,
+      int pageNumber, int pageSize) {
+    Page<AccountVehicle> accountVehicles;
+    if (Strings.isNullOrEmpty(query)) {
+      accountVehicles = accountVehicleRepository
+          .findAllDeterminedChargeableWithChargeabilityFor(accountId, page(pageNumber, pageSize));
+    } else {
+      accountVehicles = accountVehicleRepository
+          .findAllDeterminedChargeableByVrnContainingWithChargeabilityFor(accountId, query,
+              page(pageNumber, pageSize));
+    }
+    verifyPageNumberBounds(pageNumber, accountVehicles);
+    return enrichWithChargesData(accountVehicles);
+  }
+
+  /**
    * Returns true if ANY vehicle of the given account has undetermined charge (null).
    */
   private boolean accountContainsAnyUndeterminedCharges(UUID accountId) {
     return accountVehicleRepository.countVehiclesWithUndeterminedChargeabilityFor(accountId) > 0;
+  }
+
+  /**
+   * Returns true if ANY vehicles of the given account has undetermined charge (null) in the
+   * provided clean air zone.
+   */
+  private boolean accountContainsAnyUndeterminedChargeInCaz(UUID accountId, UUID cazId) {
+    return accountVehicleRepository
+        .countVehiclesWithUndeterminedChargeabilityForAccountInCaz(accountId, cazId) > 0;
   }
 
   /**
@@ -310,19 +434,5 @@ public class AccountVehicleService {
       throw new AccountNotFoundException("Account not found.");
     }
     return matchedAccount.get().getId();
-  }
-
-  /**
-   * Verifies present of the given {@code vrn} in {@code accountId} fleet. Throws {@link
-   * VrnNotFoundException} if vrn is not found.
-   */
-  private void verifyVrnPresence(UUID accountId, String vrn) {
-    // Assert presence of VRN under given account
-    Optional<AccountVehicle> matchedVehicle = accountVehicleRepository
-        .findByAccountIdAndVrn(accountId, vrn);
-    if (!matchedVehicle.isPresent()) {
-      log.debug("No matched VRN found");
-      throw new VrnNotFoundException("Vrn not found");
-    }
   }
 }

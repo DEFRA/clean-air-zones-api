@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
-import java.util.function.Supplier;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 public class AuditLogShaper {
@@ -17,6 +16,7 @@ public class AuditLogShaper {
   private static final DateTimeFormatter FMT_DATE = DateTimeFormatter
       .ofPattern(FORMATTER_PATTERN_DATE);
   private static final String INSERT_MARKER = "I";
+  private static final String UPDATE_MARKER = "U";
   private static final String DELETE_MARKER = "D";
   private static final String NO_DATA = null;
 
@@ -59,21 +59,33 @@ public class AuditLogShaper {
     return new LicenceInAuditLog(putInsertIntoAuditLog());
   }
 
+  public void wasUpdated() {
+    licenceInAuditLog.setOriginalData(putUpdateIntoAuditLog(licenceInAuditLog.getOriginalData()));
+  }
+
   public void wasDeleted() {
     putDeleteIntoAuditLog(licenceInAuditLog.getOriginalData());
   }
 
   private String putInsertIntoAuditLog() {
     String newData = formJsonWithNewData();
-    putIntoAuditLog(INSERT_MARKER, () -> newData);
+    putIntoAuditLog(INSERT_MARKER, NO_DATA, newData);
+    return newData;
+  }
+
+  private String putUpdateIntoAuditLog(String originalData) {
+    // For now for simplicity keep new_data the same as original_data, so generate 'U' operation
+    // but without any real change
+    String newData = originalData;
+    putIntoAuditLog(UPDATE_MARKER, originalData, newData);
     return newData;
   }
 
   private void putDeleteIntoAuditLog(String originalData) {
-    putIntoAuditLog(DELETE_MARKER, () -> originalData);
+    putIntoAuditLog(DELETE_MARKER, originalData, NO_DATA);
   }
 
-  private void putIntoAuditLog(String operationMarker, Supplier<String> dataSupplier) {
+  private void putIntoAuditLog(String operationMarker, String originalData, String newData) {
     String insertSql = "INSERT INTO audit.logged_actions "
         + "(schema_name, table_name, user_name, action_tstamp, action, original_data, new_data, query) "
         + "values ('public', 't_md_taxi_phv', 'ntr', ?, ?, to_jsonb(?::jsonb), to_jsonb(?::jsonb), 'query_not_important')";
@@ -82,8 +94,8 @@ public class AuditLogShaper {
         insertSql,
         actionTimestamp,
         operationMarker,
-        operationMarker.equals(DELETE_MARKER) ? dataSupplier.get() : NO_DATA,
-        operationMarker.equals(INSERT_MARKER) ? dataSupplier.get() : NO_DATA
+        originalData,
+        newData
     );
   }
 

@@ -1,0 +1,20 @@
+[
+  {
+    "vrm": "BD51SMR",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "TAXI",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "tpMJB",
+    "wheelchairAccessibleVehicle": "FALSE"
+  },
+  {
+    "vrm": "AB51PMR",
+    "start": "2014-08-25",
+    "end": "2029-01-20",
+    "taxiOrPHV": "PHV",
+    "licensingAuthorityName": "Leeds",
+    "licensePlateNumber": "tpMJK",
+    "wheelchairAccessibleVehicle": "FALSE"
+  }
+]

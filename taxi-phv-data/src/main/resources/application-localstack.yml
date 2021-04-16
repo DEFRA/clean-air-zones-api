@@ -5,15 +5,19 @@
 ---
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/caz-national-taxi-phv
+    url: jdbc:postgresql://localhost:5432/taxi_phv
 aws:
   s3:
     endpoint: http://localhost:4572
+    payload-retention-bucket: apibucket
   sqs:
     endpoint: http://localhost:4576
   sns:
     endpoint: http://localhost:4575
-    
+  ses:
+    senderEmail: dummy@email.gov
+    endpoint: http://localhost:4579
+
 redis:
   endpoint: localhost
   port: 6379

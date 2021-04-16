@@ -22,8 +22,7 @@ import uk.gov.caz.vcc.dto.VehicleResultsDto;
 /**
  * Interface with swagger documentation for VehicleEntrantsController.
  */
-@RequestMapping(value = VEHICLE_ENTRANT_PATH,
-    produces = MediaType.APPLICATION_JSON_VALUE,
+@RequestMapping(value = VEHICLE_ENTRANT_PATH, produces = MediaType.APPLICATION_JSON_VALUE,
     consumes = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = VEHICLE_ENTRANT_PATH)
 public interface VehicleEntrantsControllerApiSpec {
@@ -40,33 +39,23 @@ public interface VehicleEntrantsControllerApiSpec {
    */
   @ApiOperation(value = "${swagger.operations.vehicleResults.description}",
       response = VehicleResultsDto.class)
-  @ApiResponses({
-      @ApiResponse(code = 500, message = "Internal Server Error / No message available"),
+  @ApiResponses({@ApiResponse(code = 500, message = "Internal Server Error / No message available"),
       @ApiResponse(code = 400, message = "Correlation Id missing"),
       @ApiResponse(code = 200, message = "Vehicle Results"),})
   @ApiImplicitParams({
-      @ApiImplicitParam(name = X_CORRELATION_ID_HEADER,
-          required = true,
+      @ApiImplicitParam(name = X_CORRELATION_ID_HEADER, required = true,
           value = "CorrelationID to track the request from the API gateway through"
               + " the Enquiries stack",
           paramType = "header"),
-      @ApiImplicitParam(name = CAZ_ID,
-          required = true,
-          value = "API key used to access the service",
-          paramType = "header"),
-      @ApiImplicitParam(name = "Authorization",
-          required = true,
-          value = "OAuth 2.0 authorisation token.",
-          paramType = "header"),
-      @ApiImplicitParam(name = "timestamp",
-          required = true,
-          value =
-              "ISO 8601 formatted datetime string indicating the time that the request was made.",
-          paramType = "header"),
-  })
+      @ApiImplicitParam(name = CAZ_ID, required = true,
+          value = "API key used to access the service", paramType = "header"),
+      @ApiImplicitParam(name = "Authorization", required = true,
+          value = "OAuth 2.0 authorisation token.", paramType = "header"),
+      @ApiImplicitParam(name = "timestamp", required = true,
+          value = "ISO 8601 formatted datetime string indicating when the request was made.",
+          paramType = "header"),})
   @PostMapping
-  ResponseEntity vehicleEntrant(
-      @RequestBody VehicleEntrantsDto vehicleEntrants,
+  ResponseEntity vehicleEntrant(@RequestBody VehicleEntrantsDto vehicleEntrants,
       @RequestHeader(X_CORRELATION_ID_HEADER) String correlationId,
       @RequestHeader(CAZ_ID) String cazId);
 }

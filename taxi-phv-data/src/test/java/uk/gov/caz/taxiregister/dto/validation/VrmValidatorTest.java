@@ -242,6 +242,30 @@ class VrmValidatorTest {
       // then
       then(validationErrors).isEmpty();
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {
+        "0072CN", "030-NRF", "011-BEV", "0QXE67", "003-340", "039-HHV", "094-MSR", "018WMO",
+        "0EBR59", "072-CQR", "0003RR", "0888XT", "0100UX", "006-YZG", "06AA659", "068OIF",
+        "08-II36", "0EZ478", "0XM6622", "0FU350", "0EIA37", "069WQD", "068A6", "0RS76",
+        "058IVR", "036JJQ", "0-6841N", "08O•604", "041-YXR", "0-W4523", "025KA", "052DPJ",
+        "079TX", "003KCJ", "0284", "0BR2836", "084RWH", "07-DT54", "07F231", "019UGR", "028RXI",
+        "0628EZ", "0K085", "0-B7773", "02QJ42", "0BY944", "039WON", "0T976", "0-5996Z", "0651",
+        "09F•492", "0GYV72", "020-BWX", "020-568", "039DG6", "0PGQ42", "028HQH"
+    })
+    public void shouldRejectVrnStartingWithZero(String invalidVrm) {
+      // given
+      VehicleDto licence = createLicence(invalidVrm);
+
+      // when
+      List<ValidationError> validationErrors = validator.validate(licence);
+
+      // then
+      then(validationErrors).containsExactly(
+          ValidationError.valueError(invalidVrm, VrmValidator.INVALID_VRM_FORMAT_MESSAGE)
+      );
+    }
+
   }
 
   private VehicleDto createLicence(String vrm) {

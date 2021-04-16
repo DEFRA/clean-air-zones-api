@@ -1,5 +1,7 @@
-{
-  "cleanZoneId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "cazEntryTimestamp": [2018,10,1,15,52,23],
-  "vrn": "SW61BYD"
-}
+[
+  {
+    "cleanZoneId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "cazEntryTimestamp": "2018-10-01T15:52:23",
+    "vrn": "SW61BYD"
+  }
+]

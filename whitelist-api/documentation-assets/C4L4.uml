@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>uk.gov.caz.whitelist.repository.WhitelistVehiclePostgresRepository</OriginalElement>
+  <nodes>
+    <node x="421.0" y="1105.0">uk.gov.caz.whitelist.service.WhitelistVehiclesExporter</node>
+    <node x="429.0" y="1209.0">uk.gov.caz.whitelist.controller.ExportCsvToS3Controller</node>
+    <node x="734.0" y="466.0">uk.gov.caz.whitelist.service.RegisterServicesContext</node>
+    <node x="1199.7873563218388" y="1006.0">uk.gov.caz.whitelist.service.AsyncJavaBackgroundJobStarter</node>
+    <node x="1499.7873563218388" y="1006.0">uk.gov.caz.whitelist.amazonaws.AsyncLambdaBackgroundJobStarter</node>
+    <node x="0.0" y="208.0">uk.gov.caz.whitelist.repository.WhitelistVehiclePostgresRepository</node>
+    <node x="875.787356321839" y="1006.0">uk.gov.caz.whitelist.amazonaws.WhitelistRegisterCsvFromS3Lambda</node>
+    <node x="1815.7873563218388" y="1006.0">uk.gov.caz.whitelist.controller.RegisterCsvFromS3Controller</node>
+    <node x="24.0" y="590.0">uk.gov.caz.whitelist.controller.WhitelistController</node>
+    <node x="1969.0655172413794" y="208.0">uk.gov.caz.whitelist.service.CsvFileOnS3MetadataExtractor</node>
+    <node x="44.0" y="1209.0">uk.gov.caz.whitelist.service.WhitelistVehicleHistoryService</node>
+    <node x="310.0" y="332.0">uk.gov.caz.whitelist.service.RegisterService</node>
+    <node x="856.0" y="208.0">uk.gov.caz.whitelist.service.CsvObjectMapper</node>
+    <node x="340.0" y="208.0">uk.gov.caz.whitelist.repository.AuditingRepository</node>
+    <node x="1507.8333333333333" y="902.0">uk.gov.caz.whitelist.service.AsyncBackgroundJobStarter</node>
+    <node x="589.8778735632184" y="590.0">uk.gov.caz.whitelist.service.AbstractRegisterCommand</node>
+    <node x="862.0" y="332.0">uk.gov.caz.whitelist.repository.WhitelistedVehicleDtoCsvRepository</node>
+    <node x="1016.1206896551722" y="902.0">uk.gov.caz.whitelist.service.SourceAwareRegisterService</node>
+    <node x="876.0" y="0.0">com.opencsv.ICSVParser</node>
+    <node x="808.0" y="104.0">uk.gov.caz.whitelist.service.CsvWhitelistedVehicleParser</node>
+    <node x="1509.989367816092" y="208.0">uk.gov.caz.whitelist.service.RegisterJobNameGenerator</node>
+    <node x="1327.989367816092" y="332.0">uk.gov.caz.whitelist.service.RegisterJobSupervisor</node>
+    <node x="1273.989367816092" y="208.0">uk.gov.caz.whitelist.repository.RegisterJobRepository</node>
+    <node x="498.0" y="332.0">uk.gov.caz.whitelist.service.WhitelistedVehicleDtoToModelConverter</node>
+    <node x="0.0" y="1105.0">uk.gov.caz.whitelist.repository.WhitelistVehicleHistoryPostgresRepository</node>
+    <node x="1074.7873563218388" y="798.0">uk.gov.caz.whitelist.service.RegisterCommandFactory</node>
+    <node x="656.1278735632184" y="694.0">uk.gov.caz.whitelist.service.RegisterFromCsvCommand</node>
+    <node x="68.0" y="1313.0">uk.gov.caz.whitelist.controller.HistoricalInfoController</node>
+    <node x="36.0" y="466.0">uk.gov.caz.whitelist.service.WhitelistService</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="uk.gov.caz.whitelist.service.CsvWhitelistedVehicleParser" target="com.opencsv.ICSVParser">
+      <point x="0.0" y="-27.0" />
+      <point x="0.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.whitelist.amazonaws.AsyncLambdaBackgroundJobStarter" target="uk.gov.caz.whitelist.service.AsyncBackgroundJobStarter">
+      <point x="0.0" y="-27.0" />
+      <point x="1647.7873563218388" y="986.0" />
+      <point x="1600.8333333333333" y="986.0" />
+      <point x="-31.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.whitelist.service.AsyncJavaBackgroundJobStarter" target="uk.gov.caz.whitelist.service.AsyncBackgroundJobStarter">
+      <point x="70.0" y="-27.0" />
+      <point x="1409.7873563218388" y="986.0" />
+      <point x="1538.8333333333333" y="986.0" />
+      <point x="-93.0" y="27.0" />
+    </edge>
+    <edge source="uk.gov.caz.whitelist.service.RegisterFromCsvCommand" target="uk.gov.caz.whitelist.service.AbstractRegisterCommand">
+      <point x="-84.0" y="-27.0" />
+      <point x="684.1278735632184" y="674.0" />
+      <point x="647.8778735632184" y="674.0" />
+      <point x="-58.0" y="27.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="0.7404470079307859" x="1121.0" y="683.5" />
+  <SelectedNodes>
+    <node>uk.gov.caz.whitelist.repository.WhitelistVehiclePostgresRepository</node>
+  </SelectedNodes>
+  <Categories />
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+

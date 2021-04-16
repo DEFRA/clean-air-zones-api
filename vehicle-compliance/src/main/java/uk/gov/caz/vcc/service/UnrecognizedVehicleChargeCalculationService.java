@@ -1,5 +1,7 @@
 package uk.gov.caz.vcc.service;
 
+import static uk.gov.caz.vcc.service.VehicleEntrantsService.formatTariffCode;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import java.util.Optional;
@@ -8,12 +10,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
+import uk.gov.caz.definitions.dto.ComplianceOutcomeDto;
+import uk.gov.caz.definitions.dto.VehicleTypeCazChargesDto;
 import uk.gov.caz.vcc.domain.TariffDetails;
 import uk.gov.caz.vcc.domain.VehicleTypeCharge;
-import uk.gov.caz.vcc.dto.ChargeDto;
-import uk.gov.caz.vcc.dto.VehicleTypeCazChargesDto;
 
 /**
  * Service class that calculates charge for non-uk vehicle.
@@ -27,7 +28,7 @@ public class UnrecognizedVehicleChargeCalculationService {
 
   /**
    * Constructs response by fetching all tariffs from Tariff service and matching with given vehicle
-   * type
+   * type.
    *
    * @param vehicleType - vehicle type: bus, mini_van etc.
    * @param cazIds - IDs of Clear Air Zones
@@ -52,15 +53,18 @@ public class UnrecognizedVehicleChargeCalculationService {
    */
   private VehicleTypeCazChargesDto mapToResponse(String type,
       List<TariffDetails> tariffsForGivenVehicleType) {
-    List<ChargeDto> charges = tariffsForGivenVehicleType.stream()
-        .map(e -> {
-          VehicleTypeCharge vehicleTypeCharge = chargeForGivenVehicleType(type, e).orElseThrow(
+    List<ComplianceOutcomeDto> charges = tariffsForGivenVehicleType.stream()
+        .map(tariff -> {
+          VehicleTypeCharge vehicleTypeCharge = chargeForGivenVehicleType(type, tariff).orElseThrow(
               () -> new RuntimeException("Charge for given vehicle should exist at this step"));
-          return new ChargeDto(
-              e.getCazId(),
-              e.getName(),
-              vehicleTypeCharge.getCharge()
-          );
+          return ComplianceOutcomeDto.builder()
+              .cleanAirZoneId(tariff.getCazId())
+              .charge(vehicleTypeCharge.getCharge())
+              .name(tariff.getName())
+              .informationUrls(tariff.getInformationUrls())
+              .tariffCode(formatTariffCode(type, tariff.getChargeIdentifier()))
+              .build();
+
         })
         .collect(Collectors.toList());
 
@@ -70,7 +74,6 @@ public class UnrecognizedVehicleChargeCalculationService {
   /**
    * Filters tariffs by vehicle type.
    */
-  @NotNull
   private List<TariffDetails> getTariffsForGivenVehicleType(String type,
       List<TariffDetails> tariffDetails) {
     return tariffDetails
@@ -82,7 +85,6 @@ public class UnrecognizedVehicleChargeCalculationService {
   /**
    * Fetches all tariffs for given caz ids.
    */
-  @NotNull
   private List<TariffDetails> getTariffs(List<UUID> cazIds) {
     List<TariffDetails> tariffs = cazIds.stream()
         .map(cazTariffService::getTariffDetailsForGivenCazId)
@@ -119,7 +121,6 @@ public class UnrecognizedVehicleChargeCalculationService {
   /**
    * Case insensitive check between charge's vehicle type and vehicle type from request.
    */
-  @NotNull
   @VisibleForTesting
   Predicate<VehicleTypeCharge> vehicleTypesMatches(String vehicleType) {
     return charge -> charge.getVehicleType().name().toLowerCase()

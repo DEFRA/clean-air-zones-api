@@ -25,7 +25,6 @@ import uk.gov.caz.accounts.repository.exception.IdentityProviderUnavailableExcep
 import uk.gov.caz.accounts.service.exception.AccountUserNotFoundException;
 import uk.gov.caz.accounts.service.exception.NotUniqueEmailException;
 import uk.gov.caz.accounts.util.Strings;
-import uk.gov.caz.accounts.util.UserEntityToUserConverter;
 
 @Service
 @Slf4j
@@ -46,14 +45,14 @@ public class UserService {
    * @throws IdentityProviderUnavailableException when cognito call fails.
    */
   @Transactional
-  public User createStandardUser(User user) {
+  public UserEntity createStandardUser(UserEntity user) {
     Preconditions.checkArgument(!user.isOwner(), "User cannot be an owner");
     Preconditions.checkArgument(Objects.nonNull(user.getIdentityProviderUserId()),
         "User identity provider id must not be null");
     Preconditions.checkArgument(Objects.isNull(user.getId()), "User id must be null");
     requireUniqueEmail(user.getEmail());
 
-    User createdUser = createInternalUserInDatabase(user);
+    UserEntity createdUser = createInternalUserInDatabase(user);
     return createExternalStandardUser(createdUser);
   }
 
@@ -64,9 +63,36 @@ public class UserService {
    * @return User object which contains User details with created IDs
    * @throws IdentityProviderUnavailableException when cognito call fails.
    */
-  private User createExternalStandardUser(User user) {
+  private UserEntity createExternalStandardUser(UserEntity user) {
     // assertion: we assume the uniqueness of email has already been checked
     return identityProvider.createStandardUser(user);
+  }
+
+  /**
+   * Method that creates a standard user.
+   *
+   * @param email of a new user.
+   * @param name of a new user.
+   * @param invitingUserId of Admin user who send the invitation.
+   * @param accountId ID of associated Account.
+   * @return User object which contains User details with created IDs
+   * @throws IdentityProviderUnavailableException when cognito call fails.
+   */
+  @Transactional
+  public UserEntity createStandardUserForExistingEmail(String email, String name,
+      UUID invitingUserId, UUID accountId) {
+    UserEntity existingUser = identityProvider.getUserAsUserEntity(email);
+
+    UserEntity createdInternalUser = createInternalUserInDatabase(existingUser.toBuilder()
+        .isOwner(false)
+        .name(name)
+        .accountId(accountId)
+        .isAdministratedBy(invitingUserId)
+        .accountPermissions(Collections.emptyList())
+        .build()
+    );
+
+    return createdInternalUser;
   }
 
   /**
@@ -254,9 +280,9 @@ public class UserService {
    * @param accountId ID of associated Account.
    * @throws IdentityProviderUnavailableException when identity provider call fails.
    */
-  public List<User> getAllUsersForAccountId(UUID accountId) {
+  public List<UserEntity> getAllUsersForAccountId(UUID accountId) {
     log.info("Getting Standard users for '{}'", accountId);
-    List<User> users = accountUserRepository.findAllUsersByAccountId(accountId);
+    List<UserEntity> users = userRepository.findAllByAccountId(accountId);
     return users.stream()
         .map(this::getUserDetails)
         .collect(Collectors.toList());
@@ -269,12 +295,11 @@ public class UserService {
    * @throws IdentityProviderUnavailableException when identity provider call fails.
    */
   @Transactional
-  public Optional<User> getUserForAccountId(UUID accountId, UUID accountUserId) {
+  public Optional<UserEntity> getUserForAccountId(UUID accountId, UUID accountUserId) {
     log.info("Getting Standard user {}", accountUserId);
 
     return userRepository.findByIdAndAccountId(accountUserId, accountId)
-        .filter(user -> user.getIdentityProviderUserId() != null)
-        .map(UserEntityToUserConverter::convert)
+        .filter(user -> !user.isRemoved())
         .map(identityProvider::getUserDetailsByIdentityProviderId);
   }
 
@@ -334,16 +359,6 @@ public class UserService {
   }
 
   /**
-   * Method that creates user in database.
-   *
-   * @param user object containing user details.
-   * @return User object which contains User details with created IDs
-   */
-  private User createInternalUserInDatabase(User user) {
-    return accountUserRepository.insert(user);
-  }
-
-  /**
    * Method that creates user in internal database. In case of exception, removes user in cognito
    * service.
    *
@@ -393,10 +408,10 @@ public class UserService {
    * Method that fetches user details using Identity Provider unless the user is already removed.
    *
    * @param user user for which the details are supposed to be fetched
-   * @return {@link User} object.
+   * @return {@link UserEntity} object.
    * @throws IdentityProviderUnavailableException when identity provider call fails.
    */
-  private User getUserDetails(User user) {
+  private UserEntity getUserDetails(UserEntity user) {
     if (!user.isRemoved()) {
       return identityProvider.getUserDetailsByIdentityProviderId(user);
     }

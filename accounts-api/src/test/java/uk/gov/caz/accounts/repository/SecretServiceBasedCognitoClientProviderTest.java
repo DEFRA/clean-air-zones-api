@@ -1,6 +1,5 @@
 package uk.gov.caz.accounts.repository;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;

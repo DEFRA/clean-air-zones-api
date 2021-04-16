@@ -3,32 +3,23 @@ package uk.gov.caz.taxiregister.service;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
-
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
-
 import org.springframework.stereotype.Component;
-
 import uk.gov.caz.csv.CsvParseExceptionResolver;
 import uk.gov.caz.csv.exception.CsvInvalidCharacterParseException;
 import uk.gov.caz.csv.exception.CsvInvalidFieldsCountException;
 import uk.gov.caz.csv.exception.CsvMaxLineLengthExceededException;
 import uk.gov.caz.csv.exception.CsvParseException;
 import uk.gov.caz.csv.model.CsvValidationError;
-import uk.gov.caz.taxiregister.service.exception.CsvInvalidBooleanValueException;
 
 /**
  * A class which maps subclass of {@link CsvParseException} to
  * {@link CsvValidationError}.
  */
 @Component
-public class CsvVehicleDtoParseExceptionResolver
-    implements CsvParseExceptionResolver {
-
-  @VisibleForTesting
-  static final String INVALID_BOOLEAN_VALUE_MESSAGE = "Invalid wheelchair accessible value."
-      + " Can only be True or False";
+public class CsvVehicleDtoParseExceptionResolver implements CsvParseExceptionResolver {
 
   @VisibleForTesting
   static final String LINE_TOO_LONG_MESSAGE = "Line is too long";
@@ -113,30 +104,14 @@ public class CsvVehicleDtoParseExceptionResolver
   }
 
   /**
-   * Creates an instance of {@link CsvValidationError} with invalid format of a
-   * boolean value error.
-   *
-   * @param lineNo The line number of the input csv file which contained a parse
-   *     error that caused the exception.
-   * @return An instance of {@link CsvValidationError} with invalid format of a
-   *     boolean value error.
-   */
-  private CsvValidationError createInvalidBooleanFlagValueError(int lineNo) {
-    return CsvValidationError.with(INVALID_BOOLEAN_VALUE_MESSAGE, lineNo);
-  }
-
-  /**
    * Returns a map between subclasses of {@link CsvParseException} and
    * references {@link CsvValidationError} factory methods.
    */
   private Map<Class<? extends CsvParseException>, Function<Integer, CsvValidationError>> mapping() {
-    return ImmutableMap.of(CsvInvalidBooleanValueException.class,
-        this::createInvalidBooleanFlagValueError,
-        CsvInvalidFieldsCountException.class,
-        this::createInvalidFieldsCountError,
-        CsvMaxLineLengthExceededException.class,
-        this::createMaximumLineLengthExceededError,
-        CsvInvalidCharacterParseException.class,
-        this::createParseValidationError);
+    return ImmutableMap.of(
+        CsvInvalidFieldsCountException.class, this::createInvalidFieldsCountError,
+        CsvMaxLineLengthExceededException.class, this::createMaximumLineLengthExceededError,
+        CsvInvalidCharacterParseException.class, this::createParseValidationError
+    );
   }
 }

@@ -3,6 +3,8 @@ package uk.gov.caz.taxiregister;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static uk.gov.caz.taxiregister.controller.Constants.CORRELATION_ID_HEADER;
+import static uk.gov.caz.taxiregister.repository.TaxiPhvLicenceCsvRepository.UPLOADER_ID_METADATA_KEY;
+import static uk.gov.caz.testutils.TestObjects.TYPICAL_UPLOADER_EMAIL;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;
@@ -11,7 +13,6 @@ import io.restassured.http.ContentType;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -37,7 +38,7 @@ import uk.gov.caz.taxiregister.dto.RegisterCsvFromS3JobHandle;
 import uk.gov.caz.taxiregister.dto.RegisterJobStatusDto;
 import uk.gov.caz.taxiregister.dto.StartRegisterCsvFromS3JobCommand;
 import uk.gov.caz.taxiregister.dto.StatusOfRegisterCsvFromS3JobQueryResult;
-import uk.gov.caz.taxiregister.repository.TaxiPhvLicenceCsvRepository;
+import uk.gov.caz.taxiregister.service.S3FileMetadataExtractor;
 
 /**
  * This class provides storage-specific methods for inserting Vehicles. Please check {@link
@@ -67,12 +68,15 @@ public class RegisterByCsvTestIT extends RegisterLicencesAbstractTest {
           "la-1-invalid-licence-dates-ordering.csv",
           "la-1-start-date-too-early.csv",
           "la-1-end-date-too-late.csv",
+          "la-1-invalid-wheelchair-accessible.csv",
+          "la-1-duplicated-licenses.csv",
           "leeds-locked-licensing-authorities.csv"},
       SECOND_UPLOADER_ID.toString(), new String[]{
           "la-2-all.csv",
           "la-2-invalid-vrm.csv",
+          "la-2-zero-starting-vrm.csv",
           "all-licensing-authorities.csv",
-          "la-3-max-validation-errors-exceeded.csv"}
+          "la-3-many-validation-errors.csv"}
   );
 
   private static List<String> FILES_THAT_SHOULD_FAIL = Lists.newArrayList(
@@ -81,7 +85,9 @@ public class RegisterByCsvTestIT extends RegisterLicencesAbstractTest {
       "la-1-start-date-too-early.csv",
       "la-1-end-date-too-late.csv",
       "la-2-invalid-vrm.csv",
-      "la-3-max-validation-errors-exceeded.csv"
+      "la-3-many-validation-errors.csv",
+      "la-1-invalid-wheelchair-accessible.csv",
+      "la-1-duplicated-licenses.csv"
   );
 
   private static final Path FILE_BASE_PATH = Paths.get("src", "it", "resources", "data", "csv");
@@ -91,6 +97,9 @@ public class RegisterByCsvTestIT extends RegisterLicencesAbstractTest {
 
   @Autowired
   private S3Client s3Client;
+
+  @Autowired
+  private StubbedSesEmailSender sesEmailSender;
 
   @LocalServerPort
   int randomServerPort;
@@ -112,57 +121,89 @@ public class RegisterByCsvTestIT extends RegisterLicencesAbstractTest {
   }
 
   @Override
+  void whenThereAreDuplicatedLicensesInSingleCsv() {
+    verifyEmailQueueIsEmpty();
+    registerVehiclesFrom("la-1-duplicated-licenses.csv");
+    shouldSendAnEmail();
+  }
+
+  @Override
   void whenLicencesAreRegisteredFromFirstLicensingAuthorityAgainstEmptyDatabase() {
     registerVehiclesFrom("la-1-all.csv");
+    verifyEmailQueueIsEmpty();
   }
 
   @Override
   void whenLicencesAreRegisteredFromSecondLicensingAuthorityWithNoDataFromTheFirstOne() {
     registerVehiclesFrom("la-2-all.csv");
+    verifyEmailQueueIsEmpty();
   }
 
   @Override
   void whenThereIsAttemptToRegisterLicenceWithInvalidLicenceDateFormat() {
+    verifyEmailQueueIsEmpty();
     registerVehiclesFrom("la-1-invalid-licence-date-format.csv");
+    shouldSendAnEmail();
   }
 
   @Override
   void whenThereIsAttemptToRegisterLicenceWithInvalidLicenceDateOrder() {
+    verifyEmailQueueIsEmpty();
     registerVehiclesFrom("la-1-invalid-licence-dates-ordering.csv");
+    shouldSendAnEmail();
   }
 
   @Override
   void whenThereIsAttemptToRegisterLicenceWithInvalidVrm() {
+    verifyEmailQueueIsEmpty();
     registerVehiclesFrom("la-2-invalid-vrm.csv");
+    shouldSendAnEmail();
   }
 
   @Override
-  void whenThereIsAttemptToRegisterLicencesWithTooManyErrors() {
-    registerVehiclesFrom("la-3-max-validation-errors-exceeded.csv");
+  void whenThereIsAttemptToRegisterLicenceWithVrmStartingWithZero() {
+    verifyEmailQueueIsEmpty();
+    registerVehiclesFrom("la-2-zero-starting-vrm.csv");
+    shouldReturnError("Line 1: Invalid format of VRM");
+    shouldSendAnEmail();
+  }
+
+  @Override
+  void whenThereIsAttemptToRegisterLicencesWithManyErrors() {
+    verifyEmailQueueIsEmpty();
+    registerVehiclesFrom("la-3-many-validation-errors.csv");
+    shouldSendAnEmail();
   }
 
   @Override
   void whenThereAreFiveLicencesLessRegisteredByFirstAndSecondLicensingAuthority() {
     registerVehiclesFrom("la-1-la-2-all-but-five-less-for-each-la.csv");
+    verifyEmailQueueIsEmpty();
   }
 
   @Override
   void whenThreeLicencesAreUpdatedByFirstLicensingAuthority() {
     registerVehiclesFrom("la-1-all-and-three-modified.csv");
+    verifyEmailQueueIsEmpty();
   }
 
   @Override
   void whenThereIsAttemptToRegisterLicencesByUnauthorisedLicensingAuthority() {
+    verifyEmailQueueIsEmpty();
     registerVehiclesFrom("all-licensing-authorities.csv");
+    shouldSendAnEmail();
   }
 
   @Override
   void whenThereIsAttemptToRegisterLicensesWithddMMyyyyFormat() {
     registerVehiclesFrom("la-1-dd-MM-yyyy-format.csv");
+    verifyEmailQueueIsEmpty();
   }
 
   void whenThereIsAttemptToUpdateLicensingAuthorityLockedByAnotherJob() {
+    verifyEmailQueueIsEmpty();
     registerVehiclesFrom("leeds-locked-licensing-authorities.csv");
+    shouldSendAnEmail();
   }
 
   @Override
@@ -177,20 +218,38 @@ public class RegisterByCsvTestIT extends RegisterLicencesAbstractTest {
 
   @Override
   void whenThereIsAttemptToRegisterLicencesWithEmptyTaxiOrPhv() {
+    verifyEmailQueueIsEmpty();
     registerVehiclesFrom("la-1-la-2-la-3-invalid-taxi-or-phv.csv");
     shouldReturnError("Line 4: Missing taxi/PHV value");
+    shouldSendAnEmail();
   }
 
   @Override
   void whenThereIsAttemptToRegisterLicencesWithStartDateTooFarInPast() {
+    verifyEmailQueueIsEmpty();
     registerVehiclesFrom("la-1-start-date-too-early.csv");
     shouldReturnError("Line 1: Start date cannot be more than 20 years in the past");
+    shouldSendAnEmail();
   }
 
   @Override
   void whenThereIsAttemptToRegisterLicencesWithEndDateTooFarInFuture() {
+    verifyEmailQueueIsEmpty();
     registerVehiclesFrom("la-1-end-date-too-late.csv");
     shouldReturnError("Line 1: End date cannot be more than 20 years in the future");
+    shouldSendAnEmail();
+  }
+
+  @Override
+  void whenThereIsAttemptToRegisterLicencesWithInvalidWheelchairAccessibleValues() {
+    verifyEmailQueueIsEmpty();
+    registerVehiclesFrom("la-1-invalid-wheelchair-accessible.csv");
+    shouldReturnListOfErrors(
+        "Line 1: Invalid wheelchair accessible value. Can only be True or False",
+        "Line 2: Invalid end date format. Date format must be either ISO (YYYY-MM-DD) or DD/MM/YYYY",
+        "Line 2: Invalid wheelchair accessible value. Can only be True or False",
+        "Line 3: Invalid wheelchair accessible value. Can only be True or False");
+    shouldSendAnEmail();
   }
 
   @Override
@@ -204,7 +263,6 @@ public class RegisterByCsvTestIT extends RegisterLicencesAbstractTest {
       Throwable throwable = catchThrowable(() -> s3Client.getObject(getObjectRequest));
 
       assertThat(throwable).isInstanceOf(NoSuchKeyException.class);
-
     });
   }
 
@@ -266,10 +324,11 @@ public class RegisterByCsvTestIT extends RegisterLicencesAbstractTest {
         s3Client.putObject(builder -> builder.bucket(BUCKET_NAME)
                 .key(filename)
                 .metadata(
-                    Collections.singletonMap(
-                        TaxiPhvLicenceCsvRepository.UPLOADER_ID_METADATA_KEY,
-                        uploaderId
-                    )
+                    ImmutableMap.<String, String>builder()
+                        .put(UPLOADER_ID_METADATA_KEY, uploaderId)
+                        .put(S3FileMetadataExtractor.UPLOADER_EMAIL_METADATA_KEY,
+                            TYPICAL_UPLOADER_EMAIL)
+                        .build()
                 ),
             FILE_BASE_PATH.resolve(filename));
       }
@@ -290,7 +349,21 @@ public class RegisterByCsvTestIT extends RegisterLicencesAbstractTest {
         .collect(Collectors.toList());
   }
 
-  private void shouldReturnError(String message) {
-    assertThat(errors[0]).isEqualTo(message);
+  private void shouldReturnError(String expectedError) {
+    shouldReturnListOfErrors(expectedError);
+  }
+
+  private void shouldReturnListOfErrors(String... expectedErrorsAtConsecutiveLines) {
+    for (int i = 0; i < expectedErrorsAtConsecutiveLines.length; i++) {
+      assertThat(errors[i]).isEqualTo(expectedErrorsAtConsecutiveLines[i]);
+    }
+  }
+
+  private void shouldSendAnEmail() {
+    assertThat(sesEmailSender.getEmailQueue().poll()).isNotNull();
+  }
+
+  private void verifyEmailQueueIsEmpty() {
+    assertThat(sesEmailSender.getEmailQueue().isEmpty()).isTrue();
   }
 }

@@ -10,6 +10,7 @@ import uk.gov.caz.taxiregister.dto.VehicleDto;
 public class CsvFindResult {
 
   UUID uploaderId;
+  String uploaderEmail;
   List<VehicleDto> licences;
   List<CsvValidationError> validationErrors;
 }

@@ -7,7 +7,7 @@ aws:
     prefix: /config
     defaultContext: vccs
     profileSeparator: .
-    failFast: true
+    failFast: false
     enabled: true
 
 cloud:
