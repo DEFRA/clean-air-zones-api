@@ -5,6 +5,6 @@
   "main": "index.js",
   "author": "r.morytko",
   "dependencies": {
-    "aws-sdk": "^2.700.0"
+    "aws-sdk": "^2.814.0"
   }
 }
